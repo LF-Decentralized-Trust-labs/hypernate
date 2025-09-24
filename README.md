@@ -27,12 +27,12 @@ And more features are on the way, so spoiler ahead:
 
 ## User Guide
 
-For complete examples, please refer to the [hypernate-samples](https://github.com/ftsrg/hypernate-samples) repository.
+For complete examples, please refer to the [hypernate-samples](https://github.com/LF-Decentralized-Trust-labs/hypernate-samples) repository.
 The following sections introduce the individual features only in an isolated manner.
 
 The gist of using Hypernate features is the following:
 1. **Include Hypernate** library in your project as a dependency.
-   As of now, you either have to build the jar yourself, or use the pre-built one from the [hypernate-samples](https://github.com/ftsrg/hypernate-samples) repository.
+   As of now, you either have to build the jar yourself, or use the pre-built one from the [hypernate-samples](https://github.com/LF-Decentralized-Trust-labs/hypernate-samples) repository.
 2. **Use Hypernate annotations** on your entities (DTOs or POJOs), so the library can process them.
 3. **Use `HypernateContract`** as base class for your business `Contract` implementation to easily gain access to everything Hypernate provides, including its _registry_ and _middleware_ features.
 4. **Use the `Registry`** class to handle the annotated entities in a friendly way.
