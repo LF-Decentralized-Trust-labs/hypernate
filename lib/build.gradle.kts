@@ -1,5 +1,4 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -12,11 +11,21 @@ plugins {
   id("io.freefair.aspectj.post-compile-weaving") version "8.6"
 }
 
-java { toolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
-
 group = "hu.bme.mit.ftsrg"
 
 version = "0.1.0"
+
+java {
+  toolchain { languageVersion.set(JavaLanguageVersion.of(17)) }
+  withJavadocJar()
+  withSourcesJar()
+}
+
+tasks.javadoc {
+  if (JavaVersion.current().isJava9Compatible) {
+    (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+  }
+}
 
 repositories {
   mavenCentral()

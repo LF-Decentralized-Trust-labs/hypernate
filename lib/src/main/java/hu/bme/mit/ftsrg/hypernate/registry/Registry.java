@@ -9,7 +9,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,6 +22,19 @@ import org.hyperledger.fabric.shim.ledger.KeyValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class providing an methods to perform asset (CRUD) operations robustly.
+ *
+ * <p>This class is the main reason to be using Hypernate. Instead of interacting with a {@link
+ * ChaincodeStub} directly, you should be using this class's methods to create, retrieve, modify, or
+ * delete assets.
+ *
+ * <p>The operation of this class heavily relies on the annotations such as {@link PrimaryKey} you
+ * have placed on your asset classes.
+ *
+ * @see hu.bme.mit.ftsrg.hypernate.context.HypernateContext
+ * @see hu.bme.mit.ftsrg.hypernate.annotations
+ */
 @Loggable(Loggable.DEBUG)
 public class Registry {
 
@@ -27,6 +42,11 @@ public class Registry {
 
   private final ChaincodeStub stub;
 
+  /**
+   * Instantiate a new registry.
+   *
+   * @param stub the Fabric-provided {@link ChaincodeStub} object
+   */
   public Registry(final ChaincodeStub stub) {
     this.stub = stub;
   }
@@ -50,8 +70,8 @@ public class Registry {
    * Create a new entity unless it already exists.
    *
    * @param entity the entity to create
-   * @return {@code true} if a new entity was created, {@code false} otherwise
    * @param <T> the entity type
+   * @return {@code true} if a new entity was created, {@code false} otherwise
    */
   public <T> boolean tryCreate(final T entity) {
     try {
@@ -83,8 +103,8 @@ public class Registry {
    * Update an entity if it exists.
    *
    * @param entity the entity to update
-   * @return {@code true} if an entity was updated, {@code false} otherwise
    * @param <T> the entity type
+   * @return {@code true} if an entity was updated, {@code false} otherwise
    */
   public <T> boolean tryUpdate(final T entity) {
     try {
@@ -115,8 +135,8 @@ public class Registry {
    * Delete an entity if it exists.
    *
    * @param entity the entity to delete
-   * @return {@code true} if an entity was deleted, {@code false} otherwise
    * @param <T> the entity type
+   * @return {@code true} if an entity was deleted, {@code false} otherwise
    */
   public <T> boolean tryDelete(final T entity) {
     try {
@@ -134,8 +154,8 @@ public class Registry {
    *
    * @param clazz the class of the entity
    * @param keyParts the list of primary keys identifying the entity
-   * @return the entity read and deserialized from the ledger
    * @param <T> the entity type
+   * @return the entity read and deserialized from the ledger
    * @throws EntityNotFoundException if an entity with the given primary keys was not found
    */
   public <T> T mustRead(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
@@ -169,8 +189,8 @@ public class Registry {
    *
    * @param clazz the class of the entity
    * @param keys the list of primary keys identifying the entity
-   * @return the entity read and deserialized from the ledger if found, {@code null} otherwise
    * @param <T> the entity type
+   * @return the entity read and deserialized from the ledger if found, {@code null} otherwise
    */
   public <T> T tryRead(Class<T> clazz, Object... keys) {
     try {
@@ -185,8 +205,8 @@ public class Registry {
    * Read all entities of a given type.
    *
    * @param clazz the class of the entity
-   * @return a list of all entities read (might be empty)
    * @param <T> the entity type
+   * @return a list of all entities read (might be empty)
    */
   public <T> List<T> readAll(final Class<T> clazz) {
     final String key = stub.createCompositeKey(EntityUtil.getType(clazz)).toString();

@@ -53,8 +53,10 @@ public abstract class StubMiddleware implements ChaincodeStub, Subscriber<Hypern
   /**
    * Hypernate notification listener.
    *
-   * <p>You can override this method to react to any {@link HypernateNotification}s received. For
+   * <p>You can override this method to react to any {@link HypernateNotification}s received; for
    * example:
+   *
+   * <blockquote>
    *
    * <pre>{@code
    * @Override
@@ -66,6 +68,8 @@ public abstract class StubMiddleware implements ChaincodeStub, Subscriber<Hypern
    *   }
    * }
    * }</pre>
+   *
+   * </blockquote>
    *
    * @param notification notification object
    */
