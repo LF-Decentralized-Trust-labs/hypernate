@@ -1,5 +1,9 @@
 # Hypernate - an entity framework for Hyperledger Fabric
 
+[![PR Checks](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/pr-checks.yml)
+[![Integration Checks](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/integration-checks.yml/badge.svg)](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/integration-checks.yml)
+[![Publish](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/publish.yml/badge.svg)](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/publish.yml)
+
 If Fabric allows you to keep your familiar programming language, then Hypernate will allow you to _keep your familiar programming style._
 
 No more low-level boilerplate code for key-value storage operations and other housekeeping tasks!
@@ -22,6 +26,20 @@ And more features are on the way, so spoiler ahead:
 * OpenTelemetry integration
 * Support for data schemas
 * …
+
+## Quality Gates
+
+This repository enforces the following checks on pull requests to `main`:
+
+* formatting/lint via Spotless
+* unit tests (`:lib:test`)
+* integration tests (`:lib:integrationTest`)
+
+See workflows in `.github/workflows` for the exact CI jobs.
+
+## Publishing
+
+Publishing policy and release workflow details are available in `docs/PUBLISHING.md`.
 
 
 
