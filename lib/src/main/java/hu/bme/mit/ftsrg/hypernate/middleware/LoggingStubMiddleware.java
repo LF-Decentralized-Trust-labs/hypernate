@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.hypernate.middleware;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import java.util.Arrays;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.slf4j.Logger;
@@ -14,6 +19,9 @@ import org.slf4j.event.Level;
  * @see StubMiddleware
  */
 public class LoggingStubMiddleware extends StubMiddleware {
+
+  private static final Tracer tracer =
+      GlobalOpenTelemetry.getTracer("hu.bme.mit.ftsrg.hypernate.middleware");
 
   private final Logger logger;
 
@@ -40,10 +48,19 @@ public class LoggingStubMiddleware extends StubMiddleware {
    */
   @Override
   public byte[] getState(final String key) {
-    log("Getting state for key '{}'", key);
-    final byte[] value = this.nextStub.getState(key);
-    log("Got state for key '{}'; value = '{}'", key, Arrays.toString(value));
-    return value;
+    Span span = startSpan("getState", key);
+    try (Scope scope = span.makeCurrent()) {
+      log("Getting state for key '{}'", key);
+      final byte[] value = this.nextStub.getState(key);
+      log("Got state for key '{}'; value = '{}'", key, Arrays.toString(value));
+      return value;
+    } catch (RuntimeException ex) {
+      span.recordException(ex);
+      span.setStatus(StatusCode.ERROR);
+      throw ex;
+    } finally {
+      span.end();
+    }
   }
 
   /**
@@ -55,9 +72,19 @@ public class LoggingStubMiddleware extends StubMiddleware {
    */
   @Override
   public void putState(final String key, final byte[] value) {
-    log("Setting state for key '{}' to have value '{}'", key, Arrays.toString(value));
-    this.nextStub.putState(key, value);
-    log("Done setting state for key '{}'", key);
+    Span span = startSpan("putState", key);
+    span.setAttribute("hypernate.value_length", value == null ? 0 : value.length);
+    try (Scope scope = span.makeCurrent()) {
+      log("Setting state for key '{}' to have value '{}'", key, Arrays.toString(value));
+      this.nextStub.putState(key, value);
+      log("Done setting state for key '{}'", key);
+    } catch (RuntimeException ex) {
+      span.recordException(ex);
+      span.setStatus(StatusCode.ERROR);
+      throw ex;
+    } finally {
+      span.end();
+    }
   }
 
   /**
@@ -67,9 +94,26 @@ public class LoggingStubMiddleware extends StubMiddleware {
    */
   @Override
   public void delState(final String key) {
-    log("Deleting state for key '{}'", key);
-    this.nextStub.delState(key);
-    log("Done deleting state for key '{}'", key);
+    Span span = startSpan("delState", key);
+    try (Scope scope = span.makeCurrent()) {
+      log("Deleting state for key '{}'", key);
+      this.nextStub.delState(key);
+      log("Done deleting state for key '{}'", key);
+    } catch (RuntimeException ex) {
+      span.recordException(ex);
+      span.setStatus(StatusCode.ERROR);
+      throw ex;
+    } finally {
+      span.end();
+    }
+  }
+
+  private static Span startSpan(final String operation, final String key) {
+    return tracer
+        .spanBuilder("hypernate.stub." + operation)
+        .setAttribute("hypernate.operation", operation)
+        .setAttribute("hypernate.key", key == null ? "" : key)
+        .startSpan();
   }
 
   private void log(final String format, Object... args) {
