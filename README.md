@@ -1,5 +1,9 @@
 # Hypernate - an entity framework for Hyperledger Fabric
 
+## EPIC-57 — First release as LFDT Lab
+
+First release preparations: add repository best-practices, PR checks (formatting + unit tests), integration-test workflow, and Maven publishing configuration.
+
 [![PR Checks](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/pr-checks.yml)
 [![Integration Checks](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/integration-checks.yml/badge.svg)](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/integration-checks.yml)
 [![Publish](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/publish.yml/badge.svg)](https://github.com/LF-Decentralized-Trust-labs/hypernate/actions/workflows/publish.yml)
