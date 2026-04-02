@@ -37,12 +37,6 @@ This repository enforces the following checks on pull requests to `main`:
 
 See workflows in `.github/workflows` for the exact CI jobs.
 
-## Publishing
-
-Publishing policy and release workflow details are available in `docs/PUBLISHING.md`.
-
-
-
 ## User Guide
 
 For complete examples, please refer to the [hypernate-samples](https://github.com/LF-Decentralized-Trust-labs/hypernate-samples) repository.
