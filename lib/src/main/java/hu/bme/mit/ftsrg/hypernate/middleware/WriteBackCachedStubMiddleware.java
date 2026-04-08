@@ -24,7 +24,8 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
   private final Map<String, CachedItem> cache = new HashMap<>();
 
   /**
-   * Get the raw state at {@code key} but only call down to the peer if we have not seen the value
+   * Get the raw state at {@code key} but only call down to the peer if we have
+   * not seen the value
    * at {@code key} before.
    *
    * @param key the queried key
@@ -52,13 +53,16 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
   }
 
   /**
-   * Write raw state passed in {@code value} at {@code key} but instead of doing it directly, only
+   * Write raw state passed in {@code value} at {@code key} but instead of doing
+   * it directly, only
    * update the cache for now.
    *
-   * <p>The {@link ChaincodeStub#putState(String, byte[])} call will only actually occur during
+   * <p>
+   * The {@link ChaincodeStub#putState(String, byte[])} call will only actually
+   * occur during
    * {@link #dispose()}.
    *
-   * @param key the key to write
+   * @param key   the key to write
    * @param value the value to write at the key
    */
   @Override
@@ -68,8 +72,9 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
     // Blind write!
     if (cached == null) {
       logger.debug(
-          "Cache miss for key={} while writing; creating new cache entry with null value", key);
-      cached = new CachedItem(key, null); // Initial value set later
+          "Cache miss for key={} while writing; reading from next layer & caching", key);
+      final byte[] existingValue = this.nextStub.getState(key);
+      cached = new CachedItem(key, existingValue);
       cache.put(key, cached);
     }
 
@@ -84,9 +89,12 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
   }
 
   /**
-   * Delete the value at {@code key} but only mark it as deleted in our cache for now.
+   * Delete the value at {@code key} but only mark it as deleted in our cache for
+   * now.
    *
-   * <p>The {@link ChaincodeStub#delState(String)} call will only actually occur during {@link
+   * <p>
+   * The {@link ChaincodeStub#delState(String)} call will only actually occur
+   * during {@link
    * #dispose()}.
    *
    * @param key the key to delete
@@ -110,17 +118,22 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
   /**
    * Apply the cache changes.
    *
-   * <p>This method should normally be called in a handler for the {@link TransactionEnd}
+   * <p>
+   * This method should normally be called in a handler for the
+   * {@link TransactionEnd}
    * notification.
    */
   public void dispose() {
     for (final Map.Entry<String, CachedItem> entry : cache.entrySet()) {
       final CachedItem item = entry.getValue();
 
-      if (item == null || !item.isDirty() || item.getValue() == null) continue;
+      if (item == null || !item.isDirty() || item.getValue() == null)
+        continue;
 
-      if (item.isToDelete()) this.nextStub.delState(item.getKey());
-      else this.nextStub.putState(item.getKey(), item.getValue());
+      if (item.isToDelete())
+        this.nextStub.delState(item.getKey());
+      else
+        this.nextStub.putState(item.getKey(), item.getValue());
     }
   }
 
@@ -139,7 +152,8 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
     }
 
     public void setValue(final byte[] value) {
-      if (Arrays.equals(this.value, value)) return;
+      if (Arrays.equals(this.value, value))
+        return;
 
       this.value = value;
       this.dirty = true;
