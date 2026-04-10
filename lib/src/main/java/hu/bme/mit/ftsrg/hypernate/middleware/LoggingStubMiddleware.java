@@ -48,7 +48,7 @@ public class LoggingStubMiddleware extends StubMiddleware {
    */
   @Override
   public byte[] getState(final String key) {
-    Span span = startSpan("getState", key);
+    final Span span = startSpan("getState", key);
     try (Scope scope = span.makeCurrent()) {
       log("Getting state for key '{}'", key);
       final byte[] value = this.nextStub.getState(key);
@@ -72,7 +72,7 @@ public class LoggingStubMiddleware extends StubMiddleware {
    */
   @Override
   public void putState(final String key, final byte[] value) {
-    Span span = startSpan("putState", key);
+    final Span span = startSpan("putState", key);
     span.setAttribute("hypernate.value_length", value == null ? 0 : value.length);
     try (Scope scope = span.makeCurrent()) {
       log("Setting state for key '{}' to have value '{}'", key, Arrays.toString(value));
@@ -94,7 +94,7 @@ public class LoggingStubMiddleware extends StubMiddleware {
    */
   @Override
   public void delState(final String key) {
-    Span span = startSpan("delState", key);
+    final Span span = startSpan("delState", key);
     try (Scope scope = span.makeCurrent()) {
       log("Deleting state for key '{}'", key);
       this.nextStub.delState(key);

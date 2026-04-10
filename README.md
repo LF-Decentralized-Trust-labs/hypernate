@@ -24,10 +24,10 @@ And more features are on the way, so spoiler ahead:
 * …
 
 
-
 ## Local Setup
 
-Hypernate is built with the Gradle Wrapper and targets Java 17. For a local checkout, run the following commands from the repository root:
+Hypernate is built with the Gradle Wrapper and targets Java 17. For a local checkout, run the
+following commands from the repository root:
 
 ```bash
 git clone https://github.com/LF-Decentralized-Trust-labs/hypernate.git

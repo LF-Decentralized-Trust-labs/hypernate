@@ -40,10 +40,10 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
    */
   @Override
   public byte[] getState(final String key) {
-    Span span = startSpan("getState", key);
+    final Span span = startSpan("getState", key);
     try (Scope scope = span.makeCurrent()) {
       CachedItem cached = cache.get(key);
-      boolean cacheHit = cached != null;
+      final boolean cacheHit = cached != null;
 
       // New read, add to cache
       if (cached == null) {
@@ -52,7 +52,6 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
         cached = new CachedItem(key, value);
         cache.put(key, cached);
       }
-
       span.setAttribute("hypernate.cache.hit", cacheHit);
 
       // Already marked for deletion
@@ -84,11 +83,11 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
    */
   @Override
   public void putState(final String key, final byte[] value) {
-    Span span = startSpan("putState", key);
+    final Span span = startSpan("putState", key);
     span.setAttribute("hypernate.value_length", value == null ? 0 : value.length);
     try (Scope scope = span.makeCurrent()) {
       CachedItem cached = cache.get(key);
-      boolean cacheHit = cached != null;
+      final boolean cacheHit = cached != null;
 
       // Blind write!
       if (cached == null) {
@@ -97,7 +96,6 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
         cached = new CachedItem(key, null); // Initial value set later
         cache.put(key, cached);
       }
-
       span.setAttribute("hypernate.cache.hit", cacheHit);
 
       if (cached.isToDelete()) {
@@ -127,10 +125,10 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
    */
   @Override
   public void delState(final String key) {
-    Span span = startSpan("delState", key);
+    final Span span = startSpan("delState", key);
     try (Scope scope = span.makeCurrent()) {
       CachedItem cached = cache.get(key);
-      boolean cacheHit = cached != null;
+      final boolean cacheHit = cached != null;
 
       // Blind delete!
       if (cached == null) {
@@ -139,7 +137,6 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
         cached = new CachedItem(key, null);
         cache.put(key, cached);
       }
-
       span.setAttribute("hypernate.cache.hit", cacheHit);
 
       logger.debug("Deleting value from cache with key={}", key);
@@ -160,7 +157,7 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
    * notification.
    */
   public void dispose() {
-    Span span = tracer.spanBuilder("hypernate.cache.dispose").startSpan();
+    final Span span = tracer.spanBuilder("hypernate.cache.dispose").startSpan();
     int appliedPuts = 0;
     int appliedDeletes = 0;
     try (Scope scope = span.makeCurrent()) {
