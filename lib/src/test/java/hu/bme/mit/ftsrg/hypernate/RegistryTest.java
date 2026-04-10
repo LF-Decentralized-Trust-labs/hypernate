@@ -195,6 +195,107 @@ class RegistryTest {
     }
 
     @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class when_exists {
+
+      @Test
+      void with_entity_not_on_ledger_then_return_false() {
+        given(stub.createCompositeKey(anyString(), any(String[].class)))
+            .willReturn(ENTITY_COMPOSITE_KEY);
+        given(stub.getState(anyString())).willReturn(new byte[] {});
+
+        boolean result = registry.exists(TestEntity.class, entity.foo, entity.bar);
+
+        assertFalse(result);
+        verifyNoMoreInteractions(stub);
+      }
+
+      @Test
+      void with_insufficient_key_parts_then_throw_illegal_argument() {
+        assertThrows(
+            IllegalArgumentException.class, () -> registry.exists(TestEntity.class, entity.foo));
+        verifyNoMoreInteractions(stub);
+      }
+
+      @Test
+      void with_entity_without_primary_key_then_throw_missing_primary_keys() {
+        record KeylessTestEntity(String foo, Integer bar) {}
+
+        assertThrows(
+            MissingPrimaryKeysException.class,
+            () -> registry.exists(KeylessTestEntity.class, "fooValue"));
+        verifyNoMoreInteractions(stub);
+      }
+    }
+
+    @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class when_mustExist {
+
+      @Test
+      void with_entity_not_on_ledger_then_throw_not_found() {
+        given(stub.createCompositeKey(anyString(), any(String[].class)))
+            .willReturn(ENTITY_COMPOSITE_KEY);
+        given(stub.getState(anyString())).willReturn(new byte[] {});
+
+        assertThrows(
+            EntityNotFoundException.class,
+            () -> registry.mustExist(TestEntity.class, entity.foo, entity.bar));
+        verifyNoMoreInteractions(stub);
+      }
+
+      @Test
+      void with_insufficient_key_parts_then_throw_illegal_argument() {
+        assertThrows(
+            IllegalArgumentException.class, () -> registry.mustExist(TestEntity.class, entity.foo));
+        verifyNoMoreInteractions(stub);
+      }
+
+      @Test
+      void with_entity_without_primary_key_then_throw_missing_primary_keys() {
+        record KeylessTestEntity(String foo, Integer bar) {}
+
+        assertThrows(
+            MissingPrimaryKeysException.class,
+            () -> registry.mustExist(KeylessTestEntity.class, "fooValue"));
+        verifyNoMoreInteractions(stub);
+      }
+    }
+
+    @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class when_mustNotExist {
+
+      @Test
+      void with_entity_not_on_ledger_then_return_without_throwing() {
+        given(stub.createCompositeKey(anyString(), any(String[].class)))
+            .willReturn(ENTITY_COMPOSITE_KEY);
+        given(stub.getState(anyString())).willReturn(new byte[] {});
+
+        assertDoesNotThrow(() -> registry.mustNotExist(TestEntity.class, entity.foo, entity.bar));
+        verifyNoMoreInteractions(stub);
+      }
+
+      @Test
+      void with_insufficient_key_parts_then_throw_illegal_argument() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> registry.mustNotExist(TestEntity.class, entity.foo));
+        verifyNoMoreInteractions(stub);
+      }
+
+      @Test
+      void with_entity_without_primary_key_then_throw_missing_primary_keys() {
+        record KeylessTestEntity(String foo, Integer bar) {}
+
+        assertThrows(
+            MissingPrimaryKeysException.class,
+            () -> registry.mustNotExist(KeylessTestEntity.class, "fooValue"));
+        verifyNoMoreInteractions(stub);
+      }
+    }
+
+    @Nested
     class when_must_read {
 
       @Test
@@ -370,6 +471,55 @@ class RegistryTest {
       then(stub).should().getStateByPartialCompositeKey(anyString());
       assertEquals(1, results.size());
       verifyNoMoreInteractions(stub);
+    }
+
+    @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class when_exists {
+
+      @Test
+      void with_entity_on_ledger_then_return_true() {
+        given(stub.createCompositeKey(anyString(), any(String[].class)))
+            .willReturn(ENTITY_COMPOSITE_KEY);
+        given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
+
+        boolean result = registry.exists(TestEntity.class, entity.foo, entity.bar);
+
+        assertTrue(result);
+        verifyNoMoreInteractions(stub);
+      }
+    }
+
+    @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class when_mustExist {
+
+      @Test
+      void with_entity_on_ledger_then_return_without_throwing() {
+        given(stub.createCompositeKey(anyString(), any(String[].class)))
+            .willReturn(ENTITY_COMPOSITE_KEY);
+        given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
+
+        assertDoesNotThrow(() -> registry.mustExist(TestEntity.class, entity.foo, entity.bar));
+        verifyNoMoreInteractions(stub);
+      }
+    }
+
+    @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class when_mustNotExist {
+
+      @Test
+      void with_entity_on_ledger_then_throw_exists() {
+        given(stub.createCompositeKey(anyString(), any(String[].class)))
+            .willReturn(ENTITY_COMPOSITE_KEY);
+        given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
+
+        assertThrows(
+            EntityExistsException.class,
+            () -> registry.mustNotExist(TestEntity.class, entity.foo, entity.bar));
+        verifyNoMoreInteractions(stub);
+      }
     }
 
     @Nested

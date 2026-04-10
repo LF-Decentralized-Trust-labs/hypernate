@@ -139,22 +139,7 @@ public class Registry {
    * @throws EntityNotFoundException if an entity with the given primary keys was not found
    */
   public <T> T mustRead(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
-    int primaryKeyCount = EntityUtil.getPrimaryKeyCount(clazz);
-    if (primaryKeyCount == 0) {
-      throw new MissingPrimaryKeysException(
-          String.format("%s does not have a primary key annotation", clazz));
-    }
-
-    if (keyParts.length != primaryKeyCount) {
-      throw new IllegalArgumentException(
-          "The number of key parts provided does not match number of primary keys for "
-              + clazz.getName());
-    }
-
-    final String key =
-        stub.createCompositeKey(
-                EntityUtil.getType(clazz), EntityUtil.mapKeyPartsToString(clazz, keyParts))
-            .toString();
+    final String key = resolveKey(clazz, keyParts);
     final byte[] data = stub.getState(key);
 
     if (data == null || data.length == 0) {
@@ -206,6 +191,57 @@ public class Registry {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Check if an entity exists.
+   *
+   * @param clazz the class of the entity
+   * @param keyParts the list of primary keys identifying the entity
+   * @return {@code true} if the entity exists in the ledger, {@code false} otherwise
+   * @param <T> the entity type
+   * @throws MissingPrimaryKeysException if the class has no primary keys
+   * @throws IllegalArgumentException if the key parts count is invalid for the entity type
+   */
+  @Loggable(Loggable.DEBUG)
+  public <T> boolean exists(Class<T> clazz, Object... keyParts) {
+    return keyExists(resolveKey(clazz, keyParts));
+  }
+
+  /**
+   * Ensure that an entity exists.
+   *
+   * @param clazz the class of the entity
+   * @param keyParts the list of primary keys identifying the entity
+   * @param <T> the entity type
+   * @throws EntityNotFoundException if the entity does not exist in the ledger
+   * @throws MissingPrimaryKeysException if the class has no primary keys
+   * @throws IllegalArgumentException if the key parts count is invalid for the entity type
+   */
+  @Loggable(Loggable.DEBUG)
+  public <T> void mustExist(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
+    final String key = resolveKey(clazz, keyParts);
+    if (!keyExists(key)) {
+      throw new EntityNotFoundException(key);
+    }
+  }
+
+  /**
+   * Ensure that an entity does not exist.
+   *
+   * @param clazz the class of the entity
+   * @param keyParts the list of primary keys identifying the entity
+   * @param <T> the entity type
+   * @throws EntityExistsException if the entity already exists in the ledger
+   * @throws MissingPrimaryKeysException if the class has no primary keys
+   * @throws IllegalArgumentException if the key parts count is invalid for the entity type
+   */
+  @Loggable(Loggable.DEBUG)
+  public <T> void mustNotExist(Class<T> clazz, Object... keyParts) throws EntityExistsException {
+    final String key = resolveKey(clazz, keyParts);
+    if (keyExists(key)) {
+      throw new EntityExistsException(key);
+    }
+  }
+
   @Loggable(Loggable.DEBUG)
   private boolean keyExists(final String key) {
     final byte[] valueOnLedger = stub.getState(key);
@@ -233,6 +269,24 @@ public class Registry {
 
   private <T> String getCompositeKey(final T ent) {
     return stub.createCompositeKey(EntityUtil.getType(ent), EntityUtil.getPrimaryKeys(ent))
+        .toString();
+  }
+
+  private <T> String resolveKey(Class<T> clazz, Object... keyParts) {
+    int primaryKeyCount = EntityUtil.getPrimaryKeyCount(clazz);
+    if (primaryKeyCount == 0) {
+      throw new MissingPrimaryKeysException(
+          String.format("%s does not have a primary key annotation", clazz));
+    }
+
+    if (keyParts.length != primaryKeyCount) {
+      throw new IllegalArgumentException(
+          "The number of key parts provided does not match number of primary keys for "
+              + clazz.getName());
+    }
+
+    return stub.createCompositeKey(
+            EntityUtil.getType(clazz), EntityUtil.mapKeyPartsToString(clazz, keyParts))
         .toString();
   }
 
