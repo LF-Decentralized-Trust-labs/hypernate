@@ -1,0 +1,52 @@
+site_name: Hypernate
+site_url: https://lf-decentralized-trust-labs.github.io/hypernate
+repo_url: https://github.com/LF-Decentralized-Trust-labs/hypernate
+repo_name: LF-Decentralized-Trust-labs/hypernate
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.share
+    - toc.follow
+
+plugins:
+  - search
+  - mike:
+      alias_type: symlink
+      canonical_version: latest
+
+extra:
+  version:
+    provider: mike
+    default: latest
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Overview: getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+  - Concepts:
+      - Overview: concepts/index.md
+      - Registry: concepts/registry.md
+      - Middleware: concepts/middleware.md
+      - Annotations: concepts/annotations.md
+  - Guides:
+      - CI/CD: guides/cicd.md
+  - API Reference:
+      - Registry: api/registry.md
+      - Annotations: api/annotations.md
+  - Contributing:
+      - Overview: contributing/index.md
+      - Maintainers: contributing/maintainers.md
+  - References:
+      - Citing: references/citing.md
