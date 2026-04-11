@@ -10,7 +10,7 @@ This project uses GitHub Actions for continuous integration and delivery.
 
 ## Build & Test
 
-Runs `spotlessCheck`, `assemble`, and `test` on every push and pull request that touches code-relevant files. Documentation-only changes are skipped via path filters.
+Runs `check` and `assemble` on every push and pull request that touches code-relevant files. The `check` lifecycle executes Checkstyle (`checkstyleMain`, `checkstyleTest`), ktlint (`ktlintCheck`), and tests. Documentation-only changes are skipped via path filters.
 
 If a new commit is pushed while a run is already in progress for the same branch, the older run is automatically cancelled.
 
@@ -24,13 +24,23 @@ If a new commit is pushed while a run is already in progress for the same branch
 
 #### Formatting check failed
 
-The `spotlessCheck` step enforces Google Java Format. To fix locally:
+Run the same checks locally as CI:
 
 ```bash
-./gradlew spotlessApply
+./gradlew check
 ```
 
-This reformats all source files in place. Commit the changes and push again.
+For a fast pre-commit quality gate (without tests):
+
+```bash
+./gradlew checkstyleMain checkstyleTest ktlintCheck
+```
+
+If you use local git hooks, enable the project hook path once:
+
+```bash
+git config core.hooksPath scripts/hooks
+```
 
 #### Test failure
 

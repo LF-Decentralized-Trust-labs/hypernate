@@ -6,7 +6,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
   `java-library`
   id("com.github.johnrengelman.shadow") version "8.1.1"
-  id("com.diffplug.spotless") version "6.20.0"
+  checkstyle
+  id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
   id("com.adarshr.test-logger") version "3.2.0"
   id("io.freefair.lombok") version "8.6"
   id("io.freefair.aspectj.post-compile-weaving") version "8.6"
@@ -53,19 +54,13 @@ tasks.test {
   }
 }
 
-spotless {
-  java {
-    importOrder()
-    removeUnusedImports()
-    googleJavaFormat()
-    formatAnnotations()
-    toggleOffOn()
-    licenseHeader("/* SPDX-License-Identifier: Apache-2.0 */", "package ")
-  }
-  kotlin {
-    target("src/*/kotlin/**/*.kt", "buildSrc/src/*/kotlin/**/*.kt")
-    ktfmt()
-    licenseHeader("/* SPDX-License-Identifier: Apache-2.0 */", "package ")
-  }
-  kotlinGradle { ktfmt() }
+checkstyle {
+  toolVersion = "10.21.4"
+  configFile = rootProject.file("config/checkstyle/google_checks.xml")
+  configProperties["org.checkstyle.google.severity"] = "error"
+}
+
+ktlint {
+  version.set("1.3.1")
+  verbose.set(true)
 }

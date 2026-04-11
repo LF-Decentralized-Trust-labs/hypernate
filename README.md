@@ -212,6 +212,31 @@ The preferred way of contribution is:
 4. Push the branch to your fork;
 5. Create a pull request.
 
+### Local quality setup
+
+Install editor integrations to get immediate feedback while coding:
+
+1. VSCode: install a Checkstyle extension and point it to `config/checkstyle/google_checks.xml`.
+2. VSCode: install a ktlint-enabled Kotlin extension for `*.kt` and `*.kts` files.
+
+Run the same checks as CI:
+
+```bash
+./gradlew check
+```
+
+Fast local gate (without tests):
+
+```bash
+./gradlew checkstyleMain checkstyleTest ktlintCheck
+```
+
+Optional git hook setup:
+
+```bash
+git config core.hooksPath scripts/hooks
+```
+
 
 
 ## Referencing this work
