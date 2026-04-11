@@ -31,6 +31,7 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,6 +39,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayNameGeneration(ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
 class RegistryTest {
+
+  private static final String MAX_READ_ALL_ITEMS_PROPERTY = "hypernate.readAll.maxItems";
 
   private static final TestEntity entity = new TestEntity("fooValue", 110);
 
@@ -61,6 +64,11 @@ class RegistryTest {
   @BeforeEach
   void setup() {
     registry = new Registry(stub);
+  }
+
+  @AfterEach
+  void clearReadAllLimitProperty() {
+    System.clearProperty(MAX_READ_ALL_ITEMS_PROPERTY);
   }
 
   @Test
@@ -343,6 +351,119 @@ class RegistryTest {
 
       then(stub).should().getStateByPartialCompositeKey(anyString());
       assertEquals(1, results.size());
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_result_size_over_configured_limit_then_throw_illegal_state() {
+      System.setProperty(MAX_READ_ALL_ITEMS_PROPERTY, "1");
+      given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getStateByPartialCompositeKey(anyString()))
+          .willReturn(
+              new QueryResultsIterator<>() {
+                private int count = 0;
+
+                @Override
+                public void close() {}
+
+                @Override
+                public @Nonnull Iterator<KeyValue> iterator() {
+                  return new Iterator<>() {
+                    @Override
+                    public boolean hasNext() {
+                      return count < 2;
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                      if (!hasNext()) {
+                        throw new UnsupportedOperationException();
+                      }
+                      count++;
+                      return new KeyValue() {
+                        @Override
+                        public String getKey() {
+                          return ENTITY_COMPOSITE_KEY_STR + "::" + count;
+                        }
+
+                        @Override
+                        public byte[] getValue() {
+                          return ENTITY_BUFFER;
+                        }
+
+                        @Override
+                        public String getStringValue() {
+                          return Arrays.toString(getValue());
+                        }
+                      };
+                    }
+                  };
+                }
+              });
+
+      assertThrows(IllegalStateException.class, () -> registry.readAll(TestEntity.class));
+      then(stub).should().getStateByPartialCompositeKey(anyString());
+      verifyNoMoreInteractions(stub);
+    }
+  }
+
+  @Nested
+  class when_streamAll {
+
+    @Test
+    void given_existing_entity_then_return_stream_with_results() {
+      given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getStateByPartialCompositeKey(anyString()))
+          .willReturn(
+              new QueryResultsIterator<>() {
+                private boolean done = false;
+
+                @Override
+                public void close() {}
+
+                @Override
+                public @Nonnull Iterator<KeyValue> iterator() {
+                  return new Iterator<>() {
+                    @Override
+                    public boolean hasNext() {
+                      return !done;
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                      if (done) {
+                        throw new UnsupportedOperationException();
+                      }
+                      done = true;
+                      return new KeyValue() {
+                        @Override
+                        public String getKey() {
+                          return ENTITY_COMPOSITE_KEY_STR;
+                        }
+
+                        @Override
+                        public byte[] getValue() {
+                          return ENTITY_BUFFER;
+                        }
+
+                        @Override
+                        public String getStringValue() {
+                          return Arrays.toString(getValue());
+                        }
+                      };
+                    }
+                  };
+                }
+              });
+
+      List<TestEntity> results;
+      try (java.util.stream.Stream<TestEntity> stream = registry.streamAll(TestEntity.class)) {
+        results = stream.toList();
+      }
+
+      assertEquals(1, results.size());
+      assertEquals(entity, results.get(0));
+      then(stub).should().getStateByPartialCompositeKey(anyString());
       verifyNoMoreInteractions(stub);
     }
   }
