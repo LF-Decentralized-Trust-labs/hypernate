@@ -204,6 +204,17 @@ So it is possible that the original stub won’t even get the call, it is served
 
 ## Developer Guide
 
+### IDE Setup (Checkstyle & ktlint)
+To get real-time code quality feedback (inline diagnostics), developers should configure their IDEs with Checkstyle and ktlint. Both use the central configuration located at `config/checkstyle/google_checks.xml`.
+
+**VSCode:**
+- **Java:** Install the `Checkstyle for Java` extension and point it to the `config/checkstyle/google_checks.xml` file.
+- **Kotlin:** Install `ktlint` globally or use a Kotlin extension that delegates formatting to ktlint natively.
+
+**IntelliJ IDEA:**
+- **Java:** Install the `Checkstyle-IDEA` plugin. In the plugin settings, add a new custom configuration file pointing to `config/checkstyle/google_checks.xml` and mark it as active.
+- **Kotlin:** Install the `ktlint` plugin or use the built-in IntelliJ Kotlin formatter with ktlint stylistic defaults enabled.
+
 The preferred way of contribution is:
 
 1. Fork the repository;

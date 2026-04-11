@@ -6,10 +6,16 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
   `java-library`
   id("com.github.johnrengelman.shadow") version "8.1.1"
-  id("com.diffplug.spotless") version "6.20.0"
   id("com.adarshr.test-logger") version "3.2.0"
   id("io.freefair.lombok") version "8.6"
   id("io.freefair.aspectj.post-compile-weaving") version "8.6"
+  id("checkstyle")
+  id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+}
+
+checkstyle {
+  toolVersion = "10.21.4"
+  configFile = file("../config/checkstyle/google_checks.xml")
 }
 
 java { toolchain { languageVersion.set(JavaLanguageVersion.of(17)) } }
@@ -52,20 +58,4 @@ tasks.test {
     events = setOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
   }
 }
-
-spotless {
-  java {
-    importOrder()
-    removeUnusedImports()
-    googleJavaFormat()
-    formatAnnotations()
-    toggleOffOn()
-    licenseHeader("/* SPDX-License-Identifier: Apache-2.0 */", "package ")
-  }
-  kotlin {
-    target("src/*/kotlin/**/*.kt", "buildSrc/src/*/kotlin/**/*.kt")
-    ktfmt()
-    licenseHeader("/* SPDX-License-Identifier: Apache-2.0 */", "package ")
-  }
-  kotlinGradle { ktfmt() }
 }
