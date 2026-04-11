@@ -38,7 +38,7 @@ class WriteBackCachedStubMiddlewareTest {
   @BeforeEach
   void setUp() {
     middleware = new WriteBackCachedStubMiddleware();
-    middleware.nextStub = nextStub; 
+    middleware.nextStub = nextStub;
   }
 
   @Test
@@ -65,7 +65,7 @@ class WriteBackCachedStubMiddlewareTest {
     inOrder.verify(nextStub).putState("B", "B_NEW".getBytes());
     inOrder.verifyNoMoreInteractions();
   }
-  
+
   @Test
   void test_absent_plus_put_blind_write_safety_disabled() {
     middleware.setPreemptiveReadPolicy(PreemptiveReadPolicy.DISABLED);
@@ -111,14 +111,15 @@ class WriteBackCachedStubMiddlewareTest {
     middleware.putState("E", "E_NEW".getBytes());
     middleware.delState("E");
 
-    assertThrows(IllegalStateException.class, () -> middleware.putState("E", "E_RESTORE".getBytes()));
+    assertThrows(
+        IllegalStateException.class, () -> middleware.putState("E", "E_RESTORE".getBytes()));
   }
 
   @Test
   void test_restoration_policy_allow_restores_put_after_delete() {
     middleware.setPreemptiveReadPolicy(PreemptiveReadPolicy.DISABLED);
     middleware.setRestorationPolicy(RestorationPolicy.ALLOW);
-    
+
     middleware.putState("E", "E_NEW".getBytes());
     middleware.delState("E");
     middleware.putState("E", "E_RESTORE".getBytes());
@@ -135,7 +136,7 @@ class WriteBackCachedStubMiddlewareTest {
 
     middleware.getPrivateData("coll", "key");
     middleware.putPrivateData("coll", "key", "P_NEW".getBytes());
-    
+
     middleware.setPreemptiveReadPolicy(PreemptiveReadPolicy.DISABLED);
     middleware.putPrivateData("coll", "key2", "P_NEW2".getBytes());
     middleware.delPrivateData("coll", "key");
@@ -169,9 +170,10 @@ class WriteBackCachedStubMiddlewareTest {
     List<KeyValue> result = new ArrayList<>();
     qri.forEachRemaining(result::add);
 
-    assertEquals(3, result.size()); 
+    assertEquals(3, result.size());
     // Validating '1' is stored appropriately
-    given(nextStub.getState("1")).willThrow(new IllegalStateException("Ledger queried again instead of cache!"));
+    given(nextStub.getState("1"))
+        .willThrow(new IllegalStateException("Ledger queried again instead of cache!"));
     assertArrayEquals("old1".getBytes(), middleware.getState("1"));
 
     assertEquals("1", result.get(0).getKey());
@@ -183,21 +185,23 @@ class WriteBackCachedStubMiddlewareTest {
 
   @Test
   void test_query_merging_pagination_no_injection() throws Exception {
-    QueryResultsIteratorWithMetadata<KeyValue> mockIter = mock(QueryResultsIteratorWithMetadata.class);
+    QueryResultsIteratorWithMetadata<KeyValue> mockIter =
+        mock(QueryResultsIteratorWithMetadata.class);
     List<KeyValue> ledgerElements = new ArrayList<>();
     ledgerElements.add(new TestKeyValue("1", "old1"));
-    
+
     given(nextStub.getStateByRangeWithPagination("1", "4", 10, "bm")).willReturn(mockIter);
     given(mockIter.iterator()).willReturn(ledgerElements.iterator());
 
     middleware.setPreemptiveReadPolicy(PreemptiveReadPolicy.DISABLED);
-    middleware.putState("1.5", "injected_but_filtered".getBytes()); 
+    middleware.putState("1.5", "injected_but_filtered".getBytes());
 
-    QueryResultsIteratorWithMetadata<KeyValue> qri = middleware.getStateByRangeWithPagination("1", "4", 10, "bm");
+    QueryResultsIteratorWithMetadata<KeyValue> qri =
+        middleware.getStateByRangeWithPagination("1", "4", 10, "bm");
     List<KeyValue> result = new ArrayList<>();
     qri.forEachRemaining(result::add);
 
-    assertEquals(1, result.size()); 
+    assertEquals(1, result.size());
     assertEquals("1", result.get(0).getKey());
   }
 
