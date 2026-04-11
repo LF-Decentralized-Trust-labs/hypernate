@@ -14,9 +14,7 @@ import org.hyperledger.fabric.shim.ledger.QueryResultsIteratorWithMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Stub middleware that caches reads in a local state and manages write-backs.
- */
+/** Stub middleware that caches reads in a local state and manages write-backs. */
 @Loggable(Loggable.DEBUG)
 public final class WriteBackCachedStubMiddleware extends StubMiddleware {
 
@@ -67,29 +65,28 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
 
   private final TreeMap<CacheKey, CachedItem> cache = new TreeMap<>();
 
-  @Getter @Setter
-  private PreemptiveReadPolicy preemptiveReadPolicy = PreemptiveReadPolicy.ENABLED;
+  @Getter @Setter private PreemptiveReadPolicy preemptiveReadPolicy = PreemptiveReadPolicy.ENABLED;
 
-  @Getter @Setter
-  private RestorationPolicy restorationPolicy = RestorationPolicy.DENY;
+  @Getter @Setter private RestorationPolicy restorationPolicy = RestorationPolicy.DENY;
 
   public WriteBackCachedStubMiddleware() {}
 
-  public WriteBackCachedStubMiddleware(PreemptiveReadPolicy preemptivePolicy, RestorationPolicy restorationPolicy) {
+  public WriteBackCachedStubMiddleware(
+      PreemptiveReadPolicy preemptivePolicy, RestorationPolicy restorationPolicy) {
     this.preemptiveReadPolicy = preemptivePolicy;
     this.restorationPolicy = restorationPolicy;
   }
 
   /**
-   * Disposes the cache by flushing all MODIFIED, DELETED, and PURGED entries
-   * back to the ledger via the next middleware or stub.
+   * Disposes the cache by flushing all MODIFIED, DELETED, and PURGED entries back to the ledger via
+   * the next middleware or stub.
    */
   public void dispose() {
     for (Map.Entry<CacheKey, CachedItem> entry : cache.entrySet()) {
       CacheKey ck = entry.getKey();
       CachedItem item = entry.getValue();
       if (item == null) continue;
-      
+
       boolean isWorld = ck.collection().isEmpty();
 
       switch (item.getState()) {
@@ -154,7 +151,8 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
       case DELETED:
       case PURGED:
         if (restorationPolicy == RestorationPolicy.DENY) {
-          throw new IllegalStateException("Cannot replace a deleted or purged item when RestorationPolicy is DENY.");
+          throw new IllegalStateException(
+              "Cannot replace a deleted or purged item when RestorationPolicy is DENY.");
         }
         item.update(value, CachedItemState.MODIFIED);
         break;
@@ -181,7 +179,8 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
         item.update(null, CachedItemState.DELETED);
         break;
       case PURGED:
-        throw new IllegalStateException("Cannot logically delete an explicitly purged private data item");
+        throw new IllegalStateException(
+            "Cannot logically delete an explicitly purged private data item");
     }
   }
 
@@ -225,22 +224,28 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
 
   @Override
   public byte[] getPrivateData(String collection, String key) {
-    return doGet(new CacheKey(collection, key), k -> this.nextStub.getPrivateData(k.collection(), k.key()));
+    return doGet(
+        new CacheKey(collection, key), k -> this.nextStub.getPrivateData(k.collection(), k.key()));
   }
 
   @Override
   public void putPrivateData(String collection, String key, byte[] value) {
-    doPut(new CacheKey(collection, key), value, k -> this.nextStub.getPrivateData(k.collection(), k.key()));
+    doPut(
+        new CacheKey(collection, key),
+        value,
+        k -> this.nextStub.getPrivateData(k.collection(), k.key()));
   }
 
   @Override
   public void delPrivateData(String collection, String key) {
-    doDelete(new CacheKey(collection, key), k -> this.nextStub.getPrivateData(k.collection(), k.key()));
+    doDelete(
+        new CacheKey(collection, key), k -> this.nextStub.getPrivateData(k.collection(), k.key()));
   }
 
   @Override
   public void purgePrivateData(String collection, String key) {
-    doPurge(new CacheKey(collection, key), k -> this.nextStub.getPrivateData(k.collection(), k.key()));
+    doPurge(
+        new CacheKey(collection, key), k -> this.nextStub.getPrivateData(k.collection(), k.key()));
   }
 
   @Override
@@ -259,20 +264,28 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
   public QueryResultsIterator<KeyValue> getStateByPartialCompositeKey(String compositeKey) {
     return new CacheAwareIterator(
         this.nextStub.getStateByPartialCompositeKey(compositeKey),
-        "", compositeKey, compositeKey + Character.MAX_VALUE, true);
+        "",
+        compositeKey,
+        compositeKey + Character.MAX_VALUE,
+        true);
   }
 
   @Override
   public QueryResultsIteratorWithMetadata<KeyValue> getStateByPartialCompositeKeyWithPagination(
       org.hyperledger.fabric.shim.ledger.CompositeKey compositeKey, int pageSize, String bookmark) {
-    return this.nextStub.getStateByPartialCompositeKeyWithPagination(compositeKey, pageSize, bookmark);
+    return this.nextStub.getStateByPartialCompositeKeyWithPagination(
+        compositeKey, pageSize, bookmark);
   }
 
   @Override
   public QueryResultsIterator<KeyValue> getPrivateDataByRange(
       String collection, String startKey, String endKey) {
     return new CacheAwareIterator(
-        this.nextStub.getPrivateDataByRange(collection, startKey, endKey), collection, startKey, endKey, true);
+        this.nextStub.getPrivateDataByRange(collection, startKey, endKey),
+        collection,
+        startKey,
+        endKey,
+        true);
   }
 
   @Override
@@ -280,7 +293,10 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
       String collection, String compositeKey) {
     return new CacheAwareIterator(
         this.nextStub.getPrivateDataByPartialCompositeKey(collection, compositeKey),
-        collection, compositeKey, compositeKey + Character.MAX_VALUE, true);
+        collection,
+        compositeKey,
+        compositeKey + Character.MAX_VALUE,
+        true);
   }
 
   private class CacheAwareIterator implements QueryResultsIterator<KeyValue> {
@@ -296,19 +312,19 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
         boolean allowInjection) {
 
       this.ledgerIterator = ledgerIterator;
-      
+
       CacheKey start = new CacheKey(collection, startKey);
       CacheKey end = new CacheKey(collection, endKey);
 
       Map<CacheKey, CachedItem> subCache;
       if (endKey == null || endKey.isEmpty()) {
-        subCache = cache.tailMap(start); 
+        subCache = cache.tailMap(start);
       } else {
         subCache = cache.subMap(start, end);
       }
 
       TreeMap<String, byte[]> completeSet = new TreeMap<>();
-      
+
       if (this.ledgerIterator != null) {
         for (KeyValue kv : this.ledgerIterator) {
           completeSet.put(kv.getKey(), kv.getValue());
@@ -317,13 +333,13 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
 
       for (Map.Entry<CacheKey, CachedItem> entry : subCache.entrySet()) {
         if (!entry.getKey().collection().equals(collection)) continue;
-        
+
         CachedItem item = entry.getValue();
         if (item == null) continue;
-        
+
         CachedItemState s = item.getState();
         String key = entry.getKey().key();
-        
+
         if (s == CachedItemState.DELETED || s == CachedItemState.PURGED) {
           completeSet.remove(key);
         } else if (s == CachedItemState.MODIFIED || s == CachedItemState.STORED) {
@@ -333,9 +349,10 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
         }
       }
 
-      this.mergedIterator = completeSet.entrySet().stream()
-          .map(e -> (KeyValue) new SimpleKeyValue(e.getKey(), e.getValue()))
-          .iterator();
+      this.mergedIterator =
+          completeSet.entrySet().stream()
+              .map(e -> (KeyValue) new SimpleKeyValue(e.getKey(), e.getValue()))
+              .iterator();
     }
 
     @Override
