@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
+import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.registry.EntityExistsException;
 import hu.bme.mit.ftsrg.hypernate.registry.EntityNotFoundException;
@@ -88,6 +89,11 @@ class RegistryTest {
     @AttributeInfo(name = TestEntity.Fields.bar)
   })
   private record TestEntity(String foo, Integer bar) {}
+
+  @FieldNameConstants
+  @EntityType("Asset")
+  @PrimaryKey(@AttributeInfo(name = AnnotatedEntity.Fields.id))
+  private record AnnotatedEntity(String id) {}
 
   @Nested
   class when_must_create {
@@ -286,6 +292,7 @@ class RegistryTest {
 
       List<TestEntity> results = registry.readAll(TestEntity.class);
 
+      then(stub).should().createCompositeKey(TestEntity.class.getName());
       then(stub).should().getStateByPartialCompositeKey(anyString());
       assertTrue(results.isEmpty());
       verifyNoMoreInteractions(stub);
@@ -366,6 +373,19 @@ class RegistryTest {
       assertThrows(
           EntityNotFoundException.class,
           () -> registry.mustRead(TestEntity.class, entity.foo, entity.bar));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_annotated_entity_type_then_use_annotation_value_for_composite_key() {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(new CompositeKey("Asset", "id-1"));
+      given(stub.getState(anyString())).willReturn(new byte[] {});
+
+      assertThrows(
+          EntityNotFoundException.class, () -> registry.mustRead(AnnotatedEntity.class, "id-1"));
+
+      then(stub).should().createCompositeKey(eq("Asset"), any(String[].class));
       verifyNoMoreInteractions(stub);
     }
 
