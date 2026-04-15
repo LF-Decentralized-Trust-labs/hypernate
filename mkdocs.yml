@@ -3,6 +3,7 @@ site_url: https://lf-decentralized-trust-labs.github.io/hypernate
 repo_url: https://github.com/LF-Decentralized-Trust-labs/hypernate
 repo_name: LF-Decentralized-Trust-labs/hypernate
 edit_uri: edit/main/docs/
+strict: true
 
 theme:
   name: material

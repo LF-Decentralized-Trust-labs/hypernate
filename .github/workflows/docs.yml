@@ -5,14 +5,10 @@ on:
     branches:
       - main
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 permissions:
   contents: write
-
-concurrency:
-  group: docs-deploy
-  cancel-in-progress: false
 
 jobs:
   deploy-latest:
@@ -24,9 +20,11 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
       - name: Install dependencies
         run: pip install -r docs/requirements.txt
+      - name: Build docs (strict)
+        run: mkdocs build --strict
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
@@ -45,9 +43,11 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
       - name: Install dependencies
         run: pip install -r docs/requirements.txt
+      - name: Build docs (strict)
+        run: mkdocs build --strict
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
