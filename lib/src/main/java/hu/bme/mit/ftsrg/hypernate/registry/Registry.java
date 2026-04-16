@@ -11,8 +11,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.experimental.UtilityClass;
 import org.hyperledger.fabric.shim.ChaincodeStub;
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 public class Registry {
 
   private static final Logger logger = LoggerFactory.getLogger(Registry.class);
+  private static final String MAX_READ_ALL_ITEMS_PROPERTY = "hypernate.readAll.maxItems";
 
   private final ChaincodeStub stub;
 
@@ -184,15 +185,55 @@ public class Registry {
   /**
    * Read all entities of a given type.
    *
+   * <p>This method materializes all matching ledger entries into memory. For potentially large
+   * result sets, use {@link #streamAll(Class)} instead.
+   *
    * @param clazz the class of the entity
    * @return a list of all entities read (might be empty)
    * @param <T> the entity type
    */
   public <T> List<T> readAll(final Class<T> clazz) {
+    final int maxReadAllItems = resolveMaxReadAllItems();
+    final List<T> items = new ArrayList<>();
+    try (Stream<T> stream = streamAll(clazz)) {
+      final Iterator<T> iterator = stream.iterator();
+      while (iterator.hasNext()) {
+        if (items.size() >= maxReadAllItems) {
+          throw new IllegalStateException(
+              String.format(
+                  "readAll limit exceeded for %s; max=%d (configure with -D%s)",
+                  clazz.getName(), maxReadAllItems, MAX_READ_ALL_ITEMS_PROPERTY));
+        }
+        items.add(iterator.next());
+      }
+    }
+    return items;
+  }
+
+  /**
+   * Stream all entities of a given type.
+   *
+   * <p>Callers should close the returned stream (e.g., try-with-resources) to release Fabric query
+   * iterator resources.
+   *
+   * @param clazz the class of the entity
+   * @return a stream of entities deserialized from the ledger
+   * @param <T> the entity type
+   */
+  public <T> Stream<T> streamAll(final Class<T> clazz) {
     final String key = stub.createCompositeKey(EntityUtil.getType(clazz)).toString();
-    Iterator<KeyValue> iterator = stub.getStateByPartialCompositeKey(key).iterator();
-    Iterable<KeyValue> iterable = () -> iterator;
+    final org.hyperledger.fabric.shim.ledger.QueryResultsIterator<KeyValue> it =
+        stub.getStateByPartialCompositeKey(key);
+    final Iterable<KeyValue> iterable = () -> it.iterator();
     return StreamSupport.stream(iterable.spliterator(), false)
+        .onClose(
+            () -> {
+              try {
+                it.close();
+              } catch (Exception e) {
+                throw new RuntimeException("Failed to close query iterator", e);
+              }
+            })
         .map(
             kv -> {
               final byte[] value = kv.getValue();
@@ -202,8 +243,25 @@ public class Registry {
                   kv.getKey(),
                   Arrays.toString(value));
               return EntityUtil.fromBuffer(value, clazz);
-            })
-        .collect(Collectors.toList());
+            });
+  }
+
+  private int resolveMaxReadAllItems() {
+    final String configured = System.getProperty(MAX_READ_ALL_ITEMS_PROPERTY, String.valueOf(Integer.MAX_VALUE));
+    try {
+      final int value = Integer.parseInt(configured);
+      if (value <= 0) {
+        throw new IllegalArgumentException(
+            String.format("System property %s must be > 0", MAX_READ_ALL_ITEMS_PROPERTY));
+      }
+      return value;
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException(
+          String.format(
+              "System property %s must be a positive integer, got: %s",
+              MAX_READ_ALL_ITEMS_PROPERTY, configured),
+          e);
+    }
   }
 
   @Loggable(Loggable.DEBUG)

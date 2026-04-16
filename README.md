@@ -166,6 +166,12 @@ Asset toDelete = reg.mustRead(Asset.class, assetID);
 ctx.getRegistry().mustDelete(toDelete);
 ```
 
+> [!CAUTION]
+> `Registry.readAll(...)` materializes the full query result into a single in-memory list.
+> Prefer `Registry.streamAll(...)` for large result sets and process entries incrementally.
+> You can also set a hard cap for `readAll` with JVM property `-Dhypernate.readAll.maxItems=<positiveInteger>`
+> to fail fast instead of risking out-of-memory scenarios.
+
 
 ### Middleware
 
