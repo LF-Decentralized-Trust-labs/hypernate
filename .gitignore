@@ -186,3 +186,4 @@ gradle-app.setting
 ### Custom ###
 .idea/
 lib/bin/
+site/
