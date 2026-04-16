@@ -4,6 +4,10 @@ package hu.bme.mit.ftsrg.hypernate.registry;
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
+import hu.bme.mit.ftsrg.hypernate.mappers.AttributeMapper;
+import hu.bme.mit.ftsrg.hypernate.mappers.IntegerZeroPadder;
+import hu.bme.mit.ftsrg.hypernate.mappers.LongZeroPadder;
+import hu.bme.mit.ftsrg.hypernate.mappers.ObjectToString;
 import hu.bme.mit.ftsrg.hypernate.util.JSON;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -241,6 +245,18 @@ public class Registry {
 
     private final Logger logger = LoggerFactory.getLogger(EntityUtil.class);
 
+    private final Map<Class<?>, Class<? extends AttributeMapper>> DEFAULT_MAPPERS_BY_TYPE =
+        Map.of(
+            String.class, ObjectToString.class,
+            Integer.class, IntegerZeroPadder.class,
+            Long.class, LongZeroPadder.class);
+
+    private final Map<Class<? extends AttributeMapper>, Class<?>> EXPECTED_TYPES_BY_MAPPER =
+        Map.of(
+            IntegerZeroPadder.class, Integer.class,
+            LongZeroPadder.class, Long.class,
+            ObjectToString.class, Object.class);
+
     <T> String getType(final T entity) {
       return getType(entity.getClass());
     }
@@ -308,6 +324,25 @@ public class Registry {
 
     private String applyAttrMapper(final AttributeInfo attrInfo, final Object keyPart) {
       Class<? extends Function<Object, String>> mapperClass = attrInfo.mapper();
+      Class<?> declaredType = attrInfo.type();
+
+      if (declaredType != Object.class && mapperClass == ObjectToString.class) {
+        Class<? extends AttributeMapper> inferred = DEFAULT_MAPPERS_BY_TYPE.get(declaredType);
+        if (inferred != null) {
+          mapperClass = inferred;
+        }
+      }
+
+      if (declaredType != Object.class) {
+        Class<?> expectedType = EXPECTED_TYPES_BY_MAPPER.get(mapperClass);
+        if (expectedType != null && !expectedType.isAssignableFrom(declaredType)) {
+          throw new IllegalArgumentException(
+              String.format(
+                  "Mapper %s is not compatible with declared type %s for attribute %s",
+                  mapperClass.getName(), declaredType.getName(), attrInfo.name()));
+        }
+      }
+
       Constructor<? extends Function<Object, String>> mapperCtor;
       try {
         mapperCtor = mapperClass.getDeclaredConstructor();
