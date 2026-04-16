@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.hypernate.middleware;
 
-import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.HypernateNotification;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.TransactionBegin;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.TransactionEnd;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
  * You can override any method in this class to inject your custom behaviour, such as logging,
  * access control, caching, etc.
  */
-@Loggable(Loggable.DEBUG)
 public abstract class StubMiddleware implements ChaincodeStub, Subscriber<HypernateNotification> {
 
   private final Logger logger = LoggerFactory.getLogger(StubMiddleware.class);

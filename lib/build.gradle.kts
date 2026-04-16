@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+  api(project(":api"))
+
   implementation("org.slf4j:slf4j-api:2.0.13")
   implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
   implementation("com.jcabi:jcabi-aspects:0.26.0")
