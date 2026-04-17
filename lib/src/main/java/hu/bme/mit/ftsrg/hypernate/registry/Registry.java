@@ -3,6 +3,7 @@ package hu.bme.mit.ftsrg.hypernate.registry;
 
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
+import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.util.JSON;
 import java.lang.reflect.Constructor;
@@ -246,7 +247,8 @@ public class Registry {
     }
 
     <T> String getType(final Class<T> clazz) {
-      return clazz.getName().toUpperCase();
+      final EntityType annot = clazz.getAnnotation(EntityType.class);
+      return annot != null ? annot.value() : clazz.getName();
     }
 
     <T> int getPrimaryKeyCount(final Class<T> clazz) {
