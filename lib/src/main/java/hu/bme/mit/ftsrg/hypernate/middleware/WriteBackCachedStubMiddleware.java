@@ -117,10 +117,13 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
     for (final Map.Entry<String, CachedItem> entry : cache.entrySet()) {
       final CachedItem item = entry.getValue();
 
-      if (item == null || !item.isDirty() || item.getValue() == null) continue;
+      if (item == null || !item.isDirty()) continue;
 
-      if (item.isToDelete()) this.nextStub.delState(item.getKey());
-      else this.nextStub.putState(item.getKey(), item.getValue());
+      if (item.isToDelete()) {
+        this.nextStub.delState(item.getKey());
+      } else if (item.getValue() != null) {
+        this.nextStub.putState(item.getKey(), item.getValue());
+      }
     }
   }
 
