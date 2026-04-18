@@ -42,7 +42,6 @@ extra:
 nav:
   - Home: index.md
   - Guides:
-    - cicd.md
     - guides/cicd.md
   - Getting Started:
     - getting-started/index.md
