@@ -11,6 +11,7 @@ theme:
     primary: indigo
     accent: indigo
   features:
+    - announce.dismiss
     - navigation.tabs
     - navigation.sections
     - navigation.expand
@@ -21,9 +22,17 @@ theme:
 
 plugins:
   - search
+  - offline
+  - tags
+  - social
+  - awesome-pages
+  - htmlproofer
   - mike:
       alias_type: symlink
       canonical_version: latest
+
+markdown_extensions:
+  - def_list
 
 extra:
   version:
@@ -32,22 +41,25 @@ extra:
 
 nav:
   - Home: index.md
-  - Getting Started:
-      - Overview: getting-started/index.md
-      - Installation: getting-started/installation.md
-      - Quickstart: getting-started/quickstart.md
-  - Concepts:
-      - Overview: concepts/index.md
-      - Registry: concepts/registry.md
-      - Middleware: concepts/middleware.md
-      - Annotations: concepts/annotations.md
   - Guides:
-      - CI/CD: guides/cicd.md
+    - cicd.md
+    - guides/cicd.md
+  - Getting Started:
+    - getting-started/index.md
+    - getting-started/installation.md
+    - getting-started/quickstart.md
+  - Concepts:
+    - concepts/index.md
+    - concepts/registry.md
+    - concepts/middleware.md
+    - concepts/annotations.md
   - API Reference:
-      - Registry: api/registry.md
-      - Annotations: api/annotations.md
+    - api/registry.md
+    - api/annotations.md
   - Contributing:
-      - Overview: contributing/index.md
-      - Maintainers: contributing/maintainers.md
+    - contributing/index.md
+    - contributing/maintainers.md
   - References:
-      - Citing: references/citing.md
+    - references/citing.md
+    - references/architecture.md
+  - Glossary: glossary.md
