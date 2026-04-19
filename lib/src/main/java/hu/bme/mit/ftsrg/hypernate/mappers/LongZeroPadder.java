@@ -1,6 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.hypernate.mappers;
 
+/**
+ * Pads the attribute's value to the length of {@value Long#MAX_VALUE}'s ({@link Long#MAX_VALUE})
+ * {@link String} representation.
+ *
+ * @see LongFlipperAndZeroPadder
+ */
 public class LongZeroPadder implements AttributeMapper {
 
   private static final String FORMAT_STRING = "%0" + String.valueOf(Long.MAX_VALUE).length() + "d";
