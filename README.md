@@ -5,7 +5,7 @@ If Fabric allows you to keep your familiar programming language, then Hypernate 
 No more low-level boilerplate code for key-value storage operations and other housekeeping tasks!
 Take advantage of Hypernate’s _high abstraction level,_ _aspect-oriented_ approaches and _extensibility_ to keep your critical business logic as clean as possible!
 
-Enhance your chaincode with feaures, like:
+Enhance your chaincode with features, like:
 * Object-oriented CRUD (create, read, update, delete) operations with explicit semantics
 * Declarative and flexible configuration of your entity keys
 * An extensible chain of middleware processors handling non-business stuff (caching, logging, tracing, etc.)
