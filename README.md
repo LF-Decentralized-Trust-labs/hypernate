@@ -5,7 +5,7 @@ If Fabric allows you to keep your familiar programming language, then Hypernate 
 No more low-level boilerplate code for key-value storage operations and other housekeeping tasks!
 Take advantage of Hypernate’s _high abstraction level,_ _aspect-oriented_ approaches and _extensibility_ to keep your critical business logic as clean as possible!
 
-Enhance your chaincode with feaures, like:
+Enhance your chaincode with features, like:
 * Object-oriented CRUD (create, read, update, delete) operations with explicit semantics
 * Declarative and flexible configuration of your entity keys
 * An extensible chain of middleware processors handling non-business stuff (caching, logging, tracing, etc.)
@@ -98,10 +98,10 @@ public record Asset(
 ```
 
 Currently, the following mapper classes are available in the `hu.bme.mit.ftsrg.hypernate.mappers` package (but feel free to implement and use your own):
-* `IntegerZeroPadder`: Pads numbers with `"0"`s to the lenght of `"2147483647"`, the maximum integer value.
+* `IntegerZeroPadder`: Pads numbers with `"0"`s to the length of `"2147483647"`, the maximum integer value.
 * `IntegerFlipperAndZeroPadder`: flips the range of positive integers before padding them to their max length.
   Useful for constructing descending string key orders from originally ascending integer keys (in case you want to enumerate them in reverse order).
-* `LongZeroPadder`: Pads numbers with `"0"`s to the lenght of `"9223372036854775807"`, the maximum long number value.
+* `LongZeroPadder`: Pads numbers with `"0"`s to the length of `"9223372036854775807"`, the maximum long number value.
 * `LongFlipperAndZeroPadder`: flips the range of positive long numbers before padding them to their max length.
   Useful for constructing descending string key orders from originally ascending long number keys (in case you want to enumerate them in reverse order).
 * `ObjectToString`: simply call `toString` on the attribute value (the default behavior)
@@ -158,7 +158,7 @@ public boolean AssetExists(final HypernateContext ctx, final String assetID) {
 ```
 
 On the other hand, the following code snippet shows how to express that the operation _must_ be performed on this entity successfully.
-By using the _must_ semantics, an exception will be thrown if the asset does not exists.
+By using the _must_ semantics, an exception will be thrown if the asset does not exist.
 No more cluttering `if-else` or `try-catch` blocks for every ledger access operation!
 
 ```java
@@ -197,7 +197,7 @@ The above declaration will result in two ChaincodeStub-like components intercept
 So it is possible that the original stub won’t even get the call, it is served from the local cache.
 
 > [!IMPORTANT] 
-> Hypernate context and middleware instances are specific to your individual TX executions/endoresements!
+> Hypernate context and middleware instances are specific to your individual TX executions/endorsements!
 > Hypernate does not introduce dependencies between TXs, following the traditional (and important!) Fabric chaincode development practice.
 
 
