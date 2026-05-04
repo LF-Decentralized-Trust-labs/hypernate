@@ -361,8 +361,7 @@ class RegistryTest {
     }
 
     @Test
-    void given_empty_ledger_with_complete_key_then_throw_not_found()
-        throws SerializationException {
+    void given_empty_ledger_with_complete_key_then_throw_not_found() throws SerializationException {
       given(stub.createCompositeKey(anyString(), any(String[].class)))
           .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
@@ -454,8 +453,7 @@ class RegistryTest {
     void given_private_registry_then_privateData_throws_unsupported() {
       PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
 
-      assertThrows(
-          UnsupportedOperationException.class, () -> privateRegistry.privateData("other"));
+      assertThrows(UnsupportedOperationException.class, () -> privateRegistry.privateData("other"));
       verifyNoMoreInteractions(stub);
     }
 

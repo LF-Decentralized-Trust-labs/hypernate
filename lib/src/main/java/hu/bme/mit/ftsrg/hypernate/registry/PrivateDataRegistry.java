@@ -13,6 +13,8 @@ public final class PrivateDataRegistry extends Registry {
   public PrivateDataRegistry privateData(final String collection) {
     throw new UnsupportedOperationException(
         "Cannot rebind a PrivateDataRegistry to a different collection. "
-            + "Use ctx.getRegistry().privateData(\"" + collection + "\") instead.");
+            + "Use ctx.getRegistry().privateData(\""
+            + collection
+            + "\") instead.");
   }
 }
