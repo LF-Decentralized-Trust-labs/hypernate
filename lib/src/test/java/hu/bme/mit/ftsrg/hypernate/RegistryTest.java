@@ -259,10 +259,10 @@ class RegistryTest {
   }
 
   @Nested
-  class when_readAll {
+  class when_read_all {
 
     @Test
-    void given_empty_ledger_then_return_empty_list() throws SerializationException {
+    void given_empty_ledger_then_return_empty_list() {
       given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getStateByPartialCompositeKey(anyString()))
           .willReturn(
@@ -294,7 +294,7 @@ class RegistryTest {
     }
 
     @Test
-    void given_existing_entity_then_return_one_long_list() throws SerializationException {
+    void given_existing_entity_then_return_list_with_entity() throws SerializationException {
       given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getStateByPartialCompositeKey(anyString()))
           .willReturn(
@@ -345,6 +345,7 @@ class RegistryTest {
 
       then(stub).should().getStateByPartialCompositeKey(anyString());
       assertEquals(1, results.size());
+      assertEquals(entity, results.get(0));
       verifyNoMoreInteractions(stub);
     }
   }
@@ -360,7 +361,8 @@ class RegistryTest {
     }
 
     @Test
-    void given_empty_ledger_with_complete_key_then_throw_not_found() {
+    void given_empty_ledger_with_complete_key_then_throw_not_found()
+        throws SerializationException {
       given(stub.createCompositeKey(anyString(), any(String[].class)))
           .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
@@ -445,6 +447,15 @@ class RegistryTest {
       assertThrows(IllegalArgumentException.class, () -> registry.privateData(null));
       assertThrows(IllegalArgumentException.class, () -> registry.privateData(""));
       assertThrows(IllegalArgumentException.class, () -> registry.privateData("   "));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_private_registry_then_privateData_throws_unsupported() {
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+
+      assertThrows(
+          UnsupportedOperationException.class, () -> privateRegistry.privateData("other"));
       verifyNoMoreInteractions(stub);
     }
 
