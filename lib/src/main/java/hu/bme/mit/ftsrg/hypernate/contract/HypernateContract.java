@@ -37,7 +37,7 @@ public interface HypernateContract extends ContractInterface {
     if (ctx instanceof HypernateContext hypCtx) {
       hypCtx.notify(new TransactionEnd());
     } else {
-      ContractInterface.super.beforeTransaction(ctx);
+      ContractInterface.super.afterTransaction(ctx, _result);
     }
   }
 
