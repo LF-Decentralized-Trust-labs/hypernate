@@ -748,6 +748,8 @@ class RegistryTest {
         assertEquals(entity, result);
         verifyNoMoreInteractions(stub);
       }
+    }
+
     @Test
     void given_empty_ledger_with_insufficient_key_parts_then_throw_illegal_argument() {
       assertThrows(
