@@ -20,11 +20,11 @@ public class Registry {
 
   private final ChaincodeStub stub;
 
-  private final EntityMetaProvider entityProvider;
+  private final EntityMetaDataProvider entityProvider;
 
   public Registry(final ChaincodeStub stub) {
     this.stub = stub;
-    entityProvider = new EntityMetaProvider();
+    entityProvider = new EntityMetaDataProvider();
   }
 
   /**

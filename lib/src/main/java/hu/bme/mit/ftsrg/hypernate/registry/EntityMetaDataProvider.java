@@ -19,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Loggable(Loggable.DEBUG)
-public class EntityMetaProvider {
-  private static final Logger logger = LoggerFactory.getLogger(EntityMetaProvider.class);
-  private EntityMetaInventory metaInventory = new EntityMetaInventory();
+public class EntityMetaDataProvider {
+  private static final Logger logger = LoggerFactory.getLogger(EntityMetaDataProvider.class);
+  private EntityMetaDataInventory metaInventory = new EntityMetaDataInventory();
 
-  public EntityMetaProvider() {
+  public EntityMetaDataProvider() {
 
   }
 

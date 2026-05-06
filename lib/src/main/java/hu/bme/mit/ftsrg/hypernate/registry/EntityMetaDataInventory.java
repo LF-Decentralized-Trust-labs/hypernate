@@ -16,11 +16,11 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 
-public class EntityMetaInventory {
+public class EntityMetaDataInventory {
     private static Set<EntityMeta> data = new HashSet<>();
-    private static final Logger logger = LoggerFactory.getLogger(EntityMetaInventory.class);
+    private static final Logger logger = LoggerFactory.getLogger(EntityMetaDataInventory.class);
 
-    public EntityMetaInventory() {
+    public EntityMetaDataInventory() {
     }
 
     public static void add(EntityMeta meta) {
