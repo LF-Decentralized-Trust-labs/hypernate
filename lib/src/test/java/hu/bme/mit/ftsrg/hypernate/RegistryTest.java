@@ -12,6 +12,7 @@ import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.registry.EntityExistsException;
 import hu.bme.mit.ftsrg.hypernate.registry.EntityNotFoundException;
 import hu.bme.mit.ftsrg.hypernate.registry.MissingPrimaryKeysException;
+import hu.bme.mit.ftsrg.hypernate.registry.PrivateDataRegistry;
 import hu.bme.mit.ftsrg.hypernate.registry.Registry;
 import hu.bme.mit.ftsrg.hypernate.registry.SerializationException;
 import hu.bme.mit.ftsrg.hypernate.util.JSON;
@@ -40,6 +41,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RegistryTest {
 
   private static final TestEntity entity = new TestEntity("fooValue", 110);
+  private static final String COLLECTION = "assetPrivateCollection";
 
   private static final CompositeKey ENTITY_COMPOSITE_KEY =
       new CompositeKey(entity.getClass().getName(), entity.foo, entity.bar.toString());
@@ -257,10 +259,10 @@ class RegistryTest {
   }
 
   @Nested
-  class when_readAll {
+  class when_read_all {
 
     @Test
-    void given_empty_ledger_then_return_empty_list() throws SerializationException {
+    void given_empty_ledger_then_return_empty_list() {
       given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getStateByPartialCompositeKey(anyString()))
           .willReturn(
@@ -292,7 +294,7 @@ class RegistryTest {
     }
 
     @Test
-    void given_existing_entity_then_return_one_long_list() throws SerializationException {
+    void given_existing_entity_then_return_list_with_entity() throws SerializationException {
       given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getStateByPartialCompositeKey(anyString()))
           .willReturn(
@@ -343,6 +345,7 @@ class RegistryTest {
 
       then(stub).should().getStateByPartialCompositeKey(anyString());
       assertEquals(1, results.size());
+      assertEquals(entity, results.get(0));
       verifyNoMoreInteractions(stub);
     }
   }
@@ -358,7 +361,7 @@ class RegistryTest {
     }
 
     @Test
-    void given_empty_ledger_with_complete_key_then_throw_not_found() {
+    void given_empty_ledger_with_complete_key_then_throw_not_found() throws SerializationException {
       given(stub.createCompositeKey(anyString(), any(String[].class)))
           .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
@@ -431,6 +434,203 @@ class RegistryTest {
 
       then(stub).should().getState(ENTITY_COMPOSITE_KEY_STR);
       assertEquals(entity, result);
+      verifyNoMoreInteractions(stub);
+    }
+  }
+
+  @Nested
+  class when_using_private_data_registry {
+
+    @Test
+    void given_blank_collection_name_then_throw_illegal_argument() {
+      assertThrows(IllegalArgumentException.class, () -> registry.privateData(null));
+      assertThrows(IllegalArgumentException.class, () -> registry.privateData(""));
+      assertThrows(IllegalArgumentException.class, () -> registry.privateData("   "));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_private_registry_then_privateData_throws_unsupported() {
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+
+      assertThrows(UnsupportedOperationException.class, () -> privateRegistry.privateData("other"));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_empty_private_data_then_must_create_calls_putPrivateData()
+        throws EntityExistsException {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getPrivateData(COLLECTION, ENTITY_COMPOSITE_KEY_STR)).willReturn(new byte[] {});
+
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+      privateRegistry.mustCreate(entity);
+
+      then(stub)
+          .should()
+          .putPrivateData(eq(COLLECTION), eq(ENTITY_COMPOSITE_KEY_STR), any(byte[].class));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_private_data_then_must_create_throws_exists() {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getPrivateData(COLLECTION, ENTITY_COMPOSITE_KEY_STR)).willReturn(ENTITY_BUFFER);
+
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+
+      assertThrows(EntityExistsException.class, () -> privateRegistry.mustCreate(entity));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_private_data_then_must_read_returns_entity()
+        throws EntityNotFoundException {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getPrivateData(COLLECTION, ENTITY_COMPOSITE_KEY_STR)).willReturn(ENTITY_BUFFER);
+
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+      TestEntity result = privateRegistry.mustRead(TestEntity.class, entity.foo, entity.bar);
+
+      then(stub).should().getPrivateData(COLLECTION, ENTITY_COMPOSITE_KEY_STR);
+      assertEquals(entity, result);
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_empty_private_data_then_must_read_throws_not_found() {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getPrivateData(COLLECTION, ENTITY_COMPOSITE_KEY_STR)).willReturn(new byte[] {});
+
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+
+      assertThrows(
+          EntityNotFoundException.class,
+          () -> privateRegistry.mustRead(TestEntity.class, entity.foo, entity.bar));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_private_data_then_must_update_calls_putPrivateData()
+        throws EntityNotFoundException {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getPrivateData(COLLECTION, ENTITY_COMPOSITE_KEY_STR)).willReturn(ENTITY_BUFFER);
+
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+      privateRegistry.mustUpdate(entity);
+
+      then(stub)
+          .should()
+          .putPrivateData(eq(COLLECTION), eq(ENTITY_COMPOSITE_KEY_STR), any(byte[].class));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_private_data_then_must_delete_calls_delPrivateData()
+        throws EntityNotFoundException {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getPrivateData(COLLECTION, ENTITY_COMPOSITE_KEY_STR)).willReturn(ENTITY_BUFFER);
+
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+      privateRegistry.mustDelete(entity);
+
+      then(stub).should().delPrivateData(COLLECTION, ENTITY_COMPOSITE_KEY_STR);
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_empty_private_data_collection_then_readAll_returns_empty_list() {
+      given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getPrivateDataByPartialCompositeKey(eq(COLLECTION), anyString()))
+          .willReturn(
+              new QueryResultsIterator<>() {
+                @Override
+                public void close() {}
+
+                @Override
+                public @Nonnull Iterator<KeyValue> iterator() {
+                  return new Iterator<>() {
+                    @Override
+                    public boolean hasNext() {
+                      return false;
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                      throw new UnsupportedOperationException();
+                    }
+                  };
+                }
+              });
+
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+      List<TestEntity> results = privateRegistry.readAll(TestEntity.class);
+
+      then(stub).should().getPrivateDataByPartialCompositeKey(eq(COLLECTION), anyString());
+      assertTrue(results.isEmpty());
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_private_data_collection_then_readAll_returns_entities() {
+      given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getPrivateDataByPartialCompositeKey(eq(COLLECTION), anyString()))
+          .willReturn(
+              new QueryResultsIterator<>() {
+                private boolean done = false;
+
+                @Override
+                public void close() {}
+
+                @Override
+                public @Nonnull Iterator<KeyValue> iterator() {
+                  return new Iterator<>() {
+                    @Override
+                    public boolean hasNext() {
+                      return !done;
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                      if (done) {
+                        throw new UnsupportedOperationException();
+                      }
+
+                      done = true;
+
+                      return new KeyValue() {
+                        @Override
+                        public String getKey() {
+                          return ENTITY_COMPOSITE_KEY_STR;
+                        }
+
+                        @Override
+                        public byte[] getValue() {
+                          return ENTITY_BUFFER;
+                        }
+
+                        @Override
+                        public String getStringValue() {
+                          return Arrays.toString(getValue());
+                        }
+                      };
+                    }
+                  };
+                }
+              });
+
+      PrivateDataRegistry privateRegistry = registry.privateData(COLLECTION);
+      List<TestEntity> results = privateRegistry.readAll(TestEntity.class);
+
+      then(stub).should().getPrivateDataByPartialCompositeKey(eq(COLLECTION), anyString());
+      assertEquals(1, results.size());
+      assertEquals(entity, results.get(0));
       verifyNoMoreInteractions(stub);
     }
   }
