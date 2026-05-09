@@ -16,13 +16,35 @@ public class PricingRequest {
     this.offeredPrice = offeredPrice;
   }
 
-  public String assetId() { return assetId; }
-  public int currentValue() { return currentValue; }
-  public String newOwner() { return newOwner; }
-  public int offeredPrice() { return offeredPrice; }
+  public String assetId() {
+    return assetId;
+  }
 
-  public String getAssetId() { return assetId; }
-  public int getCurrentValue() { return currentValue; }
-  public String getNewOwner() { return newOwner; }
-  public int getOfferedPrice() { return offeredPrice; }
+  public int currentValue() {
+    return currentValue;
+  }
+
+  public String newOwner() {
+    return newOwner;
+  }
+
+  public int offeredPrice() {
+    return offeredPrice;
+  }
+
+  public String getAssetId() {
+    return assetId;
+  }
+
+  public int getCurrentValue() {
+    return currentValue;
+  }
+
+  public String getNewOwner() {
+    return newOwner;
+  }
+
+  public int getOfferedPrice() {
+    return offeredPrice;
+  }
 }

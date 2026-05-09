@@ -18,9 +18,15 @@ public class InvocationBuilder<T> {
   private final Class<T> returnType;
   private final boolean voidReturn;
 
-  private InvocationBuilder(HypernateContext context, String chaincodeName, String functionName, 
-                            String channel, Object[] typedArgs, byte[][] rawArgs, 
-                            Class<T> returnType, boolean voidReturn) {
+  private InvocationBuilder(
+      HypernateContext context,
+      String chaincodeName,
+      String functionName,
+      String channel,
+      Object[] typedArgs,
+      byte[][] rawArgs,
+      Class<T> returnType,
+      boolean voidReturn) {
     this.context = context;
     this.chaincodeName = chaincodeName;
     this.functionName = functionName;
@@ -36,31 +42,38 @@ public class InvocationBuilder<T> {
   }
 
   public InvocationBuilder<T> onChannel(String channel) {
-    return new InvocationBuilder<>(context, chaincodeName, functionName, channel, typedArgs, rawArgs, returnType, voidReturn);
+    return new InvocationBuilder<>(
+        context, chaincodeName, functionName, channel, typedArgs, rawArgs, returnType, voidReturn);
   }
 
   public InvocationBuilder<T> withArgs(Object... args) {
-    return new InvocationBuilder<>(context, chaincodeName, functionName, channel, args, rawArgs, returnType, voidReturn);
+    return new InvocationBuilder<>(
+        context, chaincodeName, functionName, channel, args, rawArgs, returnType, voidReturn);
   }
 
   public InvocationBuilder<T> withRawArgs(byte[]... args) {
-    return new InvocationBuilder<>(context, chaincodeName, functionName, channel, typedArgs, args, returnType, voidReturn);
+    return new InvocationBuilder<>(
+        context, chaincodeName, functionName, channel, typedArgs, args, returnType, voidReturn);
   }
 
   public <R> InvocationBuilder<R> returning(Class<R> returnType) {
-    return new InvocationBuilder<>(context, chaincodeName, functionName, channel, typedArgs, rawArgs, returnType, false);
+    return new InvocationBuilder<>(
+        context, chaincodeName, functionName, channel, typedArgs, rawArgs, returnType, false);
   }
 
   public InvocationBuilder<Void> returningVoid() {
-    return new InvocationBuilder<>(context, chaincodeName, functionName, channel, typedArgs, rawArgs, null, true);
+    return new InvocationBuilder<>(
+        context, chaincodeName, functionName, channel, typedArgs, rawArgs, null, true);
   }
 
   public T execute() {
     if (rawArgs != null && typedArgs != null && typedArgs.length > 0) {
-      throw new IllegalStateException("Cannot use both withArgs() and withRawArgs() on the same invocation.");
+      throw new IllegalStateException(
+          "Cannot use both withArgs() and withRawArgs() on the same invocation.");
     }
     if (!voidReturn && returnType == null) {
-      throw new IllegalStateException("Call .returning(Class) or .returningVoid() before execute().");
+      throw new IllegalStateException(
+          "Call .returning(Class) or .returningVoid() before execute().");
     }
 
     List<byte[]> assembledArgs = new ArrayList<>();
@@ -86,7 +99,8 @@ public class InvocationBuilder<T> {
     }
 
     if (response.getStatus() != Response.Status.SUCCESS) {
-      throw new CrossChaincodeException(chaincodeName, functionName, response.getStatus().getCode(), response.getMessage());
+      throw new CrossChaincodeException(
+          chaincodeName, functionName, response.getStatus().getCode(), response.getMessage());
     }
 
     if (voidReturn) {

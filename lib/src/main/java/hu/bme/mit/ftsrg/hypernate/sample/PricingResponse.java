@@ -14,11 +14,27 @@ public class PricingResponse {
     this.notes = notes;
   }
 
-  public boolean valid() { return valid; }
-  public int approvedPrice() { return approvedPrice; }
-  public String notes() { return notes; }
+  public boolean valid() {
+    return valid;
+  }
 
-  public boolean isValid() { return valid; }
-  public int getApprovedPrice() { return approvedPrice; }
-  public String getNotes() { return notes; }
+  public int approvedPrice() {
+    return approvedPrice;
+  }
+
+  public String notes() {
+    return notes;
+  }
+
+  public boolean isValid() {
+    return valid;
+  }
+
+  public int getApprovedPrice() {
+    return approvedPrice;
+  }
+
+  public String getNotes() {
+    return notes;
+  }
 }

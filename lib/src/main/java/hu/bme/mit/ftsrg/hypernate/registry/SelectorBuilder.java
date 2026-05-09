@@ -54,7 +54,8 @@ class SelectorBuilder {
     if (!orConditions.isEmpty()) {
       if (finalSelector.containsKey("$or")) {
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> existingOrs = (List<Map<String, Object>>) finalSelector.get("$or");
+        List<Map<String, Object>> existingOrs =
+            (List<Map<String, Object>>) finalSelector.get("$or");
         existingOrs.addAll(orConditions);
       } else {
         finalSelector.put("$or", new ArrayList<>(orConditions));

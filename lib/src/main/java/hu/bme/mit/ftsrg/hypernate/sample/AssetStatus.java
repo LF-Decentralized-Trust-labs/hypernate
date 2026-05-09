@@ -2,5 +2,7 @@
 package hu.bme.mit.ftsrg.hypernate.sample;
 
 public enum AssetStatus {
-  ACTIVE, PENDING_TRANSFER, ARCHIVED
+  ACTIVE,
+  PENDING_TRANSFER,
+  ARCHIVED
 }

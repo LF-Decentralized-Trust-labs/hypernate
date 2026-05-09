@@ -28,8 +28,8 @@ public class EndorsementPolicy {
   /**
    * NOTE: A production implementation would compile this expression to a SignaturePolicyEnvelope
    * protobuf byte array using Fabric's msp/policydsl package. This prototype uses UTF-8-encoded
-   * expression strings for simplicity, which is not compatible with stub.setStateValidationParameter()
-   * in a real network.
+   * expression strings for simplicity, which is not compatible with
+   * stub.setStateValidationParameter() in a real network.
    */
   public byte[] getPolicyBytes() {
     return expression.getBytes(StandardCharsets.UTF_8);
@@ -46,7 +46,8 @@ public class EndorsementPolicy {
       if (chars[i] == '(') parenStack.push(i);
       else if (chars[i] == ')') {
         if (parenStack.isEmpty()) {
-          throw new InvalidEndorsementPolicyException("Unexpected closing parenthesis at position " + i);
+          throw new InvalidEndorsementPolicyException(
+              "Unexpected closing parenthesis at position " + i);
         }
         parenStack.pop();
       }
@@ -85,7 +86,9 @@ public class EndorsementPolicy {
       foundMsps.add(msp);
       if (!msp.matches("^[A-Za-z0-9]+MSP\\.(peer|member|admin|client)$")) {
         throw new InvalidEndorsementPolicyException(
-            "Invalid MSP principal '" + msp + "'. Expected format: OrgNameMSP.(peer|member|admin|client)");
+            "Invalid MSP principal '"
+                + msp
+                + "'. Expected format: OrgNameMSP.(peer|member|admin|client)");
       }
     }
 
@@ -95,33 +98,34 @@ public class EndorsementPolicy {
 
     // Validate OutOf threshold semantics
     if (expr.contains("OutOf(")) {
-        Matcher outOfMatcher = Pattern.compile("OutOf\\(\\s*(\\d+)\\s*,").matcher(expr);
-        if (outOfMatcher.find()) {
-            int threshold = Integer.parseInt(outOfMatcher.group(1));
-            // Find closing paren matching this OutOf(
-            int openIdx = outOfMatcher.end() - 1; // position of comma
-            int stack = 1;
-            int closeIdx = -1;
-            for(int i = outOfMatcher.start() + 6; i < expr.length(); i++) {
-                if (expr.charAt(i) == '(') stack++;
-                if (expr.charAt(i) == ')') {
-                    stack--;
-                    if (stack == 0) {
-                        closeIdx = i;
-                        break;
-                    }
-                }
+      Matcher outOfMatcher = Pattern.compile("OutOf\\(\\s*(\\d+)\\s*,").matcher(expr);
+      if (outOfMatcher.find()) {
+        int threshold = Integer.parseInt(outOfMatcher.group(1));
+        // Find closing paren matching this OutOf(
+        int openIdx = outOfMatcher.end() - 1; // position of comma
+        int stack = 1;
+        int closeIdx = -1;
+        for (int i = outOfMatcher.start() + 6; i < expr.length(); i++) {
+          if (expr.charAt(i) == '(') stack++;
+          if (expr.charAt(i) == ')') {
+            stack--;
+            if (stack == 0) {
+              closeIdx = i;
+              break;
             }
-            if (closeIdx != -1) {
-                String outOfBody = expr.substring(outOfMatcher.end(), closeIdx);
-                Matcher innerMspMatcher = mspPattern.matcher(outOfBody);
-                int count = 0;
-                while (innerMspMatcher.find()) count++;
-                if (threshold > count) {
-                    throw new InvalidEndorsementPolicyException("OutOf threshold " + threshold + " exceeds principal count " + count);
-                }
-            }
+          }
         }
+        if (closeIdx != -1) {
+          String outOfBody = expr.substring(outOfMatcher.end(), closeIdx);
+          Matcher innerMspMatcher = mspPattern.matcher(outOfBody);
+          int count = 0;
+          while (innerMspMatcher.find()) count++;
+          if (threshold > count) {
+            throw new InvalidEndorsementPolicyException(
+                "OutOf threshold " + threshold + " exceeds principal count " + count);
+          }
+        }
+      }
     }
   }
 }

@@ -14,11 +14,27 @@ public class TransferResult {
     this.finalPrice = finalPrice;
   }
 
-  public boolean approved() { return approved; }
-  public String reason() { return reason; }
-  public int finalPrice() { return finalPrice; }
-  
-  public boolean isApproved() { return approved; }
-  public String getReason() { return reason; }
-  public int getFinalPrice() { return finalPrice; }
+  public boolean approved() {
+    return approved;
+  }
+
+  public String reason() {
+    return reason;
+  }
+
+  public int finalPrice() {
+    return finalPrice;
+  }
+
+  public boolean isApproved() {
+    return approved;
+  }
+
+  public String getReason() {
+    return reason;
+  }
+
+  public int getFinalPrice() {
+    return finalPrice;
+  }
 }

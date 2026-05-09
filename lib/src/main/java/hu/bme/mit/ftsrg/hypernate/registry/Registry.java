@@ -196,7 +196,8 @@ public class Registry {
    */
   public <T> List<T> readAll(final Class<T> clazz) {
     final String key = stub.createCompositeKey(EntityUtil.getType(clazz)).toString();
-    try (org.hyperledger.fabric.shim.ledger.QueryResultsIterator<KeyValue> iterator = stub.getStateByPartialCompositeKey(key)) {
+    try (org.hyperledger.fabric.shim.ledger.QueryResultsIterator<KeyValue> iterator =
+        stub.getStateByPartialCompositeKey(key)) {
       return collectResults(iterator, clazz);
     } catch (Exception e) {
       throw new RuntimeException("Failed to read all entities", e);
@@ -223,16 +224,14 @@ public class Registry {
     return new RangeQueryBuilder<>(this, clazz);
   }
 
-  <T> List<T> collectResults(org.hyperledger.fabric.shim.ledger.QueryResultsIterator<KeyValue> iterator, Class<T> clazz) {
+  <T> List<T> collectResults(
+      org.hyperledger.fabric.shim.ledger.QueryResultsIterator<KeyValue> iterator, Class<T> clazz) {
     Iterable<KeyValue> iterable = () -> iterator.iterator();
     return StreamSupport.stream(iterable.spliterator(), false)
         .map(
             kv -> {
               final byte[] value = kv.getValue();
-              logger.debug(
-                  "Found value at key {}: {}",
-                  kv.getKey(),
-                  Arrays.toString(value));
+              logger.debug("Found value at key {}: {}", kv.getKey(), Arrays.toString(value));
               return EntityUtil.fromBuffer(value, clazz);
             })
         .collect(Collectors.toList());
@@ -245,15 +244,21 @@ public class Registry {
    * @param policy the compiled endorsement policy
    * @param <T> the entity type
    */
-  public <T> void setEndorsementPolicy(T entity, hu.bme.mit.ftsrg.hypernate.endorsement.EndorsementPolicy policy) {
+  public <T> void setEndorsementPolicy(
+      T entity, hu.bme.mit.ftsrg.hypernate.endorsement.EndorsementPolicy policy) {
+    if (!exists(entity)) {
+      throw new EntityNotFoundException("Cannot set endorsement policy: entity does not exist");
+    }
     stub.setStateValidationParameter(getCompositeKey(entity), policy.getPolicyBytes());
   }
 
   private <T> void applyEndorsementPolicyIfPresent(T entity, String key) {
-    hu.bme.mit.ftsrg.hypernate.annotations.EndorsementPolicy annot = 
-        entity.getClass().getAnnotation(hu.bme.mit.ftsrg.hypernate.annotations.EndorsementPolicy.class);
+    hu.bme.mit.ftsrg.hypernate.annotations.EndorsementPolicy annot =
+        entity
+            .getClass()
+            .getAnnotation(hu.bme.mit.ftsrg.hypernate.annotations.EndorsementPolicy.class);
     if (annot != null) {
-      hu.bme.mit.ftsrg.hypernate.endorsement.EndorsementPolicy policy = 
+      hu.bme.mit.ftsrg.hypernate.endorsement.EndorsementPolicy policy =
           hu.bme.mit.ftsrg.hypernate.endorsement.EndorsementPolicy.of(annot.value());
       stub.setStateValidationParameter(key, policy.getPolicyBytes());
     }

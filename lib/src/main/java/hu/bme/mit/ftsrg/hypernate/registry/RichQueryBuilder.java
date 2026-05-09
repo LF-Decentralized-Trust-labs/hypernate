@@ -48,8 +48,8 @@ public class RichQueryBuilder<T> {
   }
 
   /**
-   * Add a sort condition. Note: CouchDB requires an index to exist on the sorted fields.
-   * If an index does not exist, Fabric CouchDB runtime will return an error during execution.
+   * Add a sort condition. Note: CouchDB requires an index to exist on the sorted fields. If an
+   * index does not exist, Fabric CouchDB runtime will return an error during execution.
    */
   public RichQueryBuilder<T> sortBy(String field, SortOrder order) {
     this.sort.add(Map.of(field, order == SortOrder.DESC ? "desc" : "asc"));
@@ -77,14 +77,15 @@ public class RichQueryBuilder<T> {
   }
 
   /**
-   * Execute the rich query.
-   * Note: Calling execute() with no conditions will result in a full-collection scan 
-   * for the given entity type, matching all documents of this type.
+   * Execute the rich query. Note: Calling execute() with no conditions will result in a
+   * full-collection scan for the given entity type, matching all documents of this type.
    */
   public List<T> execute() throws UncommittedStateException {
     checkUncommittedState();
     String queryString = buildQueryString();
-    try (org.hyperledger.fabric.shim.ledger.QueryResultsIterator<org.hyperledger.fabric.shim.ledger.KeyValue> iter = registry.getStub().getQueryResult(queryString)) {
+    try (org.hyperledger.fabric.shim.ledger.QueryResultsIterator<
+            org.hyperledger.fabric.shim.ledger.KeyValue>
+        iter = registry.getStub().getQueryResult(queryString)) {
       return QueryResultCollector.collect(iter, clazz);
     } catch (Exception e) {
       throw new RuntimeException("Failed to close iterator or collect results", e);
@@ -96,8 +97,8 @@ public class RichQueryBuilder<T> {
     String queryString = buildQueryString();
     int pageSize = (limit != null) ? limit : 25;
     String bm = (bookmark != null) ? bookmark : "";
-    
-    try (QueryResultsIteratorWithMetadata<org.hyperledger.fabric.shim.ledger.KeyValue> iter = 
+
+    try (QueryResultsIteratorWithMetadata<org.hyperledger.fabric.shim.ledger.KeyValue> iter =
         registry.getStub().getQueryResultWithPagination(queryString, pageSize, bm)) {
       String nextBookmark = iter.getMetadata().getBookmark();
       boolean hasMore = !nextBookmark.isEmpty() || iter.getMetadata().getFetchedRecordsCount() > 0;
@@ -129,9 +130,10 @@ public class RichQueryBuilder<T> {
     while (current instanceof StubMiddleware sm) {
       if (current instanceof WriteBackCachedStubMiddleware wbc) {
         if (wbc.hasUncommittedState()) {
-          throw new UncommittedStateException("Rich query cannot proceed: uncommitted writes exist in the middleware cache. "
-              + "CouchDB reads committed ledger state only — buffered writes in WriteBackCachedStubMiddleware are invisible to getQueryResult(). "
-              + "Flush pending writes via ctx.notify(new TransactionEnd()) before querying, or restructure your transaction to query before writing.");
+          throw new UncommittedStateException(
+              "Rich query cannot proceed: uncommitted writes exist in the middleware cache. "
+                  + "CouchDB reads committed ledger state only — buffered writes in WriteBackCachedStubMiddleware are invisible to getQueryResult(). "
+                  + "Flush pending writes via ctx.notify(new TransactionEnd()) before querying, or restructure your transaction to query before writing.");
         }
       }
       current = sm.getNextStub();

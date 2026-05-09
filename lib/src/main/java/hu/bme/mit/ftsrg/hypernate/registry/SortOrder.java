@@ -2,5 +2,6 @@
 package hu.bme.mit.ftsrg.hypernate.registry;
 
 public enum SortOrder {
-  ASC, DESC
+  ASC,
+  DESC
 }

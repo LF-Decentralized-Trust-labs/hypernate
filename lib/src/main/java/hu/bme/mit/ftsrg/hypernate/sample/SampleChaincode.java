@@ -7,7 +7,6 @@ import hu.bme.mit.ftsrg.hypernate.registry.Registry;
 import hu.bme.mit.ftsrg.hypernate.registry.SortOrder;
 import hu.bme.mit.ftsrg.hypernate.registry.query.UncommittedStateException;
 import hu.bme.mit.ftsrg.hypernate.util.JSON;
-import java.time.Instant;
 import java.util.List;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
@@ -18,15 +17,23 @@ import org.hyperledger.fabric.contract.annotation.Transaction;
 
 @Contract(
     name = "SampleChaincode",
-    info = @Info(title = "SampleChaincode", description = "A sample Hypernate chaincode", version = "1.0"))
+    info =
+        @Info(
+            title = "SampleChaincode",
+            description = "A sample Hypernate chaincode",
+            version = "1.0"))
 @Default
 public class SampleChaincode implements ContractInterface {
 
   @Transaction
-  public void createAsset(HypernateContext ctx, String id, String color, int size, String owner, int value) {
-    if (id == null || id.isBlank()) throw new IllegalArgumentException("Field 'id' must not be blank");
-    if (color == null || color.isBlank()) throw new IllegalArgumentException("Field 'color' must not be blank");
-    if (owner == null || owner.isBlank()) throw new IllegalArgumentException("Field 'owner' must not be blank");
+  public void createAsset(
+      HypernateContext ctx, String id, String color, int size, String owner, int value) {
+    if (id == null || id.isBlank())
+      throw new IllegalArgumentException("Field 'id' must not be blank");
+    if (color == null || color.isBlank())
+      throw new IllegalArgumentException("Field 'color' must not be blank");
+    if (owner == null || owner.isBlank())
+      throw new IllegalArgumentException("Field 'owner' must not be blank");
     if (size <= 0) throw new IllegalArgumentException("Field 'size' must be positive");
     if (value <= 0) throw new IllegalArgumentException("Field 'value' must be positive");
 
@@ -36,10 +43,21 @@ public class SampleChaincode implements ContractInterface {
   }
 
   @Transaction
-  public void createSensitiveAsset(HypernateContext ctx, String id, String color, int size, String owner, int value, String classLevel, String orgsJson) {
-    if (id == null || id.isBlank()) throw new IllegalArgumentException("Field 'id' must not be blank");
-    if (color == null || color.isBlank()) throw new IllegalArgumentException("Field 'color' must not be blank");
-    if (owner == null || owner.isBlank()) throw new IllegalArgumentException("Field 'owner' must not be blank");
+  public void createSensitiveAsset(
+      HypernateContext ctx,
+      String id,
+      String color,
+      int size,
+      String owner,
+      int value,
+      String classLevel,
+      String orgsJson) {
+    if (id == null || id.isBlank())
+      throw new IllegalArgumentException("Field 'id' must not be blank");
+    if (color == null || color.isBlank())
+      throw new IllegalArgumentException("Field 'color' must not be blank");
+    if (owner == null || owner.isBlank())
+      throw new IllegalArgumentException("Field 'owner' must not be blank");
     if (size <= 0) throw new IllegalArgumentException("Field 'size' must be positive");
     if (value <= 0) throw new IllegalArgumentException("Field 'value' must be positive");
 
@@ -53,8 +71,10 @@ public class SampleChaincode implements ContractInterface {
     }
 
     long timestampMs = ctx.getStub().getTxTimestamp().toEpochMilli();
-    
-    SensitiveAsset sensitiveAsset = new SensitiveAsset(id, color, size, owner, value, timestampMs, AssetStatus.ACTIVE, classLevel, orgs);
+
+    SensitiveAsset sensitiveAsset =
+        new SensitiveAsset(
+            id, color, size, owner, value, timestampMs, AssetStatus.ACTIVE, classLevel, orgs);
     ctx.getRegistry().mustCreate(sensitiveAsset);
   }
 
@@ -64,12 +84,17 @@ public class SampleChaincode implements ContractInterface {
   }
 
   @Transaction
-  public List<Asset> queryAssetsByColorAndOwner(HypernateContext ctx, String color, String owner1, String owner2) {
+  public List<Asset> queryAssetsByColorAndOwner(
+      HypernateContext ctx, String color, String owner1, String owner2) {
     try {
-      return ctx.getRegistry().query(Asset.class)
-          .where("color").is(color)
-          .and("owner").in(owner1, owner2)
-          .and("status").is(AssetStatus.ACTIVE.name())
+      return ctx.getRegistry()
+          .query(Asset.class)
+          .where("color")
+          .is(color)
+          .and("owner")
+          .in(owner1, owner2)
+          .and("status")
+          .is(AssetStatus.ACTIVE.name())
           .sortBy("value", SortOrder.DESC)
           .limit(100)
           .execute();
@@ -82,9 +107,12 @@ public class SampleChaincode implements ContractInterface {
   public List<Asset> queryAssetsByValueRange(HypernateContext ctx, int minValue, int maxValue) {
     if (minValue > maxValue) throw new IllegalArgumentException("minValue must be <= maxValue");
     try {
-      return ctx.getRegistry().query(Asset.class)
-          .where("value").between(minValue, maxValue)
-          .and("status").isNot(AssetStatus.ARCHIVED.name())
+      return ctx.getRegistry()
+          .query(Asset.class)
+          .where("value")
+          .between(minValue, maxValue)
+          .and("status")
+          .isNot(AssetStatus.ARCHIVED.name())
           .sortBy("value", SortOrder.ASC)
           .execute();
     } catch (UncommittedStateException e) {
@@ -103,22 +131,30 @@ public class SampleChaincode implements ContractInterface {
   }
 
   @Transaction
-  public Asset initiateTransfer(HypernateContext ctx, String assetId, String currentOwner, String newOwner, int agreedPrice) {
+  public Asset initiateTransfer(
+      HypernateContext ctx, String assetId, String currentOwner, String newOwner, int agreedPrice) {
     Registry registry = ctx.getRegistry();
     Asset asset = registry.mustRead(Asset.class, currentOwner, assetId);
-    
+
     if (asset.getStatus() != AssetStatus.ACTIVE) {
-      throw new RuntimeException(String.format("Asset %s is not in ACTIVE status; current status: %s. Only ACTIVE assets can be transferred.", assetId, asset.getStatus()));
+      throw new RuntimeException(
+          String.format(
+              "Asset %s is not in ACTIVE status; current status: %s. Only ACTIVE assets can be transferred.",
+              assetId, asset.getStatus()));
     }
     if (!asset.getOwner().equals(currentOwner)) {
-      throw new RuntimeException(String.format("Owner mismatch: asset %s is owned by %s, not %s", assetId, asset.getOwner(), currentOwner));
+      throw new RuntimeException(
+          String.format(
+              "Owner mismatch: asset %s is owned by %s, not %s",
+              assetId, asset.getOwner(), currentOwner));
     }
 
-    PricingResponse pricing = ctx.invoke("PricingChaincode", "validatePrice")
-        .withArgs(new PricingRequest(assetId, asset.getValue(), newOwner, agreedPrice))
-        .returning(PricingResponse.class)
-        .execute();
-        
+    PricingResponse pricing =
+        ctx.invoke("PricingChaincode", "validatePrice")
+            .withArgs(new PricingRequest(assetId, asset.getValue(), newOwner, agreedPrice))
+            .returning(PricingResponse.class)
+            .execute();
+
     if (!pricing.valid()) {
       throw new RuntimeException("Transfer rejected by PricingChaincode: " + pricing.notes());
     }
@@ -129,12 +165,15 @@ public class SampleChaincode implements ContractInterface {
   }
 
   @Transaction
-  public Asset completeTransfer(HypernateContext ctx, String assetId, String currentOwner, String newOwner) {
+  public Asset completeTransfer(
+      HypernateContext ctx, String assetId, String currentOwner, String newOwner) {
     Registry registry = ctx.getRegistry();
     Asset asset = registry.mustRead(Asset.class, currentOwner, assetId);
 
     if (asset.getStatus() != AssetStatus.PENDING_TRANSFER) {
-      throw new RuntimeException(String.format("Asset %s is not pending transfer; status: %s", assetId, asset.getStatus()));
+      throw new RuntimeException(
+          String.format(
+              "Asset %s is not pending transfer; status: %s", assetId, asset.getStatus()));
     }
 
     asset.setOwner(newOwner);
@@ -155,7 +194,8 @@ public class SampleChaincode implements ContractInterface {
   }
 
   @Transaction
-  public void setSensitiveAssetPolicy(HypernateContext ctx, String id, String owner, String expression) {
+  public void setSensitiveAssetPolicy(
+      HypernateContext ctx, String id, String owner, String expression) {
     SensitiveAsset asset = ctx.getRegistry().mustRead(SensitiveAsset.class, owner, id);
     EndorsementPolicy policy = EndorsementPolicy.of(expression);
     ctx.getRegistry().setEndorsementPolicy(asset, policy);
@@ -164,7 +204,8 @@ public class SampleChaincode implements ContractInterface {
 
 @Contract(
     name = "PricingChaincode",
-    info = @Info(title = "PricingChaincode", description = "Mock pricing chaincode", version = "1.0"))
+    info =
+        @Info(title = "PricingChaincode", description = "Mock pricing chaincode", version = "1.0"))
 class PricingChaincode implements ContractInterface {
 
   @Transaction
@@ -175,18 +216,29 @@ class PricingChaincode implements ContractInterface {
     } catch (Exception e) {
       throw new IllegalArgumentException("Invalid JSON for PricingRequest: " + e.getMessage(), e);
     }
-    
+
     if (req.currentValue() > 1000) {
       boolean approved = req.offeredPrice() >= req.currentValue() * 0.9;
       if (!approved) {
         try {
-          return JSON.serialize(new PricingResponse(false, 0, 
-              String.format("Offered price %d is below 90%% of market value %d", req.offeredPrice(), req.currentValue())));
-        } catch (Exception e) { throw new RuntimeException(e); }
+          return JSON.serialize(
+              new PricingResponse(
+                  false,
+                  0,
+                  String.format(
+                      "Offered price %d is below 90%% of market value %d",
+                      req.offeredPrice(), req.currentValue())));
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
       }
     }
     try {
-      return JSON.serialize(new PricingResponse(true, req.offeredPrice(), "Transfer approved at price " + req.offeredPrice()));
-    } catch (Exception e) { throw new RuntimeException(e); }
+      return JSON.serialize(
+          new PricingResponse(
+              true, req.offeredPrice(), "Transfer approved at price " + req.offeredPrice()));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }

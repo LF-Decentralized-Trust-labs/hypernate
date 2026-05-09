@@ -37,21 +37,21 @@ public class EndorsementPolicyBuilder {
     if (combinator == null) {
       throw new IllegalStateException("Combinator (and/or/outOf) must be set");
     }
-    
-    String joinedClauses = clauses.stream()
-        .map(c -> "'" + c + "'")
-        .collect(Collectors.joining(", "));
+
+    String joinedClauses =
+        clauses.stream().map(c -> "'" + c + "'").collect(Collectors.joining(", "));
 
     String expression;
     if ("OutOf".equals(combinator)) {
       if (threshold > clauses.size()) {
-        throw new IllegalStateException("OutOf threshold " + threshold + " exceeds number of principals " + clauses.size());
+        throw new IllegalStateException(
+            "OutOf threshold " + threshold + " exceeds number of principals " + clauses.size());
       }
       expression = String.format("OutOf(%d, %s)", threshold, joinedClauses);
     } else {
       expression = String.format("%s(%s)", combinator, joinedClauses);
     }
-    
+
     return EndorsementPolicy.of(expression);
   }
 

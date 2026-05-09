@@ -14,7 +14,15 @@ public class PagedResult<T> {
     this.hasMore = hasMore;
   }
 
-  public List<T> results() { return results; }
-  public String nextBookmark() { return nextBookmark; }
-  public boolean hasMore() { return hasMore; }
+  public List<T> results() {
+    return results;
+  }
+
+  public String nextBookmark() {
+    return nextBookmark;
+  }
+
+  public boolean hasMore() {
+    return hasMore;
+  }
 }

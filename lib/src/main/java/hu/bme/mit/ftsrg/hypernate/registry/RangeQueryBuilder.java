@@ -21,22 +21,24 @@ public class RangeQueryBuilder<T> {
 
   public RangeQueryBuilder<T> withKeyPrefix(Object... prefixParts) {
     validatePrimaryKeyConfiguration();
-    
+
     int expectedCount = Registry.EntityUtil.getPrimaryKeyCount(clazz);
     if (prefixParts.length > expectedCount) {
-      throw new InvalidRangeQueryException(String.format(
-          "Too many prefix parts for %s: provided %d, maximum is %d.", 
-          clazz.getName(), prefixParts.length, expectedCount));
+      throw new InvalidRangeQueryException(
+          String.format(
+              "Too many prefix parts for %s: provided %d, maximum is %d.",
+              clazz.getName(), prefixParts.length, expectedCount));
     }
-    
+
     for (int i = 0; i < prefixParts.length; i++) {
       if (prefixParts[i] == null) {
-        throw new InvalidRangeQueryException(String.format(
-            "Null prefix component at index %d for %s. Null composite key parts produce silently incorrect range scans.", 
-            i, clazz.getName()));
+        throw new InvalidRangeQueryException(
+            String.format(
+                "Null prefix component at index %d for %s. Null composite key parts produce silently incorrect range scans.",
+                i, clazz.getName()));
       }
     }
-    
+
     this.prefixParts = prefixParts;
     this.isFullScan = false;
     return this;
@@ -61,20 +63,25 @@ public class RangeQueryBuilder<T> {
 
   public List<T> execute() {
     if (!isFullScan && prefixParts == null) {
-      throw new InvalidRangeQueryException("execute() called without withKeyPrefix() or fullScan(). Configure the query before executing.");
+      throw new InvalidRangeQueryException(
+          "execute() called without withKeyPrefix() or fullScan(). Configure the query before executing.");
     }
-    
+
     org.hyperledger.fabric.shim.ledger.CompositeKey compositeKey = buildPartialKey();
 
     if (isPaginated) {
-      try (QueryResultsIteratorWithMetadata<org.hyperledger.fabric.shim.ledger.KeyValue> iter = 
-          registry.getStub().getStateByPartialCompositeKeyWithPagination(compositeKey, pageSize, bookmark)) {
+      try (QueryResultsIteratorWithMetadata<org.hyperledger.fabric.shim.ledger.KeyValue> iter =
+          registry
+              .getStub()
+              .getStateByPartialCompositeKeyWithPagination(compositeKey, pageSize, bookmark)) {
         return QueryResultCollector.collect(iter, clazz);
       } catch (Exception e) {
         throw new RuntimeException("Failed to close iterator or collect results", e);
       }
     } else {
-      try (org.hyperledger.fabric.shim.ledger.QueryResultsIterator<org.hyperledger.fabric.shim.ledger.KeyValue> iter = registry.getStub().getStateByPartialCompositeKey(compositeKey)) {
+      try (org.hyperledger.fabric.shim.ledger.QueryResultsIterator<
+              org.hyperledger.fabric.shim.ledger.KeyValue>
+          iter = registry.getStub().getStateByPartialCompositeKey(compositeKey)) {
         return QueryResultCollector.collect(iter, clazz);
       } catch (Exception e) {
         throw new RuntimeException("Failed to close iterator or collect results", e);
@@ -84,15 +91,19 @@ public class RangeQueryBuilder<T> {
 
   public PagedResult<T> executePaged() {
     if (!isPaginated) {
-      throw new IllegalStateException("executePaged() requires .paginated() to be configured first.");
+      throw new IllegalStateException(
+          "executePaged() requires .paginated() to be configured first.");
     }
     if (!isFullScan && prefixParts == null) {
-      throw new InvalidRangeQueryException("executePaged() called without withKeyPrefix() or fullScan().");
+      throw new InvalidRangeQueryException(
+          "executePaged() called without withKeyPrefix() or fullScan().");
     }
 
     org.hyperledger.fabric.shim.ledger.CompositeKey compositeKey = buildPartialKey();
-    try (QueryResultsIteratorWithMetadata<org.hyperledger.fabric.shim.ledger.KeyValue> iter = 
-        registry.getStub().getStateByPartialCompositeKeyWithPagination(compositeKey, pageSize, bookmark)) {
+    try (QueryResultsIteratorWithMetadata<org.hyperledger.fabric.shim.ledger.KeyValue> iter =
+        registry
+            .getStub()
+            .getStateByPartialCompositeKeyWithPagination(compositeKey, pageSize, bookmark)) {
       String nextBookmark = iter.getMetadata().getBookmark();
       boolean hasMore = !nextBookmark.isEmpty() || iter.getMetadata().getFetchedRecordsCount() > 0;
       List<T> results = QueryResultCollector.collect(iter, clazz);
@@ -104,9 +115,10 @@ public class RangeQueryBuilder<T> {
 
   private void validatePrimaryKeyConfiguration() {
     if (Registry.EntityUtil.getPrimaryKeyCount(clazz) == 0) {
-      throw new InvalidRangeQueryException(String.format(
-          "Cannot range-query %s: no @PrimaryKey annotation found. Range queries require at least one composite key field.", 
-          clazz.getName()));
+      throw new InvalidRangeQueryException(
+          String.format(
+              "Cannot range-query %s: no @PrimaryKey annotation found. Range queries require at least one composite key field.",
+              clazz.getName()));
     }
   }
 
