@@ -10,8 +10,6 @@ import org.slf4j.event.Level;
 /**
  * Stub middleware that simply logs all {@link ChaincodeStub#getState(String)}, {@link
  * ChaincodeStub#putState(String, byte[])}, and {@link ChaincodeStub#delState(String)} calls.
- *
- * @see StubMiddleware
  */
 public class LoggingStubMiddleware extends StubMiddleware {
 
@@ -19,14 +17,31 @@ public class LoggingStubMiddleware extends StubMiddleware {
 
   private final Level logLevel;
 
+  /**
+   * Create a new instance with a default logger retrieved from {@link LoggerFactory} and using the
+   * default {@link Level#DEBUG} log level.
+   */
   public LoggingStubMiddleware() {
     this(LoggerFactory.getLogger(LoggingStubMiddleware.class));
   }
 
+  /**
+   * Create a new instance with the given {@code logger} using the default {@link Level#DEBUG} log
+   * level.
+   *
+   * @param logger the logger to use
+   */
   public LoggingStubMiddleware(final Logger logger) {
     this(logger, Level.DEBUG);
   }
 
+  /**
+   * Create a new instance with the given {@code logger} defaulting to the specified {@code
+   * logLevel}.
+   *
+   * @param logger the logger to use
+   * @param logLevel the level at which logs should be shown
+   */
   public LoggingStubMiddleware(final Logger logger, final Level logLevel) {
     this.logger = logger;
     this.logLevel = logLevel;

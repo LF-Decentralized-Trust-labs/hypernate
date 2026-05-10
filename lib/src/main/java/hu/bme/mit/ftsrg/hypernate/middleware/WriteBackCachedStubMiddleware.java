@@ -11,11 +11,7 @@ import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Stub middleware that caches reads in a local state.
- *
- * @see StubMiddleware
- */
+/** Stub middleware that caches reads in a local state. */
 @Loggable(Loggable.DEBUG)
 public final class WriteBackCachedStubMiddleware extends StubMiddleware {
 
