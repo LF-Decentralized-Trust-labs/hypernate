@@ -1,33 +1,21 @@
 ---
-name: 🐛 Bug Report
-about: Create a report to help us improve Hypernate
-title: '[BUG] '
+name: Bug Report
+about: Report a bug in Hypernate
+title: 'bug: '
 labels: bug
-assignees: ''
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+### Description
+A concise description of the issue.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+### Reproduction
+```java
+// Provide a minimal code snippet or steps to reproduce
+```
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+### Context
+- **Hypernate:** [v0.1.0]
+- **Environment:** [Java 17, Fabric v2.5]
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Environment (please complete the following information):**
- - Hypernate Version: [e.g. 0.1.0]
- - Fabric Java SDK Version: [e.g. 2.2.x]
- - Java Version: [e.g. 17]
- - OS: [e.g. macOS, Ubuntu]
-
-**Additional context**
-Add any other context about the problem here.
+### Expected Behavior
+What should have happened?
