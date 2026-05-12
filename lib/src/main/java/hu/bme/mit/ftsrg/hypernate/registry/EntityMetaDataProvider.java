@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 public class EntityMetaDataProvider {
   private static final Logger logger = LoggerFactory.getLogger(EntityMetaDataProvider.class);
   private EntityMetaDataInventory metaInventory = new EntityMetaDataInventory();
+  private Map<Class<?>, EntityKeyProvider> keyProviders = new HashMap<>();
 
   public EntityMetaDataProvider() {
 
@@ -161,6 +162,14 @@ public class EntityMetaDataProvider {
    * 
    */
   public EntityKeyProvider getKeyProviderForClass(Class<?> clazz) {
+    if (!keyProviders.containsKey(clazz)) {
+      EntityKeyProvider provider = createEntityKeyProvider(clazz);
+      keyProviders.put(clazz, provider);
+    }
+    return keyProviders.get(clazz);
+  }
+
+  private EntityKeyProvider createEntityKeyProvider(Class<?> clazz) {
     try {
       EntityMeta em = metaInventory.getForClass(clazz);
 
