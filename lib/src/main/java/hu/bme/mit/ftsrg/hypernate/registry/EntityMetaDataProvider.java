@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import org.hyperledger.fabric.shim.ChaincodeException;
 import org.hyperledger.fabric.shim.ledger.CompositeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,11 +63,76 @@ public class EntityMetaDataProvider {
     return mapKeyPartsToString(entity.getClass(), keyParts);
   }
 
+  /*
+   * <T> String[] mapKeyPartsToString(final Class<T> clazz, final Object...
+   * keyParts) {
+   * final AttributeInfo[] attrInfos = getPrimaryKeyAnnot(clazz).value();
+   * return IntStream.range(0, Math.min(attrInfos.length, keyParts.length))
+   * .mapToObj(i -> applyAttrMapper(attrInfos[i], keyParts[i]))
+   * .toArray(String[]::new);
+   * }
+   */
+
   <T> String[] mapKeyPartsToString(final Class<T> clazz, final Object... keyParts) {
-    final AttributeInfo[] attrInfos = getPrimaryKeyAnnot(clazz).value();
-    return IntStream.range(0, Math.min(attrInfos.length, keyParts.length))
-        .mapToObj(i -> applyAttrMapper(attrInfos[i], keyParts[i]))
-        .toArray(String[]::new);
+    EntityMeta em = metaInventory.getForClass(clazz);
+    if (em == null) {
+      throw new ChaincodeException("Could not find key generation method.");
+    }
+    List<Field> fields = new ArrayList<>();
+    List<AttributeMapper> mappers = new ArrayList<>();
+    PrimaryKeyDescriptor pk = em.getPrimaryKeyDescriptor();
+    List<AttributeDescriptor> pkAttributeDescriptors = pk.getAttributeDescriptiors();
+    for (AttributeDescriptor descriptor : pkAttributeDescriptors) {
+      try {
+        Field field = clazz.getDeclaredField(descriptor.getAttrFieldName());
+        field.setAccessible(true);
+        fields.add(field);
+      } catch (Exception e) {
+        throw new RuntimeException("Error accessing fields for class: " + clazz.getName(), e);
+      }
+      try {
+        if (descriptor.getAttributeMapperDescriptor() == null) {
+          mappers.add(null);
+          continue;
+        }
+        String mappername = descriptor.getAttributeMapperDescriptor().getMapperName();
+        Class<?> mapperClass = Class.forName(mappername);
+        Constructor<?> mapperConstructor;
+        try {
+          mapperConstructor = mapperClass.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+          logger.error("Could not find no-arg constructor for mapper {}", mapperClass.getName());
+          throw new RuntimeException(e);
+        }
+        AttributeMapper mapper;
+        try {
+          mapper = (AttributeMapper) mapperConstructor.newInstance();
+          mappers.add(mapper);
+        } catch (InstantiationException e) {
+          logger.error("Failed to instantiate mapper {}", mapperClass.getName());
+          throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+          logger.error("Could not access constructor for mapper {}", mapperClass.getName());
+          throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+          logger.error(
+              "An exception was thrown by the constructor of mapper {}", mapperClass.getName());
+          throw new RuntimeException(e);
+        }
+      } catch (Exception e) {
+        throw new RuntimeException("Something went wrong, while accessing the mappers:", e);
+      }
+    }
+    List<String> stringKeyParts = new ArrayList<>();
+    for (int i = 0; i < fields.size(); i++) {
+      String value = keyParts[i].toString();
+      if (mappers.get(i) != null) {
+        stringKeyParts.add(mappers.get(i).apply(value));
+      } else {
+        stringKeyParts.add(value);
+      }
+    }
+    return stringKeyParts.toArray(String[]::new);
   }
 
   <T> byte[] toBuffer(final T entity) {
@@ -149,6 +215,14 @@ public class EntityMetaDataProvider {
     return value;
   }
 
+  public EntityKeyProvider getKeyProviderForClass(Class<?> clazz) {
+    if (!keyProviders.containsKey(clazz)) {
+      EntityKeyProvider provider = createEntityKeyProvider(clazz);
+      keyProviders.put(clazz, provider);
+    }
+    return keyProviders.get(clazz);
+  }
+
   /**
    * Generates a lambda which builds a CompositeKey for a given class instance
    * 
@@ -161,14 +235,6 @@ public class EntityMetaDataProvider {
    * @return a lambda that creates a CompositeKey for an object instance
    * 
    */
-  public EntityKeyProvider getKeyProviderForClass(Class<?> clazz) {
-    if (!keyProviders.containsKey(clazz)) {
-      EntityKeyProvider provider = createEntityKeyProvider(clazz);
-      keyProviders.put(clazz, provider);
-    }
-    return keyProviders.get(clazz);
-  }
-
   private EntityKeyProvider createEntityKeyProvider(Class<?> clazz) {
     try {
       EntityMeta em = metaInventory.getForClass(clazz);

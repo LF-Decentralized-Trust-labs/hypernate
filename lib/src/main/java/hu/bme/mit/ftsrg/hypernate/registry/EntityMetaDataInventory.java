@@ -1,15 +1,19 @@
 package hu.bme.mit.ftsrg.hypernate.registry;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.LoggerFactory;
+import org.hyperledger.fabric.shim.ChaincodeException;
 import org.slf4j.Logger;
 
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.KeyClass;
 import hu.bme.mit.ftsrg.hypernate.annotations.MapperInfo;
+import hu.bme.mit.ftsrg.hypernate.annotations.Order;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
@@ -123,6 +127,13 @@ public class EntityMetaDataInventory {
         PrimaryKeyDescriptor pKeyDescriptor = new PrimaryKeyDescriptor(meta);
         Field[] fields = classes.getDeclaredFields();
         for (Field field : fields) {
+            if (!field.isAnnotationPresent(Order.class)) {
+                throw new ChaincodeException(
+                        "There is at least one Field without order in the class annotated with KeyClass");
+            }
+        }
+        Arrays.sort(fields, Comparator.comparingInt(f -> f.getAnnotation(Order.class).value()));
+        for (Field field : fields) {
             String name = field.getName();
             AttributeDescriptor attributeDescriptor = new AttributeDescriptor(pKeyDescriptor, name, null);
             if (field.isAnnotationPresent(MapperInfo.class)) {
@@ -133,7 +144,6 @@ public class EntityMetaDataInventory {
                             mapperName);
                     attributeDescriptor.setAttributeMapperDescriptor(mapperDescriptor);
                 }
-
             }
             pKeyDescriptor.add(attributeDescriptor);
         }
