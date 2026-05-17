@@ -156,4 +156,8 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
       return this.value != null;
     }
   }
+
+  public boolean hasUncommittedState() {
+    return cache.values().stream().anyMatch(CachedItem::isDirty);
+  }
 }
