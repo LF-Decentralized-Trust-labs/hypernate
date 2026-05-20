@@ -1,7 +1,6 @@
 package hu.bme.mit.ftsrg.hypernate.registry;
 
 import com.jcabi.aspects.Loggable;
-import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.mappers.AttributeMapper;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityKeyProvider;
@@ -11,7 +10,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 
 import org.hyperledger.fabric.shim.ChaincodeException;
 import org.hyperledger.fabric.shim.ledger.CompositeKey;
@@ -34,12 +32,6 @@ public class EntityMetaDataProvider {
 
   <T> String getType(final Class<T> clazz) {
     return clazz.getName().toUpperCase();
-  }
-
-  <T> int getPrimaryKeyCount(final Class<T> clazz) {
-    return clazz.getAnnotation(PrimaryKey.class) != null
-        ? clazz.getAnnotation(PrimaryKey.class).value().length
-        : 0;
   }
 
   <T> String[] mapKeyPartsToString(final T entity, final Object... keyParts) {
@@ -219,5 +211,9 @@ public class EntityMetaDataProvider {
 
   public String createCompositeKey(Class<?> clazz, Object... keyParts) {
     return new CompositeKey(getType(clazz), mapKeyPartsToString(clazz, keyParts)).toString();
+  }
+
+  public EntityMetaDataInventory getMetaDataInventory() {
+    return metaInventory;
   }
 }

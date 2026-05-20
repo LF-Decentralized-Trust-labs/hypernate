@@ -137,13 +137,14 @@ public class Registry {
    *                                 not found
    */
   public <T> T mustRead(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
-    int primaryKeyCount = entityProvider.getPrimaryKeyCount(clazz);
-    if (primaryKeyCount == 0) {
+    EntityKeyProvider provider = entityProvider.getKeyProviderForClass(clazz);
+    if (provider == null) {
       throw new MissingPrimaryKeysException(
-          String.format("%s does not have a primary key annotation", clazz));
+          String.format("%s does not have a key annotation", clazz));
     }
-
-    if (keyParts.length != primaryKeyCount) {
+    EntityMeta meta = entityProvider.getMetaDataInventory().getForClass(clazz);
+    int keyCount = meta.getPrimaryKeyDescriptor().getAttributeDescriptiors().size();
+    if (keyParts.length != keyCount) {
       throw new IllegalArgumentException(
           "The number of key parts provided does not match number of primary keys for "
               + clazz.getName());
