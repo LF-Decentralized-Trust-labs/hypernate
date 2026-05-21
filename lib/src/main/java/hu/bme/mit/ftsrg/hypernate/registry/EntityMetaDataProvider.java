@@ -201,7 +201,7 @@ public class EntityMetaDataProvider {
         return new CompositeKey(clazz.getName(), keyParts).toString();
       };
     } catch (Exception e) {
-      throw new RuntimeException("Failed to provide EntityKeyProvider for class: " + clazz.getName(), e);
+      throw new MissingKeysException("Failed to provide EntityKeyProvider for class: " + clazz.getName(), e);
     }
   }
 

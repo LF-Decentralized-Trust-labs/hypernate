@@ -139,7 +139,7 @@ public class Registry {
   public <T> T mustRead(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
     EntityKeyProvider provider = entityProvider.getKeyProviderForClass(clazz);
     if (provider == null) {
-      throw new MissingPrimaryKeysException(
+      throw new MissingKeysException(
           String.format("%s does not have a key annotation", clazz));
     }
     EntityMeta meta = entityProvider.getMetaDataInventory().getForClass(clazz);
@@ -228,6 +228,7 @@ public class Registry {
     }
   }
 
+  @Loggable(Loggable.DEBUG)
   private <T> String getCompositeKey(final T ent) {
     EntityKeyProvider keyProvider = entityProvider.getKeyProviderForClass(ent.getClass());
     return keyProvider.getKey(ent);
