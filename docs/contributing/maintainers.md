@@ -17,4 +17,4 @@ Below is a table of active Hypernate maintainers.
 - [Budapest University of Technology and Economics](https://www.bme.hu/en/)
   - [Faculty of Electrical Engineering and Informatics](https://www.vik.bme.hu/en/)
     - [Department of Artificial Intelligence and Systems Engineering](http://www.mit.bme.hu/eng/)
-      - [Critical Systems Research Group](https://ftsrg.mit.bme.hu/en/)
+        - [Critical Systems Research Group](https://ftsrg.mit.bme.hu/en/)
