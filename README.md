@@ -202,15 +202,15 @@ So it is possible that the original stub won’t even get the call, it is served
 
 
 
-## Developer Guide
+## Contributing
 
-The preferred way of contribution is:
+Contributions are welcome! See the [Contributing guide](CONTRIBUTING.md) — or the
+[documentation site](https://lf-decentralized-trust-labs.github.io/hypernate/) — for how to report
+issues, set up your environment, and submit pull requests.
 
-1. Fork the repository;
-2. Create a branch with a meaningful name;
-3. Make your changes using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary);
-4. Push the branch to your fork;
-5. Create a pull request.
+In short: fork the repository, create a branch with a meaningful name, make your changes using
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary), sign off your
+commits (`git commit -s`), and open a pull request.
 
 
 

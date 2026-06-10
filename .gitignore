@@ -187,3 +187,4 @@ gradle-app.setting
 .idea/
 lib/bin/
 site/
+.venv/

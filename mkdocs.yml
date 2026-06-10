@@ -48,6 +48,11 @@ nav:
       - Annotations: api/annotations.md
   - Contributing:
       - Overview: contributing/index.md
+      - Reporting Issues: contributing/issues.md
+      - Working with the Code: contributing/development.md
+      - Submitting Pull Requests: contributing/pull-requests.md
+      - Contributing with AI Agents: contributing/ai-agents.md
+      - Contributing to the Docs: contributing/documentation.md
       - Maintainers: contributing/maintainers.md
   - References:
       - Citing: references/citing.md

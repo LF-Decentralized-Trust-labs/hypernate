@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a problem with Hypernate
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report! Please search existing issues first to
+        avoid duplicates.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, including what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: A minimal code snippet or test that reproduces the problem is ideal.
+    validations:
+      required: true
+  - type: input
+    id: hypernate-version
+    attributes:
+      label: Hypernate version
+      description: Release tag or commit SHA.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: JDK version, Hyperledger Fabric version, and operating system.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or stack traces
+      description: Paste any relevant output. It will be rendered as code automatically.
+      render: shell
+    validations:
+      required: false
