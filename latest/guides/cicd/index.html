@@ -790,6 +790,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#triage-label" class="md-nav__link">
+    <span class="md-ellipsis">
+      Triage Label
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-approval" class="md-nav__link">
+    <span class="md-ellipsis">
+      Design Approval
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stale-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stale PRs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reading-ci-results" class="md-nav__link">
     <span class="md-ellipsis">
       Reading CI Results
@@ -1163,6 +1190,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#triage-label" class="md-nav__link">
+    <span class="md-ellipsis">
+      Triage Label
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-approval" class="md-nav__link">
+    <span class="md-ellipsis">
+      Design Approval
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stale-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stale PRs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reading-ci-results" class="md-nav__link">
     <span class="md-ellipsis">
       Reading CI Results
@@ -1240,6 +1294,21 @@
 <td><code>.github/workflows/build.yml</code></td>
 <td>Formatting checks, compilation, and tests</td>
 </tr>
+<tr>
+<td>Triage Label</td>
+<td><code>.github/workflows/triage_label.yml</code></td>
+<td>Labels newly opened issues with <code>needs-triage</code></td>
+</tr>
+<tr>
+<td>Design Approval</td>
+<td><code>.github/workflows/check_design_approval.yml</code></td>
+<td>Flags PRs without a linked design/approved issue</td>
+</tr>
+<tr>
+<td>Stale PRs</td>
+<td><code>.github/workflows/stale_not_approved.yml</code></td>
+<td>Marks and eventually closes stale, non-approved PRs</td>
+</tr>
 </tbody>
 </table>
 <h2 id="build-test">Build &amp; Test</h2>
@@ -1248,6 +1317,18 @@ requests that touch code-relevant files.</p>
 <p>Documentation-only changes are skipped via path filters.</p>
 <p>If a new commit is pushed while a run is already in progress for the same branch, the older run is
 automatically canceled.</p>
+<h2 id="triage-label">Triage Label</h2>
+<p>When an issue is opened, the Triage Label workflow automatically adds the <code>needs-triage</code> label so
+new issues are easy to find and route.</p>
+<h2 id="design-approval">Design Approval</h2>
+<p>On every pull request (opened, edited, synchronized, or reopened), the Design Approval workflow checks that the PR links to an issue carrying the <code>design/approved</code> label.
+PRs that lack such a linked issue are flagged via the <code>needs-approved-issue</code> label.</p>
+<p>Because the workflow is triggered by changes to the PR, it will not rerun if a non-<code>design/approved</code> issue gets the <code>design/approved</code> label.
+In these cases, either a maintainer can force rerun the check or you can make a dummy change to the PR body (like adding a newline) and it will trigger the workflow.</p>
+<h2 id="stale-prs">Stale PRs</h2>
+<p>A scheduled daily job marks pull requests carrying the <code>needs-approved-issue</code> label as <code>stale</code>
+after 14 days of inactivity and closes them after 60 days. PRs labeled <code>pinned</code> or <code>security</code> are
+exempt. Issues are never affected.</p>
 <h2 id="reading-ci-results">Reading CI Results</h2>
 <ol>
 <li><strong>Status check on PRs</strong> - The workflow result appears as a check on the pull request page.</li>
