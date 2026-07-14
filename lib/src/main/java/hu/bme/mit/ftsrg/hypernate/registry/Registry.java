@@ -26,9 +26,23 @@ public class Registry {
   private static final Logger logger = LoggerFactory.getLogger(Registry.class);
 
   private final ChaincodeStub stub;
+  private final EntityStateStore store;
 
   public Registry(final ChaincodeStub stub) {
+    this(stub, new PublicStateStore(stub));
+  }
+
+  Registry(final ChaincodeStub stub, final EntityStateStore store) {
     this.stub = stub;
+    this.store = store;
+  }
+
+  public PrivateDataRegistry privateData(final String collection) {
+    if (collection == null || collection.isBlank()) {
+      throw new IllegalArgumentException("Private data collection name must not be blank");
+    }
+
+    return new PrivateDataRegistry(stub, collection);
   }
 
   /**
@@ -43,7 +57,7 @@ public class Registry {
 
     final String key = getCompositeKey(entity);
     final byte[] buffer = EntityUtil.toBuffer(entity);
-    stub.putState(key, buffer);
+    store.put(key, buffer);
   }
 
   /**
@@ -76,7 +90,7 @@ public class Registry {
 
     final String key = getCompositeKey(entity);
     final byte[] buffer = EntityUtil.toBuffer(entity);
-    stub.putState(key, buffer);
+    store.put(key, buffer);
   }
 
   /**
@@ -108,7 +122,7 @@ public class Registry {
     assertExists(entity);
 
     final String key = getCompositeKey(entity);
-    stub.delState(key);
+    store.delete(key);
   }
 
   /**
@@ -155,7 +169,7 @@ public class Registry {
         stub.createCompositeKey(
                 EntityUtil.getType(clazz), EntityUtil.mapKeyPartsToString(clazz, keyParts))
             .toString();
-    final byte[] data = stub.getState(key);
+    final byte[] data = store.get(key);
 
     if (data == null || data.length == 0) {
       throw new EntityNotFoundException(key);
@@ -190,7 +204,7 @@ public class Registry {
    */
   public <T> List<T> readAll(final Class<T> clazz) {
     final String key = stub.createCompositeKey(EntityUtil.getType(clazz)).toString();
-    Iterator<KeyValue> iterator = stub.getStateByPartialCompositeKey(key).iterator();
+    Iterator<KeyValue> iterator = store.getByPartialCompositeKey(key).iterator();
     Iterable<KeyValue> iterable = () -> iterator;
     return StreamSupport.stream(iterable.spliterator(), false)
         .map(
@@ -208,7 +222,7 @@ public class Registry {
 
   @Loggable(Loggable.DEBUG)
   private boolean keyExists(final String key) {
-    final byte[] valueOnLedger = stub.getState(key);
+    final byte[] valueOnLedger = store.get(key);
     return valueOnLedger != null && valueOnLedger.length > 0;
   }
 
