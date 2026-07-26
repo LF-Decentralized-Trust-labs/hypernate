@@ -248,7 +248,18 @@ public class Registry {
 
     <T> String getType(final Class<T> clazz) {
       final EntityType annot = clazz.getAnnotation(EntityType.class);
-      return annot != null ? annot.value() : clazz.getName();
+      if (annot == null) {
+        return clazz.getName();
+      }
+
+      final String value = annot.value();
+      if (value.isBlank()) {
+        throw new IllegalArgumentException(
+            String.format(
+                "The @EntityType annotation on class %s has an empty or blank value",
+                clazz.getName()));
+      }
+      return value;
     }
 
     <T> int getPrimaryKeyCount(final Class<T> clazz) {
