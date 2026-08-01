@@ -120,15 +120,24 @@ module.exports = async ({ github, context, core }) => {
 
   // Fallback: If no closing issues found via GraphQL, parse body/title/branch for referenced issues
   if (linkedIssues.length === 0) {
-    const issueRegex = /(?:[Cc]loses|[Ff]ixes|[Rr]esolves|[Rr]elated to|[Rr]ef|issue-?|\#)\s*(\d+)/g
+    const issueRefRegex = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?|ref[s]?|see|pending|related|issue)[s]?\s*#?(\d+)\b/gi
+    const hashRegex = /#(\d+)/g
+    const branchRegex = /issue-?(\d+)/gi
     const textToScan = `${prTitle}\n${prBody}\n${headRefName}`
     const candidateNumbers = new Set()
     let match
-    while ((match = issueRegex.exec(textToScan)) !== null) {
+
+    while ((match = issueRefRegex.exec(textToScan)) !== null) {
       const num = parseInt(match[1], 10)
-      if (num !== prNumber) {
-        candidateNumbers.add(num)
-      }
+      if (num && num !== prNumber) candidateNumbers.add(num)
+    }
+    while ((match = hashRegex.exec(textToScan)) !== null) {
+      const num = parseInt(match[1], 10)
+      if (num && num !== prNumber) candidateNumbers.add(num)
+    }
+    while ((match = branchRegex.exec(textToScan)) !== null) {
+      const num = parseInt(match[1], 10)
+      if (num && num !== prNumber) candidateNumbers.add(num)
     }
 
     if (candidateNumbers.size > 0) {
