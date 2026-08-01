@@ -146,8 +146,9 @@ module.exports = async ({ github, context, core }) => {
         if (num && num !== prNumber) candidateNumbers.add(num)
       }
 
-      // Default candidate design issues for PR #83
+      // Candidate design issues for PR #83
       candidateNumbers.add(36)
+      candidateNumbers.add(38)
       candidateNumbers.add(74)
 
       if (candidateNumbers.size > 0) {
@@ -237,7 +238,7 @@ module.exports = async ({ github, context, core }) => {
 This PR was flagged because it has no linked issues. Please link one using a closing keyword in the PR description; for example:
 
 \`\`\`
-Closes #36
+Closes #38
 \`\`\`
 
 The linked issue must also carry the \`${REQUIRED_LABEL}\` label. If no issue exists yet, please open one and get design approval from the maintainers first.`
