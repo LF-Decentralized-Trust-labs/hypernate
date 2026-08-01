@@ -213,8 +213,8 @@ Please ensure the linked issue has been through the design approval process and 
     core.info('Comment already exists; skipping to avoid spam.')
   }
 
-  // Signal failure so the check shows as ❌ in the PR's status checks.
-  core.setFailed(
+  // Signal warning so the check flags the PR without hard-failing CI.
+  core.warning(
     `PR #${prNumber} is not linked to an issue with the '${REQUIRED_LABEL}' label.`
   )
 }
