@@ -1,6 +1,11 @@
 name: Deploy Documentation
 
 on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/docs.yml'
   push:
     branches:
       - main
@@ -11,7 +16,29 @@ permissions:
   contents: write
 
 jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Markdown lint
+        run: npx markdownlint-cli2 "docs/**/*.md"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r docs/requirements.txt
+      - name: Link validation
+        run: mkdocs build --strict
+      - name: Spell check
+        run: npx cspell "docs/**/*.md"
+
   deploy-latest:
+    needs: validate-docs
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -33,6 +60,7 @@ jobs:
           mike set-default --push latest
 
   deploy-version:
+    needs: validate-docs
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
