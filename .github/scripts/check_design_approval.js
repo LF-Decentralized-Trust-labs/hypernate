@@ -19,6 +19,9 @@ const QUERY = `
     repository(owner: $owner, name: $repo) {
       pullRequest(number: $prNumber) {
         author { login }
+        title
+        body
+        headRefName
         labels(first: 10) {
           nodes { name }
         }
@@ -85,14 +88,54 @@ module.exports = async ({ github, context, core }) => {
 
   const pr = repository.pullRequest
   const prAuthor = pr.author.login
+  const prBody = pr.body || ''
+  const prTitle = pr.title || ''
+  const headRefName = pr.headRefName || ''
   const currentLabelNames = pr.labels.nodes.map((l) => l.name)
-  const linkedIssues = pr.closingIssuesReferences.nodes
+  let linkedIssues = pr.closingIssuesReferences.nodes
 
   core.info(
     linkedIssues.length
-      ? `Found ${linkedIssues.length} linked issue(s): ${linkedIssues.map((i) => `#${i.number}`).join(', ')}`
-      : 'No linked issues found.'
+      ? `Found ${linkedIssues.length} closing issue reference(s) via GraphQL: ${linkedIssues.map((i) => `#${i.number}`).join(', ')}`
+      : 'No closing issue references found via GraphQL.'
   )
+
+  // Fallback: If no closing issues found via GraphQL, parse body/title/branch for referenced issues
+  if (linkedIssues.length === 0) {
+    const issueRegex = /(?:[Cc]loses|[Ff]ixes|[Rr]esolves|[Rr]elated to|[Rr]ef|issue-?|\#)\s*(\d+)/g
+    const textToScan = `${prTitle}\n${prBody}\n${headRefName}`
+    const candidateNumbers = new Set()
+    let match
+    while ((match = issueRegex.exec(textToScan)) !== null) {
+      const num = parseInt(match[1], 10)
+      if (num !== prNumber) {
+        candidateNumbers.add(num)
+      }
+    }
+
+    if (candidateNumbers.size > 0) {
+      core.info(`Scanning referenced issue candidates: ${Array.from(candidateNumbers).map((n) => `#${n}`).join(', ')}`)
+      const fallbackNodes = []
+      for (const num of candidateNumbers) {
+        try {
+          const { data: issueData } = await github.rest.issues.get({
+            owner,
+            repo,
+            issue_number: num
+          })
+          fallbackNodes.push({
+            number: num,
+            labels: {
+              nodes: (issueData.labels || []).map((l) => (typeof l === 'string' ? { name: l } : { name: l.name }))
+            }
+          })
+        } catch (err) {
+          core.info(`Could not fetch candidate issue #${num}: ${err.message}`)
+        }
+      }
+      linkedIssues = fallbackNodes
+    }
+  }
 
   // ── 2. Check linked issues for the required label ───────────────────
   let approvedIssue = null
@@ -139,24 +182,24 @@ module.exports = async ({ github, context, core }) => {
 
   // Bot comments have __typename "Bot" on the author node in GraphQL.
   const alreadyCommented = pr.comments.nodes.some(
-    (c) => c.author.__typename === 'Bot' && c.body.includes(REQUIRED_LABEL)
+    (c) => c.author && c.author.__typename === 'Bot' && c.body.includes(REQUIRED_LABEL)
   )
   if (!alreadyCommented) {
     const message =
       linkedIssues.length === 0
         ? `Hey @${prAuthor}, thanks for the contribution! 👋
- 
-This PR was flagged because it has no linked issues.  Please link one using a closing keyword in the PR description; for example:
- 
+
+This PR was flagged because it has no linked issues. Please link one using a closing keyword in the PR description; for example:
+
 \`\`\`
-Closes #<issue-number>
+Closes #74
 \`\`\`
- 
-The linked issue must also carry the \`${REQUIRED_LABEL}\` label.  If no issue exists yet, please open one and get design approval from the maintainers first.`
+
+The linked issue must also carry the \`${REQUIRED_LABEL}\` label. If no issue exists yet, please open one and get design approval from the maintainers first.`
         : `Hey @${prAuthor}, thanks for the contribution! 👋
- 
+
 This PR was flagged because the linked issue(s) (${linkedIssues.map((i) => `#${i.number}`).join(', ')}) do not have the \`${REQUIRED_LABEL}\` label.
- 
+
 Please ensure the linked issue has been through the design approval process and carries the \`${REQUIRED_LABEL}\` label before this PR can be merged.`
 
     await github.rest.issues.createComment({
