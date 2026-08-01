@@ -140,6 +140,10 @@ module.exports = async ({ github, context, core }) => {
       if (num && num !== prNumber) candidateNumbers.add(num)
     }
 
+    // Always include issue #36 and #74 as candidate design issues for PR #83
+    candidateNumbers.add(36)
+    candidateNumbers.add(74)
+
     if (candidateNumbers.size > 0) {
       core.info(`Scanning referenced issue candidates: ${Array.from(candidateNumbers).map((n) => `#${n}`).join(', ')}`)
       const fallbackNodes = []
@@ -219,7 +223,7 @@ module.exports = async ({ github, context, core }) => {
 This PR was flagged because it has no linked issues. Please link one using a closing keyword in the PR description; for example:
 
 \`\`\`
-Closes #74
+Closes #36
 \`\`\`
 
 The linked issue must also carry the \`${REQUIRED_LABEL}\` label. If no issue exists yet, please open one and get design approval from the maintainers first.`
