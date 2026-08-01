@@ -22,6 +22,7 @@ const QUERY = `
         title
         body
         headRefName
+        isDraft
         labels(first: 10) {
           nodes { name }
         }
@@ -87,11 +88,28 @@ module.exports = async ({ github, context, core }) => {
   })
 
   const pr = repository.pullRequest
-  const prAuthor = pr.author.login
+  const prAuthor = pr.author ? pr.author.login : 'contributor'
   const prBody = pr.body || ''
   const prTitle = pr.title || ''
   const headRefName = pr.headRefName || ''
+  const isDraft = pr.isDraft || false
   const currentLabelNames = pr.labels.nodes.map((l) => l.name)
+
+  // Bypass check for draft PRs or PRs with bypass labels ('no-design-required' / 'design/approved')
+  if (isDraft || currentLabelNames.includes('no-design-required') || currentLabelNames.includes(REQUIRED_LABEL)) {
+    core.info('PR is draft or carries a bypass label -- design approval check passes.')
+    if (currentLabelNames.includes(FLAG_LABEL)) {
+      core.info(`Removing '${FLAG_LABEL}' label.`)
+      await github.rest.issues.removeLabel({
+        owner,
+        repo,
+        issue_number: prNumber,
+        name: FLAG_LABEL
+      })
+    }
+    return
+  }
+
   let linkedIssues = pr.closingIssuesReferences.nodes
 
   core.info(
