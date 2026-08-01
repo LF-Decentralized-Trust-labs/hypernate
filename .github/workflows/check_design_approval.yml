@@ -1,0 +1,27 @@
+---
+name: Flag PRs that do not have associated design/approved issues
+
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+
+jobs:
+  check:
+    name: Linked issue has design/approved
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run design-approval check
+        uses: actions/github-script@v9
+        with:
+          script: |-
+            const script = require('./.github/scripts/check_design_approval.js')
+            await script({ github, context, core })

@@ -107,6 +107,11 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
     cached.delete();
   }
 
+  @Override
+  protected void onTransactionEnd() {
+    dispose();
+  }
+
   /**
    * Apply the cache changes.
    *
@@ -117,10 +122,10 @@ public final class WriteBackCachedStubMiddleware extends StubMiddleware {
     for (final Map.Entry<String, CachedItem> entry : cache.entrySet()) {
       final CachedItem item = entry.getValue();
 
-      if (item == null || !item.isDirty() || item.getValue() == null) continue;
+      if (item == null || !item.isDirty()) continue;
 
       if (item.isToDelete()) this.nextStub.delState(item.getKey());
-      else this.nextStub.putState(item.getKey(), item.getValue());
+      else if (item.getValue() != null) this.nextStub.putState(item.getKey(), item.getValue());
     }
   }
 
