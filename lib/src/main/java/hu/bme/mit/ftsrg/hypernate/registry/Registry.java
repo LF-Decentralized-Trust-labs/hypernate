@@ -3,6 +3,7 @@ package hu.bme.mit.ftsrg.hypernate.registry;
 
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
+import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.util.JSON;
 import java.lang.reflect.Constructor;
@@ -304,7 +305,19 @@ public class Registry {
     }
 
     <T> String getType(final Class<T> clazz) {
-      return clazz.getName().toUpperCase();
+      final EntityType annot = clazz.getAnnotation(EntityType.class);
+      if (annot == null) {
+        return clazz.getName();
+      }
+
+      final String value = annot.value();
+      if (value.isBlank()) {
+        throw new IllegalArgumentException(
+            String.format(
+                "The @EntityType annotation on class %s has an empty or blank value",
+                clazz.getName()));
+      }
+      return value;
     }
 
     <T> int getPrimaryKeyCount(final Class<T> clazz) {

@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
+import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.registry.EntityExistsException;
 import hu.bme.mit.ftsrg.hypernate.registry.EntityNotFoundException;
@@ -88,6 +89,21 @@ class RegistryTest {
     @AttributeInfo(name = TestEntity.Fields.bar)
   })
   private record TestEntity(String foo, Integer bar) {}
+
+  @FieldNameConstants
+  @EntityType("Asset")
+  @PrimaryKey(@AttributeInfo(name = AnnotatedEntity.Fields.id))
+  private record AnnotatedEntity(String id) {}
+
+  @FieldNameConstants
+  @EntityType("")
+  @PrimaryKey(@AttributeInfo(name = EmptyEntityTypeEntity.Fields.id))
+  private record EmptyEntityTypeEntity(String id) {}
+
+  @FieldNameConstants
+  @EntityType("   ")
+  @PrimaryKey(@AttributeInfo(name = BlankEntityTypeEntity.Fields.id))
+  private record BlankEntityTypeEntity(String id) {}
 
   @Nested
   class when_must_create {
@@ -370,6 +386,44 @@ class RegistryTest {
     }
 
     @Test
+    void given_annotated_entity_type_then_use_annotation_value_for_composite_key() {
+      // Mock the stub to return a CompositeKey when asked, and represent an empty ledger
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(new CompositeKey("Asset", "id-1"));
+      given(stub.getState(anyString())).willReturn(new byte[] {});
+
+      // This mustRead call is expected to fail with EntityNotFoundException because the ledger
+      // is empty. We are only executing mustRead here to force the call to key generation
+      // (which calls createCompositeKey internally) so that we can verify the key type name.
+      assertThrows(
+          EntityNotFoundException.class, () -> registry.mustRead(AnnotatedEntity.class, "id-1"));
+
+      // Verify that the annotated entity type ("Asset") was indeed used for creating the composite
+      // key
+      then(stub).should().createCompositeKey(eq("Asset"), any(String[].class));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_no_entity_type_annotation_then_use_fqcn_for_composite_key() {
+      // Mock the stub to return a CompositeKey when asked, and represent an empty ledger
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(new CompositeKey(TestEntity.class.getName(), "fooValue", "110"));
+      given(stub.getState(anyString())).willReturn(new byte[] {});
+
+      // This mustRead call is expected to fail with EntityNotFoundException because the ledger
+      // is empty. We are only executing mustRead here to force the call to key generation
+      // (which calls createCompositeKey internally) so that we can verify the key type name.
+      assertThrows(
+          EntityNotFoundException.class,
+          () -> registry.mustRead(TestEntity.class, entity.foo, entity.bar));
+
+      // Verify that the FQCN (not uppercased) was indeed used for creating the composite key
+      then(stub).should().createCompositeKey(eq(TestEntity.class.getName()), any(String[].class));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
     void given_existing_entity_with_insufficient_key_parts_then_throw_illegal_argument() {
       assertThrows(
           IllegalArgumentException.class, () -> registry.mustRead(TestEntity.class, entity.foo));
@@ -431,6 +485,26 @@ class RegistryTest {
 
       then(stub).should().getState(ENTITY_COMPOSITE_KEY_STR);
       assertEquals(entity, result);
+      verifyNoMoreInteractions(stub);
+    }
+  }
+
+  @Nested
+  class when_entity_type_is_invalid {
+
+    @Test
+    void given_empty_entity_type_annotation_value_then_throw_illegal_argument() {
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> registry.tryRead(EmptyEntityTypeEntity.class, "id-1"));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_blank_entity_type_annotation_value_then_throw_illegal_argument() {
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> registry.tryRead(BlankEntityTypeEntity.class, "id-1"));
       verifyNoMoreInteractions(stub);
     }
   }

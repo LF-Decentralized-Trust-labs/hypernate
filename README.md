@@ -60,6 +60,22 @@ public record Asset(
     String owner) {}
 ```
 
+#### Declaring a stable entity type
+
+By default, Hypernate uses the entity class name as the composite key object type.
+To decouple the ledger key space from Java package/class renaming, define an explicit entity type with `@EntityType`:
+
+```java
+@EntityType("Asset")
+@PrimaryKey(@AttributeInfo(name = Asset.Fields.assetID))
+public record Asset(
+    String assetID,
+    String color,
+    int size,
+    int appraisedValue,
+    String owner) {}
+```
+
 #### Polishing your primary key with mappers
 
 In the end, Fabric expects a string value as an entity key and the previous example used a string valued attribute as key (part), so all is good (hopefully).
