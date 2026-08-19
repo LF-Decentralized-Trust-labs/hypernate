@@ -12,6 +12,7 @@ This project uses GitHub Actions for continuous integration and delivery.
 | Triage Label     | `.github/workflows/triage_label.yml`         | Labels newly opened issues with `needs-triage`            |
 | Design Approval  | `.github/workflows/check_design_approval.yml`| Flags PRs without a linked design/approved issue          |
 | Stale PRs        | `.github/workflows/stale_not_approved.yml`   | Marks and eventually closes stale, non-approved PRs       |
+| Fast-Forward Merge | `.github/workflows/fast-forward.yml`       | Merges approved PRs by fast-forwarding `main`             |
 
 ## Build & Test
 
@@ -57,6 +58,12 @@ In these cases, either a maintainer can force rerun the check or you can make a 
 A scheduled daily job marks pull requests carrying the `needs-approved-issue` label as `stale` after 14 days of inactivity and closes them after 60 days.
 PRs labeled `pinned` or `security` are exempt.
 Issues are never affected.
+
+## Fast-Forward Merge
+
+When a maintainer comments `/fast-forward` on an approved pull request, this workflow advances `main` to the PR's head commit.
+The commits land exactly as authored – hashes and GPG signatures preserved – keeping history linear and verifiable (see [Project Governance](../contributing/governance.md#merging-pull-requests) for the policy).
+The workflow reacts only to a comment whose entire body is `/fast-forward`, written by a user with write access, on a non-draft pull request whose review decision is `APPROVED`.
 
 ## Reading CI Results
 

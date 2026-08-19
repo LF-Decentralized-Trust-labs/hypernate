@@ -107,5 +107,13 @@ Be ready to:
 - Respond to feedback and push follow-up commits.
 - Keep your branch up to date with `main` if asked.
 
-Once it is approved and all checks are green, a maintainer will merge your contribution.
-Thank you!
+## How Your PR Is Merged
+
+Hypernate merges by **fast-forward only** – your commits land on `main` exactly as you authored them, hashes and signatures intact (see [Project Governance](governance.md#merging-pull-requests) for the rationale).
+Two practical consequences:
+
+- Keep your branch rebased so it sits exactly on top of `main`; a branch that has drifted cannot be fast-forwarded.
+- Because commits land verbatim, each commit in your PR should stand on its own: signed off, conventionally titled, and buildable.
+
+Once your PR is approved and all checks are green, a maintainer triggers the merge by commenting `/fast-forward` on it.
+Thank you for contributing!
