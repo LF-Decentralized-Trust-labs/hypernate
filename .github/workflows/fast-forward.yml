@@ -1,0 +1,66 @@
+name: Fast-Forward Merge
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  fast-forward:
+    name: Fast-forward main to the PR head
+    # Cheap pre-filter: a `/fast-forward` comment on a pull request, from a
+    # user with write access. The expression syntax has no way to trim the
+    # comment body, so the exact match happens in the first step.
+    if: >-
+      github.event.issue.pull_request
+      && startsWith(github.event.comment.body, '/fast-forward')
+      && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the comment to be exactly `/fast-forward`
+        id: command
+        # The body reaches the script through the environment instead of `${{ }}`
+        # interpolation: this job holds `contents: write`, so a crafted comment
+        # must never be able to reach the shell as code.
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          trimmed="$(printf '%s' "$COMMENT_BODY" | tr -d '\r' \
+            | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          if [ "$trimmed" = "/fast-forward" ]; then
+            echo "match=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Comment is not exactly '/fast-forward'; ignoring it."
+            echo "match=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Require an approved, non-draft pull request
+        if: steps.command.outputs.match == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.issue.html_url }}
+        run: |
+          info="$(gh pr view "$PR_URL" --json reviewDecision,isDraft)"
+          decision="$(printf '%s' "$info" | jq -r '.reviewDecision')"
+          draft="$(printf '%s' "$info" | jq -r '.isDraft')"
+          if [ "$draft" != "false" ]; then
+            echo "::error::Refusing to fast-forward a draft pull request."
+            exit 1
+          fi
+          if [ "$decision" != "APPROVED" ]; then
+            echo "::error::Review decision is '$decision', expected 'APPROVED'."
+            exit 1
+          fi
+
+      - name: Fast forward
+        if: steps.command.outputs.match == 'true'
+        # sequoia-pgp/fast-forward v1.0.0, pinned by commit SHA because this
+        # workflow holds contents: write
+        uses: sequoia-pgp/fast-forward@ea7628bedcb0b0b96e94383ada458d812fca4979
+        with:
+          merge: true
+          comment: always
