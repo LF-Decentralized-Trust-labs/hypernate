@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://lf-decentralized-trust-labs.github.io/hypernate/latest/guides/cicd/">
+        <link rel="canonical" href="https://lf-decentralized-trust-labs.github.io/hypernate/latest/contributing/issues/">
       
       
-        <link rel="prev" href="../../concepts/annotations/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../../api/registry/">
+        <link rel="next" href="../development/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>CI/CD - Hypernate</title>
+        <title>Reporting Issues - Hypernate</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cicd" class="md-skip">
+        <a href="#reporting-issues" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              CI/CD
+              Reporting Issues
             
           </span>
         </div>
@@ -257,13 +257,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../guides/cicd/" class="md-tabs__link">
           
   
   
@@ -299,11 +297,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../contributing/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -671,31 +671,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
@@ -708,7 +705,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -719,32 +716,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    CI/CD
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../guides/cicd/" class="md-nav__link">
         
   
   
@@ -755,113 +730,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#workflows" class="md-nav__link">
-    <span class="md-ellipsis">
-      Workflows
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#build-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      Build &amp; Test
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#triage-label" class="md-nav__link">
-    <span class="md-ellipsis">
-      Triage Label
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design-approval" class="md-nav__link">
-    <span class="md-ellipsis">
-      Design Approval
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#stale-prs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Stale PRs
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reading-ci-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reading CI Results
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Troubleshooting
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#formatting-check-failed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Formatting Check Failed
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-failure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Failure
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -976,28 +844,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -1010,7 +881,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Contributing
@@ -1024,7 +895,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1044,10 +915,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../contributing/issues/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Reporting Issues
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1058,6 +951,71 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-open-an-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before You Open an Issue
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reporting-a-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reporting a Bug
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requesting-a-feature" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requesting a Feature
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-triage-and-the-design-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue Triage and the Design Workflow
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reporting-a-security-vulnerability" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reporting a Security Vulnerability
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1070,7 +1028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/development/" class="md-nav__link">
+      <a href="../development/" class="md-nav__link">
         
   
   
@@ -1093,7 +1051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/pull-requests/" class="md-nav__link">
+      <a href="../pull-requests/" class="md-nav__link">
         
   
   
@@ -1116,7 +1074,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/ai-agents/" class="md-nav__link">
+      <a href="../ai-agents/" class="md-nav__link">
         
   
   
@@ -1139,7 +1097,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/documentation/" class="md-nav__link">
+      <a href="../documentation/" class="md-nav__link">
         
   
   
@@ -1162,7 +1120,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/maintainers/" class="md-nav__link">
+      <a href="../maintainers/" class="md-nav__link">
         
   
   
@@ -1287,89 +1245,47 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#workflows" class="md-nav__link">
+  <a href="#before-you-open-an-issue" class="md-nav__link">
     <span class="md-ellipsis">
-      Workflows
+      Before You Open an Issue
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#build-test" class="md-nav__link">
+  <a href="#reporting-a-bug" class="md-nav__link">
     <span class="md-ellipsis">
-      Build &amp; Test
+      Reporting a Bug
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#triage-label" class="md-nav__link">
+  <a href="#requesting-a-feature" class="md-nav__link">
     <span class="md-ellipsis">
-      Triage Label
+      Requesting a Feature
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#design-approval" class="md-nav__link">
+  <a href="#issue-triage-and-the-design-workflow" class="md-nav__link">
     <span class="md-ellipsis">
-      Design Approval
+      Issue Triage and the Design Workflow
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#stale-prs" class="md-nav__link">
+  <a href="#reporting-a-security-vulnerability" class="md-nav__link">
     <span class="md-ellipsis">
-      Stale PRs
+      Reporting a Security Vulnerability
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reading-ci-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      Reading CI Results
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Troubleshooting
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#formatting-check-failed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Formatting Check Failed
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-failure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Test Failure
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1392,78 +1308,92 @@
   
 
 
-<h1 id="cicd">CI/CD</h1>
-<p>This project uses GitHub Actions for continuous integration and delivery.</p>
-<h2 id="workflows">Workflows</h2>
+<h1 id="reporting-issues">Reporting Issues</h1>
+<p>Issues are the starting point for almost every contribution. A good issue helps maintainers
+reproduce a problem or understand a request quickly.</p>
+<h2 id="before-you-open-an-issue">Before You Open an Issue</h2>
+<ol>
+<li><strong>Search existing issues</strong> — your bug or idea may already be tracked. Adding to an existing
+   discussion is more useful than opening a duplicate.</li>
+<li><strong>Check the documentation</strong> — the <a href="../../getting-started/">Getting Started</a> and
+   <a href="../../concepts/">Concepts</a> sections may already answer your question.</li>
+<li><strong>Ask on Discord</strong> — if you are not sure whether something is a bug, ask first on
+   <a href="https://discord.gg/E3sMMC8mGc">Discord</a>.</li>
+</ol>
+<h2 id="reporting-a-bug">Reporting a Bug</h2>
+<p>Open a <a href="https://github.com/LF-Decentralized-Trust-labs/hypernate/issues/new/choose">new issue</a> and
+choose the bug report template. Please include:</p>
+<ul>
+<li><strong>Hypernate version</strong> — release tag or commit SHA.</li>
+<li><strong>Environment</strong> — JDK version, Hyperledger Fabric version, and operating system.</li>
+<li><strong>What happened</strong> versus <strong>what you expected</strong>.</li>
+<li><strong>Steps to reproduce</strong> — a minimal code snippet or test is ideal.</li>
+<li><strong>Logs or stack traces</strong>, if any.</li>
+</ul>
+<p>The more precisely a maintainer can reproduce the problem, the faster it can be fixed.</p>
+<h2 id="requesting-a-feature">Requesting a Feature</h2>
+<p>Open a <a href="https://github.com/LF-Decentralized-Trust-labs/hypernate/issues/new/choose">new issue</a> and
+choose the feature request template. Please describe:</p>
+<ul>
+<li><strong>The problem</strong> you are trying to solve, not just the solution you have in mind.</li>
+<li><strong>Your proposed approach</strong>, if you have one.</li>
+<li><strong>Alternatives</strong> you have considered.</li>
+</ul>
+<h2 id="issue-triage-and-the-design-workflow">Issue Triage and the Design Workflow</h2>
+<p>Most of this lifecycle is enforced automatically:</p>
+<ol>
+<li><strong>An issue is opened.</strong> It is automatically labeled <code>needs-triage</code>.</li>
+<li><strong>Maintainers triage and discuss the design.</strong> While a design is being worked out, the issue
+   carries <code>design/pending</code>.</li>
+<li><strong>The design is approved.</strong> A maintainer applies <code>design/approved</code>, and work can begin.</li>
+<li><strong>A pull request links the approved issue</strong> with a closing keyword (for example <code>Closes #123</code>).
+   An automated check confirms the link before the PR can merge — see
+   <a href="../pull-requests/#design-approval-check">the design-approval check</a>.</li>
+</ol>
+<p>The labels used in this process:</p>
 <table>
 <thead>
 <tr>
-<th>Workflow</th>
-<th>File</th>
-<th>Purpose</th>
+<th>Label</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Build &amp; Test</td>
-<td><code>.github/workflows/build.yml</code></td>
-<td>Formatting checks, compilation, and tests</td>
+<td><code>needs-triage</code></td>
+<td>Added automatically to every new issue; awaiting maintainer review.</td>
 </tr>
 <tr>
-<td>Triage Label</td>
-<td><code>.github/workflows/triage_label.yml</code></td>
-<td>Labels newly opened issues with <code>needs-triage</code></td>
+<td><code>design/pending</code></td>
+<td>The design is under active discussion — please wait before starting work.</td>
 </tr>
 <tr>
-<td>Design Approval</td>
-<td><code>.github/workflows/check_design_approval.yml</code></td>
-<td>Flags PRs without a linked design/approved issue</td>
+<td><code>design/approved</code></td>
+<td>The design is approved; contributions are welcome.</td>
 </tr>
 <tr>
-<td>Stale PRs</td>
-<td><code>.github/workflows/stale_not_approved.yml</code></td>
-<td>Marks and eventually closes stale, non-approved PRs</td>
+<td><code>needs-approved-issue</code></td>
+<td>Added automatically to a pull request not linked to a <code>design/approved</code> issue.</td>
+</tr>
+<tr>
+<td><code>stale</code></td>
+<td>Added automatically to a flagged pull request after a period of inactivity.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="build-test">Build &amp; Test</h2>
-<p>The Build &amp; Test workflow runs <code>spotlessCheck</code>, <code>assemble</code>, and <code>test</code> on pushes and pull
-requests that touch code-relevant files.</p>
-<p>Documentation-only changes are skipped via path filters.</p>
-<p>If a new commit is pushed while a run is already in progress for the same branch, the older run is
-automatically canceled.</p>
-<h2 id="triage-label">Triage Label</h2>
-<p>When an issue is opened, the Triage Label workflow automatically adds the <code>needs-triage</code> label so
-new issues are easy to find and route.</p>
-<h2 id="design-approval">Design Approval</h2>
-<p>On every pull request (opened, edited, synchronized, or reopened), the Design Approval workflow checks that the PR links to an issue carrying the <code>design/approved</code> label.
-PRs that lack such a linked issue are flagged via the <code>needs-approved-issue</code> label.</p>
-<p>Because the workflow is triggered by changes to the PR, it will not rerun if a non-<code>design/approved</code> issue gets the <code>design/approved</code> label.
-In these cases, either a maintainer can force rerun the check or you can make a dummy change to the PR body (like adding a newline) and it will trigger the workflow.</p>
-<h2 id="stale-prs">Stale PRs</h2>
-<p>A scheduled daily job marks pull requests carrying the <code>needs-approved-issue</code> label as <code>stale</code>
-after 14 days of inactivity and closes them after 60 days. PRs labeled <code>pinned</code> or <code>security</code> are
-exempt. Issues are never affected.</p>
-<h2 id="reading-ci-results">Reading CI Results</h2>
-<ol>
-<li><strong>Status check on PRs</strong> - The workflow result appears as a check on the pull request page.</li>
-<li><strong>Actions tab</strong> - Open the repository Actions tab to view workflow runs.</li>
-<li><strong>Test report artifact</strong> - Every run uploads an HTML test report artifact retained for 14 days.</li>
-</ol>
-<h2 id="troubleshooting">Troubleshooting</h2>
-<h3 id="formatting-check-failed">Formatting Check Failed</h3>
-<p>The <code>spotlessCheck</code> step enforces Google Java Format. To fix locally:</p>
-<pre><code class="language-bash">./gradlew spotlessApply
-</code></pre>
-<p>This reformats source files in place. Commit the changes and push again.</p>
-<h3 id="test-failure">Test Failure</h3>
-<p>Check the uploaded test report artifact:</p>
-<ol>
-<li>Open the failed workflow run in the Actions tab.</li>
-<li>Scroll to the <strong>Artifacts</strong> section.</li>
-<li>Download <strong>test-report</strong> and open <code>index.html</code> in a browser.</li>
-</ol>
-<p>The report shows failing tests with stack traces and assertion messages.</p>
+<p><strong>Every contribution must be linked to an issue labeled <code>design/approved</code> before work begins —
+including trivial fixes.</strong> There is no exception for small changes: every change still counts
+toward the project's health metrics (such as its error rate), so all changes go through the same
+design-approval step. This is enforced by an automated check on every pull request — a PR not
+linked to a <code>design/approved</code> issue is flagged and cannot merge. See
+<a href="../pull-requests/#design-approval-check">the design-approval check</a> for what that looks like and
+how to resolve it.</p>
+<h2 id="reporting-a-security-vulnerability">Reporting a Security Vulnerability</h2>
+<blockquote>
+<p><strong>Do not report security vulnerabilities in public issues.</strong> A private reporting process is
+being finalized. Until it is published here, please contact the <a href="../maintainers/">maintainers</a>
+directly and avoid disclosing details in public channels.</p>
+</blockquote>
 
 
 
