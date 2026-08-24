@@ -1087,9 +1087,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-the-site-is-published" class="md-nav__link">
+  <a href="#how-the-site-is-validated-and-published" class="md-nav__link">
     <span class="md-ellipsis">
-      How the Site Is Published
+      How the Site Is Validated and Published
     </span>
   </a>
   
@@ -1263,9 +1263,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-the-site-is-published" class="md-nav__link">
+  <a href="#how-the-site-is-validated-and-published" class="md-nav__link">
     <span class="md-ellipsis">
-      How the Site Is Published
+      How the Site Is Validated and Published
     </span>
   </a>
   
@@ -1320,9 +1320,12 @@ internal link or a page missing from the navigation will fail the build.</p>
 <li><strong>Link between pages:</strong> link to the Markdown <em>file</em>, not the built URL — for example
   <code>[Reporting Issues](issues.md)</code>. MkDocs resolves and validates these links.</li>
 </ul>
-<h2 id="how-the-site-is-published">How the Site Is Published</h2>
+<h2 id="how-the-site-is-validated-and-published">How the Site Is Validated and Published</h2>
+<p>Every pull request runs the <strong>Build Documentation</strong> workflow
+(<code>.github/workflows/docs-build.yml</code>), which executes the same <code>mkdocs build --strict</code> you run
+locally — a broken link or a page missing from <code>nav</code> fails the check before the change can merge.</p>
 <p>You do not deploy the site manually. The <strong>Deploy Documentation</strong> workflow
-(<code>.github/workflows/docs.yml</code>) handles it:</p>
+(<code>.github/workflows/docs-deploy.yml</code>) handles it:</p>
 <ul>
 <li>On every push to <code>main</code>, the site is published as the <code>latest</code> version.</li>
 <li>On a <code>v*.*.*</code> tag, that release is published as a versioned snapshot.</li>

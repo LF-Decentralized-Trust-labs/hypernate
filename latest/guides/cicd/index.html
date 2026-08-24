@@ -790,6 +790,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#build-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build Documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy Documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#triage-label" class="md-nav__link">
     <span class="md-ellipsis">
       Triage Label
@@ -1305,6 +1323,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#build-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build Documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy Documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#triage-label" class="md-nav__link">
     <span class="md-ellipsis">
       Triage Label
@@ -1410,6 +1446,16 @@
 <td>Formatting checks, compilation, and tests</td>
 </tr>
 <tr>
+<td>Build Documentation</td>
+<td><code>.github/workflows/docs-build.yml</code></td>
+<td>Validates the documentation site (<code>mkdocs build --strict</code>)</td>
+</tr>
+<tr>
+<td>Deploy Documentation</td>
+<td><code>.github/workflows/docs-deploy.yml</code></td>
+<td>Publishes the documentation site via mike</td>
+</tr>
+<tr>
 <td>Triage Label</td>
 <td><code>.github/workflows/triage_label.yml</code></td>
 <td>Labels newly opened issues with <code>needs-triage</code></td>
@@ -1432,6 +1478,23 @@ requests that touch code-relevant files.</p>
 <p>Documentation-only changes are skipped via path filters.</p>
 <p>If a new commit is pushed while a run is already in progress for the same branch, the older run is
 automatically canceled.</p>
+<h2 id="build-documentation">Build Documentation</h2>
+<p>The Build Documentation workflow runs <code>mkdocs build --strict</code> — the same command contributors run
+locally — so a broken internal link or a page missing from <code>nav</code> fails the check instead of
+breaking the deployment after merge.</p>
+<p>It runs on every pull request, regardless of which files changed. This is deliberate: a required
+status check that is skipped by a path filter never reports its result, which would block the PR
+from merging. Instead, a filter step inside the job detects whether any documentation files
+changed and skips the build steps otherwise, so unrelated PRs pass immediately. On branch pushes
+(before a PR exists), path filters do apply, providing early feedback only when documentation
+files change.</p>
+<p>Both this workflow and Deploy Documentation set up their Python environment through the shared
+composite action <code>.github/actions/setup-docs</code>.</p>
+<h2 id="deploy-documentation">Deploy Documentation</h2>
+<p>The Deploy Documentation workflow publishes the site with <a href="https://github.com/jimporter/mike">mike</a>
+on pushes to <code>main</code> (as the <code>latest</code> version) and on <code>v*.*.*</code> tags (as a versioned snapshot).
+Deployments are serialized: concurrent runs would race on the <code>gh-pages</code> branch, so a new run
+queues behind an in-progress one instead of canceling it.</p>
 <h2 id="triage-label">Triage Label</h2>
 <p>When an issue is opened, the Triage Label workflow automatically adds the <code>needs-triage</code> label so
 new issues are easy to find and route.</p>

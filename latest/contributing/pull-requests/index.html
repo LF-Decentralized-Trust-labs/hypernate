@@ -1422,8 +1422,10 @@ git push --force-with-lease
 <li><code>assemble</code> — compilation.</li>
 <li><code>test</code> — the JUnit test suite.</li>
 </ol>
+<p>A separate <strong>Build Documentation</strong> workflow validates the documentation site (<code>mkdocs build
+--strict</code>) on every PR, so broken links or navigation errors are caught before merge.</p>
 <p>All checks must pass before a PR can be merged. See the <a href="../../guides/cicd/">CI/CD guide</a> for how to
-read results and troubleshoot failures. Documentation-only changes skip this workflow.</p>
+read results and troubleshoot failures. Documentation-only changes skip the Build &amp; Test workflow.</p>
 <h2 id="design-approval-check">Design-Approval Check</h2>
 <p>A separate <strong>Design Approval</strong> check also runs on every pull request. It verifies that the PR links
 an issue labeled <code>design/approved</code> using a <strong>closing keyword</strong> in the description — for example
