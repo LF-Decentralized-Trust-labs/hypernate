@@ -1473,44 +1473,34 @@
 </tbody>
 </table>
 <h2 id="build-test">Build &amp; Test</h2>
-<p>The Build &amp; Test workflow runs <code>spotlessCheck</code>, <code>assemble</code>, and <code>test</code> on pushes and pull
-requests that touch code-relevant files.</p>
+<p>The Build &amp; Test workflow runs <code>spotlessCheck</code>, <code>assemble</code>, and <code>test</code> on pushes and pull requests that touch code-relevant files.</p>
 <p>Documentation-only changes are skipped via path filters.</p>
-<p>If a new commit is pushed while a run is already in progress for the same branch, the older run is
-automatically canceled.</p>
+<p>If a new commit is pushed while a run is already in progress for the same branch, the older run is automatically canceled.</p>
 <h2 id="build-documentation">Build Documentation</h2>
 <p>The Build Documentation workflow runs two checks, both identical to what contributors run locally:</p>
 <ol>
-<li><code>npx markdownlint-cli2</code> — Markdown conventions, most importantly 2-space list nesting
-   (see the <a href="../../contributing/documentation/#markdown-conventions">documentation guide</a>).</li>
-<li><code>mkdocs build --strict</code> — a broken internal link or a page missing from <code>nav</code> fails the check
-   instead of breaking the deployment after merge.</li>
+<li><code>npx markdownlint-cli2</code> – the <a href="../../contributing/documentation/#markdown-conventions">Markdown source conventions</a>: one sentence per line, en-dashes, and 2-space list nesting.</li>
+<li><code>mkdocs build --strict</code> – a broken internal link or a page missing from <code>nav</code> fails the check instead of breaking the deployment after merge.</li>
 </ol>
-<p>It runs on every pull request, regardless of which files changed. This is deliberate: a required
-status check that is skipped by a path filter never reports its result, which would block the PR
-from merging. Instead, a filter step inside the job detects whether any documentation files
-changed and skips the build steps otherwise, so unrelated PRs pass immediately. On branch pushes
-(before a PR exists), path filters do apply, providing early feedback only when documentation
-files change.</p>
-<p>Both this workflow and Deploy Documentation set up their Python environment through the shared
-composite action <code>.github/actions/setup-docs</code>.</p>
+<p>It runs on every pull request, regardless of which files changed.
+This is deliberate: a required status check that is skipped by a path filter never reports its result, which would block the PR from merging.
+Instead, a filter step inside the job detects which files changed and skips the lint and build steps when they have nothing to do, so unrelated PRs pass immediately.
+On branch pushes (before a PR exists), path filters do apply, providing early feedback only when documentation files change.</p>
+<p>Both this workflow and Deploy Documentation set up their Python environment through the shared composite action <code>.github/actions/setup-docs</code>.</p>
 <h2 id="deploy-documentation">Deploy Documentation</h2>
-<p>The Deploy Documentation workflow publishes the site with <a href="https://github.com/jimporter/mike">mike</a>
-on pushes to <code>main</code> (as the <code>latest</code> version) and on <code>v*.*.*</code> tags (as a versioned snapshot).
-Deployments are serialized: concurrent runs would race on the <code>gh-pages</code> branch, so a new run
-queues behind an in-progress one instead of canceling it.</p>
+<p>The Deploy Documentation workflow publishes the site with <a href="https://github.com/jimporter/mike">mike</a> on pushes to <code>main</code> (as the <code>latest</code> version) and on <code>v*.*.*</code> tags (as a versioned snapshot).
+Deployments are serialized: concurrent runs would race on the <code>gh-pages</code> branch, so a new run queues behind an in-progress one instead of canceling it.</p>
 <h2 id="triage-label">Triage Label</h2>
-<p>When an issue is opened, the Triage Label workflow automatically adds the <code>needs-triage</code> label so
-new issues are easy to find and route.</p>
+<p>When an issue is opened, the Triage Label workflow automatically adds the <code>needs-triage</code> label so new issues are easy to find and route.</p>
 <h2 id="design-approval">Design Approval</h2>
 <p>On every pull request (opened, edited, synchronized, or reopened), the Design Approval workflow checks that the PR links to an issue carrying the <code>design/approved</code> label.
 PRs that lack such a linked issue are flagged via the <code>needs-approved-issue</code> label.</p>
 <p>Because the workflow is triggered by changes to the PR, it will not rerun if a non-<code>design/approved</code> issue gets the <code>design/approved</code> label.
 In these cases, either a maintainer can force rerun the check or you can make a dummy change to the PR body (like adding a newline) and it will trigger the workflow.</p>
 <h2 id="stale-prs">Stale PRs</h2>
-<p>A scheduled daily job marks pull requests carrying the <code>needs-approved-issue</code> label as <code>stale</code>
-after 14 days of inactivity and closes them after 60 days. PRs labeled <code>pinned</code> or <code>security</code> are
-exempt. Issues are never affected.</p>
+<p>A scheduled daily job marks pull requests carrying the <code>needs-approved-issue</code> label as <code>stale</code> after 14 days of inactivity and closes them after 60 days.
+PRs labeled <code>pinned</code> or <code>security</code> are exempt.
+Issues are never affected.</p>
 <h2 id="reading-ci-results">Reading CI Results</h2>
 <ol>
 <li><strong>Status check on PRs</strong> - The workflow result appears as a check on the pull request page.</li>
@@ -1519,10 +1509,12 @@ exempt. Issues are never affected.</p>
 </ol>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <h3 id="formatting-check-failed">Formatting Check Failed</h3>
-<p>The <code>spotlessCheck</code> step enforces Google Java Format. To fix locally:</p>
+<p>The <code>spotlessCheck</code> step enforces Google Java Format.
+To fix locally:</p>
 <pre><code class="language-bash">./gradlew spotlessApply
 </code></pre>
-<p>This reformats source files in place. Commit the changes and push again.</p>
+<p>This reformats source files in place.
+Commit the changes and push again.</p>
 <h3 id="test-failure">Test Failure</h3>
 <p>Check the uploaded test report artifact:</p>
 <ol>

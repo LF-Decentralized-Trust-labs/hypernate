@@ -1360,27 +1360,25 @@
 <p>This page covers everything you need to build, test, and format Hypernate locally.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
-<li><strong>JDK 17</strong> — Hypernate targets Java 17 (the build declares a Java 17 toolchain). CI uses the
-  <a href="https://adoptium.net/">Temurin</a> distribution.</li>
-<li><strong>Git</strong> — for cloning and contributing.</li>
-<li>No separate Gradle installation is required; the project ships with the Gradle wrapper
-  (<code>./gradlew</code>).</li>
+<li><strong>JDK 17</strong> – Hypernate targets Java 17 (the build declares a Java 17 toolchain).
+  CI uses the <a href="https://adoptium.net/">Temurin</a> distribution.</li>
+<li><strong>Git</strong> – for cloning and contributing.</li>
+<li>No separate Gradle installation is required; the project ships with the Gradle wrapper (<code>./gradlew</code>).</li>
 </ul>
-<p>The library uses <a href="https://projectlombok.org/">Lombok</a> and AspectJ post-compile weaving. If you use
-an IDE, enable annotation processing and install Lombok support so the code resolves correctly:</p>
+<p>The library uses <a href="https://projectlombok.org/">Lombok</a> and AspectJ post-compile weaving.
+If you use an IDE, enable annotation processing and install Lombok support so the code resolves correctly:</p>
 <ul>
-<li><strong>IntelliJ IDEA</strong> — install the <em>Lombok</em> plugin and enable <em>Annotation Processing</em>.</li>
-<li><strong>Eclipse</strong> — run the Lombok installer against your IDE.</li>
+<li><strong>IntelliJ IDEA</strong> – install the <em>Lombok</em> plugin and enable <em>Annotation Processing</em>.</li>
+<li><strong>Eclipse</strong> – run the Lombok installer against your IDE.</li>
 </ul>
 <h2 id="getting-the-source">Getting the Source</h2>
 <pre><code class="language-bash">git clone https://github.com/LF-Decentralized-Trust-labs/hypernate.git
 cd hypernate
 </code></pre>
-<p>If you plan to open a pull request,
-<a href="https://github.com/LF-Decentralized-Trust-labs/hypernate/fork">fork</a> the repository first and
-clone your fork.</p>
+<p>If you plan to open a pull request, <a href="https://github.com/LF-Decentralized-Trust-labs/hypernate/fork">fork</a> the repository first and clone your fork.</p>
 <h2 id="building-and-testing">Building and Testing</h2>
-<p>The project is a single Gradle module (<code>lib</code>). The most common tasks are:</p>
+<p>The project is a single Gradle module (<code>lib</code>).
+The most common tasks are:</p>
 <table>
 <thead>
 <tr>
@@ -1411,23 +1409,19 @@ clone your fork.</p>
 </tr>
 </tbody>
 </table>
-<p>Running <code>./gradlew build</code> before you push is the best way to catch problems early — it mirrors the
-<a href="../../guides/cicd/">CI pipeline</a>.</p>
+<p>Running <code>./gradlew build</code> before you push is the best way to catch problems early – it mirrors the <a href="../../guides/cicd/">CI pipeline</a>.</p>
 <h3 id="test-reports">Test Reports</h3>
-<p>After running tests, an HTML report is written to <code>lib/build/reports/tests/test/index.html</code>. Open
-it in a browser to inspect failures with full stack traces.</p>
+<p>After running tests, an HTML report is written to <code>lib/build/reports/tests/test/index.html</code>.
+Open it in a browser to inspect failures with full stack traces.</p>
 <h2 id="code-style">Code Style</h2>
-<p>Formatting is enforced by <a href="https://github.com/diffplug/spotless">Spotless</a> using
-<a href="https://github.com/google/google-java-format">Google Java Format</a>; the exact configuration lives
-in the <code>spotless { }</code> block of <code>lib/build.gradle.kts</code>. CI fails if code is not formatted, so always
-run:</p>
+<p>Formatting is enforced by <a href="https://github.com/diffplug/spotless">Spotless</a> using <a href="https://github.com/google/google-java-format">Google Java Format</a>; the exact configuration lives in the <code>spotless { }</code> block of <code>lib/build.gradle.kts</code>.
+CI fails if code is not formatted, so always run:</p>
 <pre><code class="language-bash">./gradlew spotlessApply
 </code></pre>
-<p>Spotless also orders imports, removes unused imports, and inserts the required SPDX license header
-on every source file:</p>
+<p>Spotless also orders imports, removes unused imports, and inserts the required SPDX license header on every source file:</p>
 <pre><code class="language-java">/* SPDX-License-Identifier: Apache-2.0 */
 </code></pre>
-<p>You do not need to add the header by hand — <code>spotlessApply</code> inserts it for you.</p>
+<p>You do not need to add the header by hand – <code>spotlessApply</code> inserts it for you.</p>
 <h2 id="project-layout">Project Layout</h2>
 <p>The source lives under <code>lib/src/main/java/hu/bme/mit/ftsrg/hypernate/</code>, organized by package:</p>
 <table>
@@ -1460,7 +1454,7 @@ on every source file:</p>
 </tr>
 <tr>
 <td><code>registry</code></td>
-<td>The entity registry — CRUD operations and the related exceptions.</td>
+<td>The entity registry – CRUD operations and the related exceptions.</td>
 </tr>
 <tr>
 <td><code>util</code></td>
@@ -1470,10 +1464,9 @@ on every source file:</p>
 </table>
 <p>Tests mirror this structure under <code>lib/src/test/java/</code>.</p>
 <h2 id="what-to-work-on">What to Work On</h2>
-<p>Looking for a place to start? Browse the
-<a href="https://github.com/LF-Decentralized-Trust-labs/hypernate/issues">open issues</a>, especially those
-labeled <code>design/approved</code>. Every change — even a trivial one — needs an approved issue before you
-begin work; see <a href="../issues/#issue-triage-and-the-design-workflow">Issue Triage and the Design Workflow</a>.</p>
+<p>Looking for a place to start?
+Browse the <a href="https://github.com/LF-Decentralized-Trust-labs/hypernate/issues">open issues</a>, especially those labeled <code>design/approved</code>.
+Every change – even a trivial one – needs an approved issue before you begin work; see <a href="../issues/#issue-triage-and-the-design-workflow">Issue Triage and the Design Workflow</a>.</p>
 
 
 

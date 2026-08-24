@@ -1097,6 +1097,24 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#one-sentence-per-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      One Sentence per Line
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-en-dashes-not-em-dashes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use En-Dashes, Not Em-Dashes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#indent-nested-lists-by-2-spaces" class="md-nav__link">
     <span class="md-ellipsis">
       Indent Nested Lists by 2 Spaces
@@ -1297,6 +1315,24 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#one-sentence-per-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      One Sentence per Line
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-en-dashes-not-em-dashes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use En-Dashes, Not Em-Dashes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#indent-nested-lists-by-2-spaces" class="md-nav__link">
     <span class="md-ellipsis">
       Indent Nested Lists by 2 Spaces
@@ -1339,13 +1375,11 @@
 
 
 <h1 id="contributing-to-the-docs">Contributing to the Docs</h1>
-<p>This documentation site is built with <a href="https://www.mkdocs.org/">MkDocs</a> and the
-<a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a> theme. All content lives as
-Markdown under the <code>docs/</code> directory, and the site is published automatically — you only need to
-edit Markdown.</p>
+<p>This documentation site is built with <a href="https://www.mkdocs.org/">MkDocs</a> and the <a href="https://squidfunk.github.io/mkdocs-material/">Material for MkDocs</a> theme.
+All content lives as Markdown under the <code>docs/</code> directory, and the site is published automatically – you only need to edit Markdown.</p>
 <h2 id="setup">Setup</h2>
-<p>The documentation toolchain is Python-based. Create a virtual environment and install the pinned
-dependencies (CI uses Python 3.12):</p>
+<p>The documentation toolchain is Python-based.
+Create a virtual environment and install the pinned dependencies (CI uses Python 3.12):</p>
 <pre><code class="language-bash">python3 -m venv .venv
 source .venv/bin/activate
 pip install -r docs/requirements.txt
@@ -1354,21 +1388,33 @@ pip install -r docs/requirements.txt
 <p>Run the live-reload preview server from the repository root:</p>
 <pre><code class="language-bash">mkdocs serve
 </code></pre>
-<p>Then open <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a>. The site rebuilds automatically as you save files.</p>
+<p>Then open <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a>.
+The site rebuilds automatically as you save files.</p>
 <p>Before pushing, reproduce the strict build that CI effectively performs:</p>
 <pre><code class="language-bash">mkdocs build --strict
 </code></pre>
-<p>The site is configured with <code>strict: true</code>, so <strong>warnings are treated as errors</strong> — a broken
-internal link or a page missing from the navigation will fail the build.</p>
+<p>The site is configured with <code>strict: true</code>, so <strong>warnings are treated as errors</strong> – a broken internal link or a page missing from the navigation will fail the build.</p>
 <h2 id="editing-and-adding-pages">Editing and Adding Pages</h2>
 <ul>
 <li><strong>Edit a page:</strong> change the relevant <code>.md</code> file under <code>docs/</code>; the preview reloads.</li>
-<li><strong>Add a page:</strong> create the <code>.md</code> file in the appropriate subdirectory, then register it in the
-  <code>nav:</code> section of <code>mkdocs.yml</code>. A page that is not listed in <code>nav</code> fails the strict build.</li>
-<li><strong>Link between pages:</strong> link to the Markdown <em>file</em>, not the built URL — for example
-  <code>[Reporting Issues](issues.md)</code>. MkDocs resolves and validates these links.</li>
+<li><strong>Add a page:</strong> create the <code>.md</code> file in the appropriate subdirectory, then register it in the <code>nav:</code> section of <code>mkdocs.yml</code>.
+  A page that is not listed in <code>nav</code> fails the strict build.</li>
+<li><strong>Link between pages:</strong> link to the Markdown <em>file</em>, not the built URL – for example <code>[Reporting Issues](issues.md)</code>.
+  MkDocs resolves and validates these links.</li>
 </ul>
 <h2 id="markdown-conventions">Markdown Conventions</h2>
+<p>CI lints every Markdown file in the repository with <a href="https://github.com/DavidAnson/markdownlint-cli2">markdownlint</a>; the configuration lives in <code>.markdownlint-cli2.jsonc</code> at the repository root.
+Install the lint toolchain (requires Node.js) and run it locally with:</p>
+<pre><code class="language-bash">npm ci
+npx markdownlint-cli2
+</code></pre>
+<h3 id="one-sentence-per-line">One Sentence per Line</h3>
+<p>Write each sentence on its own source line instead of hard-wrapping at a fixed column.
+Line breaks within a paragraph do not affect rendering, and one sentence per line produces the clearest diffs: a changed line corresponds to a single changed sentence.
+It also helps you notice overly long sentences.</p>
+<h3 id="use-en-dashes-not-em-dashes">Use En-Dashes, Not Em-Dashes</h3>
+<p>For parenthetical breaks, use an en-dash (<code>–</code>) surrounded by spaces.
+Em-dashes (U+2014) are not used in this project, in line with most style guides.</p>
 <h3 id="indent-nested-lists-by-2-spaces">Indent Nested Lists by 2 Spaces</h3>
 <p>Indent each nesting level of a list by <strong>2 spaces</strong>, exactly as you would on GitHub:</p>
 <pre><code class="language-markdown">- Parent item
@@ -1376,37 +1422,20 @@ internal link or a page missing from the navigation will fail the build.</p>
     - Deeply nested item
 </code></pre>
 <p>This "just works" only because the site overrides its renderer.
-<a href="https://python-markdown.github.io/">Python-Markdown</a> (which MkDocs uses) requires 4 spaces per
-level by default and silently flattens 2-space nesting, even though CommonMark and GFM accept it —
-so lists that looked correct on GitHub used to break on the built site. The
-<a href="https://github.com/radude/mdx_truly_sane_lists"><code>mdx_truly_sane_lists</code></a> extension configured in
-<code>mkdocs.yml</code> aligns the site with the CommonMark behavior; only the indentation rule is overridden
-(<code>truly_sane: false</code> keeps every other rendering behavior stock).</p>
-<p>Two safety nets exist:</p>
-<ul>
-<li>CI lints all Markdown files with <a href="https://github.com/DavidAnson/markdownlint-cli2">markdownlint</a>
-  (rule <code>MD007</code>, at its default 2-space indent), which fails on deeper indents — under the
-  override, a 4-space-nested item would collapse into run-on text on the site. Run it locally with
-  <code>npx markdownlint-cli2</code>; the configuration lives in <code>.markdownlint-cli2.jsonc</code> at the repository
-  root.</li>
-<li>When in doubt, check multi-level lists in the <code>mkdocs serve</code> preview rather than trusting the
-  GitHub rendering.</li>
-</ul>
+<a href="https://python-markdown.github.io/">Python-Markdown</a> (which MkDocs uses) requires 4 spaces per level by default and silently flattens 2-space nesting, even though CommonMark and GFM accept it – so lists that looked correct on GitHub used to break on the built site.
+The <a href="https://github.com/radude/mdx_truly_sane_lists"><code>mdx_truly_sane_lists</code></a> extension configured in <code>mkdocs.yml</code> aligns the site with the CommonMark behavior; only the indentation rule is overridden (<code>truly_sane: false</code> keeps every other rendering behavior stock).
+The <code>MD007</code> lint rule (at its default 2-space indent) guards against deeper indents, which the override would render as run-on text.
+When in doubt, check multi-level lists in the <code>mkdocs serve</code> preview.</p>
 <h2 id="how-the-site-is-validated-and-published">How the Site Is Validated and Published</h2>
-<p>Every pull request runs the <strong>Build Documentation</strong> workflow
-(<code>.github/workflows/docs-build.yml</code>), which lints the Markdown sources (see
-<a href="#markdown-conventions">Markdown Conventions</a>) and executes the same <code>mkdocs build --strict</code> you
-run locally — a broken link, a page missing from <code>nav</code>, or a lint violation fails the check before
-the change can merge.</p>
-<p>You do not deploy the site manually. The <strong>Deploy Documentation</strong> workflow
-(<code>.github/workflows/docs-deploy.yml</code>) handles it:</p>
+<p>Every pull request runs the <strong>Build Documentation</strong> workflow (<code>.github/workflows/docs-build.yml</code>), which lints the Markdown sources (see <a href="#markdown-conventions">Markdown Conventions</a>) and executes the same <code>mkdocs build --strict</code> you run locally – a broken link, a page missing from <code>nav</code>, or a lint violation fails the check before the change can merge.</p>
+<p>You do not deploy the site manually.
+The <strong>Deploy Documentation</strong> workflow (<code>.github/workflows/docs-deploy.yml</code>) handles it:</p>
 <ul>
 <li>On every push to <code>main</code>, the site is published as the <code>latest</code> version.</li>
 <li>On a <code>v*.*.*</code> tag, that release is published as a versioned snapshot.</li>
 </ul>
-<p>Versioning is managed by <a href="https://github.com/jimporter/mike">mike</a>, so there is no need to run
-<code>mike</code> locally. Each page also has an <em>edit</em> link in the top-right that points back to its source
-file on GitHub.</p>
+<p>Versioning is managed by <a href="https://github.com/jimporter/mike">mike</a>, so there is no need to run <code>mike</code> locally.
+Each page also has an <em>edit</em> link in the top-right that points back to its source file on GitHub.</p>
 
 
 

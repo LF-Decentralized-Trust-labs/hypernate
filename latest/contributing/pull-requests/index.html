@@ -1363,42 +1363,38 @@
 
 
 <h1 id="submitting-pull-requests">Submitting Pull Requests</h1>
-<p>When your change is ready, open a pull request (PR) against the <code>main</code> branch. This page describes
-the conventions and checks your PR needs to pass.</p>
+<p>When your change is ready, open a pull request (PR) against the <code>main</code> branch.
+This page describes the conventions and checks your PR needs to pass.</p>
 <h2 id="before-you-start">Before You Start</h2>
-<p>Every pull request — including trivial fixes — must be linked to an issue labeled <code>design/approved</code>
-(see <a href="../issues/#issue-triage-and-the-design-workflow">Issue Triage and the Design Workflow</a>). An
-automated check enforces this: a PR with no associated <code>design/approved</code> issue will fail. Starting
-from an approved design also avoids rework if the approach needs to change.</p>
+<p>Every pull request – including trivial fixes – must be linked to an issue labeled <code>design/approved</code> (see <a href="../issues/#issue-triage-and-the-design-workflow">Issue Triage and the Design Workflow</a>).
+An automated check enforces this: a PR with no associated <code>design/approved</code> issue will fail.
+Starting from an approved design also avoids rework if the approach needs to change.</p>
 <h2 id="preparing-your-change">Preparing Your Change</h2>
 <ol>
-<li><strong>Fork and branch.</strong> Work on a branch with a meaningful name, for example
-   <code>feat/entity-validation</code>, <code>fix/registry-npe</code>, or <code>docs/quickstart</code>.</li>
-<li><strong>Keep it focused.</strong> One logical change per PR. Smaller PRs are reviewed faster.</li>
-<li><strong>Format and test.</strong> Run <code>./gradlew build</code> locally so formatting, compilation, and tests all
-   pass before you push (see <a href="../development/">Working with the Code</a>).</li>
+<li><strong>Fork and branch.</strong> Work on a branch with a meaningful name, for example <code>feat/entity-validation</code>, <code>fix/registry-npe</code>, or <code>docs/quickstart</code>.</li>
+<li><strong>Keep it focused.</strong> One logical change per PR.
+   Smaller PRs are reviewed faster.</li>
+<li><strong>Format and test.</strong> Run <code>./gradlew build</code> locally so formatting, compilation, and tests all pass before you push (see <a href="../development/">Working with the Code</a>).</li>
 </ol>
 <h2 id="commit-messages">Commit Messages</h2>
-<p>Hypernate uses <a href="https://www.conventionalcommits.org/en/v1.0.0/#summary">Conventional Commits</a>. Each
-commit message starts with a type and a short description:</p>
+<p>Hypernate uses <a href="https://www.conventionalcommits.org/en/v1.0.0/#summary">Conventional Commits</a>.
+Each commit message starts with a type and a short description:</p>
 <pre><code class="language-text">feat: add validation hook to the entity registry
 fix: handle missing primary key in Registry.read
 docs: document the middleware chain
 </code></pre>
 <p>Common types are <code>feat</code>, <code>fix</code>, <code>docs</code>, <code>refactor</code>, <code>test</code>, <code>build</code>, and <code>ci</code>.</p>
 <h2 id="sign-off-dco">Sign-off (DCO)</h2>
-<p>Every commit must be signed off to certify the
-<a href="https://developercertificate.org/">Developer Certificate of Origin</a>. Add a sign-off with the <code>-s</code>
-flag:</p>
+<p>Every commit must be signed off to certify the <a href="https://developercertificate.org/">Developer Certificate of Origin</a>.
+Add a sign-off with the <code>-s</code> flag:</p>
 <pre><code class="language-bash">git commit -s -m &quot;fix: handle missing primary key in Registry.read&quot;
 </code></pre>
-<p>This appends a <code>Signed-off-by:</code> line using your configured Git name and email, so make sure those
-are set:</p>
+<p>This appends a <code>Signed-off-by:</code> line using your configured Git name and email, so make sure those are set:</p>
 <pre><code class="language-bash">git config user.name &quot;Your Name&quot;
 git config user.email &quot;you@example.com&quot;
 </code></pre>
-<p>A DCO check runs on every pull request. If it fails because a commit is not signed off, amend or
-rebase and force-push:</p>
+<p>A DCO check runs on every pull request.
+If it fails because a commit is not signed off, amend or rebase and force-push:</p>
 <pre><code class="language-bash"># For the most recent commit only:
 git commit --amend -s --no-edit
 
@@ -1410,46 +1406,46 @@ git push --force-with-lease
 <h2 id="opening-the-pull-request">Opening the Pull Request</h2>
 <ol>
 <li>Push your branch to your fork.</li>
-<li>Open a PR against <code>main</code>. The PR template includes a checklist — please fill it in.</li>
-<li><strong>Link the approved issue</strong> with a closing keyword — for example <code>Closes #123</code>. This is
-   required and verified automatically (see <a href="#design-approval-check">Design-Approval Check</a>).</li>
+<li>Open a PR against <code>main</code>.
+   The PR template includes a checklist – please fill it in.</li>
+<li><strong>Link the approved issue</strong> with a closing keyword – for example <code>Closes #123</code>.
+   This is required and verified automatically (see <a href="#design-approval-check">Design-Approval Check</a>).</li>
 <li>Describe what changed and why, and call out anything reviewers should focus on.</li>
 </ol>
 <h2 id="continuous-integration">Continuous Integration</h2>
 <p>When you open a PR that touches code, the <strong>Build &amp; Test</strong> workflow runs three steps in order:</p>
 <ol>
-<li><code>spotlessCheck</code> — formatting.</li>
-<li><code>assemble</code> — compilation.</li>
-<li><code>test</code> — the JUnit test suite.</li>
+<li><code>spotlessCheck</code> – formatting.</li>
+<li><code>assemble</code> – compilation.</li>
+<li><code>test</code> – the JUnit test suite.</li>
 </ol>
-<p>A separate <strong>Build Documentation</strong> workflow validates the documentation site (<code>mkdocs build
---strict</code>) on every PR, so broken links or navigation errors are caught before merge.</p>
-<p>All checks must pass before a PR can be merged. See the <a href="../../guides/cicd/">CI/CD guide</a> for how to
-read results and troubleshoot failures. Documentation-only changes skip the Build &amp; Test workflow.</p>
+<p>A separate <strong>Build Documentation</strong> workflow validates the documentation site (<code>mkdocs build --strict</code>) on every PR, so broken links or navigation errors are caught before merge.</p>
+<p>All checks must pass before a PR can be merged.
+See the <a href="../../guides/cicd/">CI/CD guide</a> for how to read results and troubleshoot failures.
+Documentation-only changes skip the Build &amp; Test workflow.</p>
 <h2 id="design-approval-check">Design-Approval Check</h2>
-<p>A separate <strong>Design Approval</strong> check also runs on every pull request. It verifies that the PR links
-an issue labeled <code>design/approved</code> using a <strong>closing keyword</strong> in the description — for example
-<code>Closes #123</code> (a bare mention like <code>#123</code> does not count).</p>
+<p>A separate <strong>Design Approval</strong> check also runs on every pull request.
+It verifies that the PR links an issue labeled <code>design/approved</code> using a <strong>closing keyword</strong> in the description – for example <code>Closes #123</code> (a bare mention like <code>#123</code> does not count).</p>
 <p>If no linked <code>design/approved</code> issue is found, the check:</p>
 <ul>
 <li>applies the <code>needs-approved-issue</code> label,</li>
 <li>posts a comment explaining how to fix it, and</li>
 <li>fails, blocking the merge.</li>
 </ul>
-<p>To clear it, link an approved issue with a closing keyword (or get the linked issue approved by the
-maintainers), then <strong>edit the PR description</strong> to re-run the check — approving the issue alone does
-not re-trigger it. Alternatively, ask a maintainer to re-run the workflow from the Actions tab.
+<p>To clear it, link an approved issue with a closing keyword (or get the linked issue approved by the maintainers), then <strong>edit the PR description</strong> to re-run the check – approving the issue alone does not re-trigger it.
+Alternatively, ask a maintainer to re-run the workflow from the Actions tab.
 Once it passes, the <code>needs-approved-issue</code> label is removed automatically.</p>
-<p>Pull requests left with <code>needs-approved-issue</code> are marked <code>stale</code> after 14 days of inactivity and
-closed 60 days later (PRs labeled <code>pinned</code> or <code>security</code> are exempt). See the
-<a href="../../guides/cicd/">CI/CD guide</a> for the underlying workflows.</p>
+<p>Pull requests left with <code>needs-approved-issue</code> are marked <code>stale</code> after 14 days of inactivity and closed 60 days later (PRs labeled <code>pinned</code> or <code>security</code> are exempt).
+See the <a href="../../guides/cicd/">CI/CD guide</a> for the underlying workflows.</p>
 <h2 id="review">Review</h2>
-<p>A maintainer will review your PR. Be ready to:</p>
+<p>A maintainer will review your PR.
+Be ready to:</p>
 <ul>
 <li>Respond to feedback and push follow-up commits.</li>
 <li>Keep your branch up to date with <code>main</code> if asked.</li>
 </ul>
-<p>Once it is approved and all checks are green, a maintainer will merge your contribution. Thank you!</p>
+<p>Once it is approved and all checks are green, a maintainer will merge your contribution.
+Thank you!</p>
 
 
 

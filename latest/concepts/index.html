@@ -1358,8 +1358,7 @@
 
 <h1 id="concepts">Concepts</h1>
 <h2 id="core-concepts">Core Concepts</h2>
-<p>Hypernate builds on Hyperledger Fabric by adding a higher-level programming model focused on
-entities, typed operations, and reusable middleware.</p>
+<p>Hypernate builds on Hyperledger Fabric by adding a higher-level programming model focused on entities, typed operations, and reusable middleware.</p>
 <h2 id="declarative-entity-keys">Declarative Entity Keys</h2>
 <p>Hypernate uses annotations to define key construction declaratively.</p>
 <h3 id="declaring-primary-keys">Declaring Primary Keys</h3>
@@ -1376,9 +1375,9 @@ public record Asset(
 <h3 id="key-mappers">Key Mappers</h3>
 <p>Fabric keys are strings, so key-part mapping matters for sorting and range scans.</p>
 <p>If numeric IDs are mapped with plain <code>toString</code>, lexical ordering can become semantically wrong.
-For example, <code>9</code>, <code>10</code>, <code>11</code> become <code>"9"</code>, <code>"10"</code>, <code>"11"</code>, and lexical ordering puts <code>"10"</code>
-before <code>"9"</code>.</p>
-<p>Hypernate supports mapper classes to preserve ordering semantics. Available mappers include:</p>
+For example, <code>9</code>, <code>10</code>, <code>11</code> become <code>"9"</code>, <code>"10"</code>, <code>"11"</code>, and lexical ordering puts <code>"10"</code> before <code>"9"</code>.</p>
+<p>Hypernate supports mapper classes to preserve ordering semantics.
+Available mappers include:</p>
 <ul>
 <li><code>IntegerZeroPadder</code></li>
 <li><code>IntegerFlipperAndZeroPadder</code></li>
@@ -1429,8 +1428,7 @@ ctx.getRegistry().mustDelete(toDelete);
 })
 public class MyBusinessContract implements HypernateContract
 </code></pre>
-<p>This allows call interception for logging, caching, and other cross-cutting behavior while
-keeping business code focused.</p>
+<p>This allows call interception for logging, caching, and other cross-cutting behavior while keeping business code focused.</p>
 <blockquote>
 <p>Hypernate context and middleware instances are specific to individual transaction executions.</p>
 </blockquote>
