@@ -1087,6 +1087,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#markdown-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Markdown Conventions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Markdown Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#indent-nested-lists-by-2-spaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Indent Nested Lists by 2 Spaces
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-the-site-is-validated-and-published" class="md-nav__link">
     <span class="md-ellipsis">
       How the Site Is Validated and Published
@@ -1263,6 +1287,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#markdown-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Markdown Conventions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Markdown Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#indent-nested-lists-by-2-spaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      Indent Nested Lists by 2 Spaces
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-the-site-is-validated-and-published" class="md-nav__link">
     <span class="md-ellipsis">
       How the Site Is Validated and Published
@@ -1320,10 +1368,36 @@ internal link or a page missing from the navigation will fail the build.</p>
 <li><strong>Link between pages:</strong> link to the Markdown <em>file</em>, not the built URL — for example
   <code>[Reporting Issues](issues.md)</code>. MkDocs resolves and validates these links.</li>
 </ul>
+<h2 id="markdown-conventions">Markdown Conventions</h2>
+<h3 id="indent-nested-lists-by-2-spaces">Indent Nested Lists by 2 Spaces</h3>
+<p>Indent each nesting level of a list by <strong>2 spaces</strong>, exactly as you would on GitHub:</p>
+<pre><code class="language-markdown">- Parent item
+  - Nested item
+    - Deeply nested item
+</code></pre>
+<p>This "just works" only because the site overrides its renderer.
+<a href="https://python-markdown.github.io/">Python-Markdown</a> (which MkDocs uses) requires 4 spaces per
+level by default and silently flattens 2-space nesting, even though CommonMark and GFM accept it —
+so lists that looked correct on GitHub used to break on the built site. The
+<a href="https://github.com/radude/mdx_truly_sane_lists"><code>mdx_truly_sane_lists</code></a> extension configured in
+<code>mkdocs.yml</code> aligns the site with the CommonMark behavior; only the indentation rule is overridden
+(<code>truly_sane: false</code> keeps every other rendering behavior stock).</p>
+<p>Two safety nets exist:</p>
+<ul>
+<li>CI lints all Markdown files with <a href="https://github.com/DavidAnson/markdownlint-cli2">markdownlint</a>
+  (rule <code>MD007</code>, at its default 2-space indent), which fails on deeper indents — under the
+  override, a 4-space-nested item would collapse into run-on text on the site. Run it locally with
+  <code>npx markdownlint-cli2</code>; the configuration lives in <code>.markdownlint-cli2.jsonc</code> at the repository
+  root.</li>
+<li>When in doubt, check multi-level lists in the <code>mkdocs serve</code> preview rather than trusting the
+  GitHub rendering.</li>
+</ul>
 <h2 id="how-the-site-is-validated-and-published">How the Site Is Validated and Published</h2>
 <p>Every pull request runs the <strong>Build Documentation</strong> workflow
-(<code>.github/workflows/docs-build.yml</code>), which executes the same <code>mkdocs build --strict</code> you run
-locally — a broken link or a page missing from <code>nav</code> fails the check before the change can merge.</p>
+(<code>.github/workflows/docs-build.yml</code>), which lints the Markdown sources (see
+<a href="#markdown-conventions">Markdown Conventions</a>) and executes the same <code>mkdocs build --strict</code> you
+run locally — a broken link, a page missing from <code>nav</code>, or a lint violation fails the check before
+the change can merge.</p>
 <p>You do not deploy the site manually. The <strong>Deploy Documentation</strong> workflow
 (<code>.github/workflows/docs-deploy.yml</code>) handles it:</p>
 <ul>

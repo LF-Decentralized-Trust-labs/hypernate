@@ -1448,7 +1448,7 @@
 <tr>
 <td>Build Documentation</td>
 <td><code>.github/workflows/docs-build.yml</code></td>
-<td>Validates the documentation site (<code>mkdocs build --strict</code>)</td>
+<td>Lints Markdown and validates the documentation site</td>
 </tr>
 <tr>
 <td>Deploy Documentation</td>
@@ -1479,9 +1479,13 @@ requests that touch code-relevant files.</p>
 <p>If a new commit is pushed while a run is already in progress for the same branch, the older run is
 automatically canceled.</p>
 <h2 id="build-documentation">Build Documentation</h2>
-<p>The Build Documentation workflow runs <code>mkdocs build --strict</code> — the same command contributors run
-locally — so a broken internal link or a page missing from <code>nav</code> fails the check instead of
-breaking the deployment after merge.</p>
+<p>The Build Documentation workflow runs two checks, both identical to what contributors run locally:</p>
+<ol>
+<li><code>npx markdownlint-cli2</code> — Markdown conventions, most importantly 2-space list nesting
+   (see the <a href="../../contributing/documentation/#markdown-conventions">documentation guide</a>).</li>
+<li><code>mkdocs build --strict</code> — a broken internal link or a page missing from <code>nav</code> fails the check
+   instead of breaking the deployment after merge.</li>
+</ol>
 <p>It runs on every pull request, regardless of which files changed. This is deliberate: a required
 status check that is skipped by a path filter never reports its result, which would block the PR
 from merging. Instead, a filter step inside the job detects whether any documentation files
