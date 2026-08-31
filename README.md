@@ -24,6 +24,32 @@ And more features are on the way, so spoiler ahead:
 * …
 
 
+## Local Setup
+
+Hypernate is built with the Gradle Wrapper and targets Java 17. For a local checkout, run the
+following commands from the repository root:
+
+```bash
+git clone https://github.com/LF-Decentralized-Trust-labs/hypernate.git
+cd hypernate
+./gradlew test
+./gradlew build
+./gradlew spotlessCheck
+./gradlew shadowJar
+```
+
+On Windows, use `gradlew.bat` instead of `./gradlew`:
+
+```bash
+git clone https://github.com/LF-Decentralized-Trust-labs/hypernate.git
+cd hypernate
+gradlew.bat test
+gradlew.bat build
+gradlew.bat spotlessCheck
+gradlew.bat shadowJar
+```
+
+
 
 ## User Guide
 
