@@ -273,6 +273,95 @@ class RegistryTest {
   }
 
   @Nested
+  class when_must_delete_with_key_parts {
+
+    @Test
+    void given_empty_ledger_with_insufficient_key_parts_then_throw_illegal_argument() {
+      assertThrows(
+          IllegalArgumentException.class, () -> registry.mustDelete(TestEntity.class, entity.foo));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_empty_ledger_with_complete_key_then_throw_not_found() {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getState(anyString())).willReturn(new byte[] {});
+
+      assertThrows(
+          EntityNotFoundException.class,
+          () -> registry.mustDelete(TestEntity.class, entity.foo, entity.bar));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_entity_with_insufficient_key_parts_then_throw_illegal_argument() {
+      assertThrows(
+          IllegalArgumentException.class, () -> registry.mustDelete(TestEntity.class, entity.foo));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_entity_with_complete_key_then_call_delState()
+        throws EntityNotFoundException {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
+
+      registry.mustDelete(TestEntity.class, entity.foo, entity.bar);
+
+      then(stub).should().getState(ENTITY_COMPOSITE_KEY_STR);
+      then(stub).should().delState(ENTITY_COMPOSITE_KEY_STR);
+      verifyNoMoreInteractions(stub);
+    }
+  }
+
+  @Nested
+  class when_try_delete_with_key_parts {
+
+    @Test
+    void given_empty_ledger_with_insufficient_key_parts_then_throw_illegal_argument() {
+      assertThrows(
+          IllegalArgumentException.class, () -> registry.tryDelete(TestEntity.class, entity.foo));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_empty_ledger_with_complete_key_then_return_false_and_do_nothing() {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getState(anyString())).willReturn(new byte[] {});
+
+      boolean result = registry.tryDelete(TestEntity.class, entity.foo, entity.bar);
+
+      assertFalse(result);
+      then(stub).should().getState(ENTITY_COMPOSITE_KEY_STR);
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_entity_with_insufficient_key_parts_then_throw_illegal_argument() {
+      assertThrows(
+          IllegalArgumentException.class, () -> registry.tryDelete(TestEntity.class, entity.foo));
+      verifyNoMoreInteractions(stub);
+    }
+
+    @Test
+    void given_existing_entity_with_complete_key_then_return_true_and_call_delState() {
+      given(stub.createCompositeKey(anyString(), any(String[].class)))
+          .willReturn(ENTITY_COMPOSITE_KEY);
+      given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
+
+      boolean result = registry.tryDelete(TestEntity.class, entity.foo, entity.bar);
+
+      assertTrue(result);
+      then(stub).should().getState(ENTITY_COMPOSITE_KEY_STR);
+      then(stub).should().delState(ENTITY_COMPOSITE_KEY_STR);
+      verifyNoMoreInteractions(stub);
+    }
+  }
+
+  @Nested
   class when_readAll {
 
     @Test
