@@ -28,6 +28,10 @@ public abstract class StubMiddleware implements ChaincodeStub, Subscriber<Hypern
   /** The next {@link ChaincodeStub} in the chain. */
   @Delegate ChaincodeStub nextStub;
 
+  public ChaincodeStub getNextStub() {
+    return nextStub;
+  }
+
   @Override
   public void onSubscribe(Subscription subscription) {}
 
