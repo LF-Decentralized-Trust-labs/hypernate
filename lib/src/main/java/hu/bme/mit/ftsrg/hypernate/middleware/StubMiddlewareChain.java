@@ -3,7 +3,9 @@ package hu.bme.mit.ftsrg.hypernate.middleware;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
@@ -15,20 +17,41 @@ public record StubMiddlewareChain(ChaincodeStub fabricStub, List<StubMiddleware>
    *
    * <p>Usage example:
    *
+   * <blockquote>
+   *
    * <pre>{@code
    * // Fabric's stub pass to eg ContractInterface#createContext
    * ChaincodeStub fabricStub;
-   * var chain = ChaincodeStubMiddlewareChain.builder(fabricStub)
-   *                                         .push(WriteBackCachedChaincodeStubMiddleware.class)
-   *                                         .push(LoggingStubMiddleware.class)
-   *                                         .build();
+   * var chain = ChaincodeStubMiddlewareChain
+   *               .builder(fabricStub)
+   *               .push(WriteBackCachedChaincodeStubMiddleware.class)
+   *               .push(LoggingStubMiddleware.class)
+   *               .build();
    * }</pre>
    *
-   * <p>The resulting stub chain is:
+   * </blockquote>
+   *
+   * <p>The resulting stub chain looks like:
+   *
+   * <blockquote>
    *
    * <pre>{@code
-   * (operations) ... --> LoggingStubMiddleware --> WriteBackCachedChaincodeStubMiddleware --> fabricStub --> ... (peer)
+   *              (operations)
+   *                   |
+   *                   v
+   *          LoggingStubMiddleware
+   *                   |
+   *                   v
+   * WriteBackCachedChaincodeStubMiddleware
+   *                   |
+   *                   v
+   *               fabricStub
+   *                   |
+   *                   v
+   *                (peer)
    * }</pre>
+   *
+   * </blockquote>
    *
    * @param fabricStub the stub object provided by Fabric
    * @return a builder object to construct the middleware chain conveniently
@@ -93,6 +116,7 @@ public record StubMiddlewareChain(ChaincodeStub fabricStub, List<StubMiddleware>
      *
      * @param middlewareClass the type of {@link StubMiddleware} to add -- will be instantiated
      *     using a no-arg constructor
+     * @return the builder to continue chaining commands
      */
     public Builder push(Class<? extends StubMiddleware> middlewareClass) {
       Constructor<? extends StubMiddleware> constructor;
@@ -112,6 +136,12 @@ public record StubMiddlewareChain(ChaincodeStub fabricStub, List<StubMiddleware>
       return push(middlewareInstance);
     }
 
+    /**
+     * Add an already-instantiated {@link StubMiddleware} to the chain.
+     *
+     * @param middleware the {@link StubMiddleware} object to add
+     * @return the builder to continue chaining commands
+     */
     public Builder push(StubMiddleware middleware) {
       chainInMiddleware(middleware);
       return this;

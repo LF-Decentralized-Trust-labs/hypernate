@@ -7,6 +7,11 @@ import lombok.experimental.StandardException;
 @StandardException
 public class EntityNotFoundException extends DataAccessException {
 
+  /**
+   * Create a new {@link EntityNotFoundException} for a specific key.
+   *
+   * @param key the key to add to the exception message
+   */
   public EntityNotFoundException(final String key) {
     super("Entity with key '%s' could not be found".formatted(key));
   }

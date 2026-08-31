@@ -3,6 +3,10 @@ package hu.bme.mit.ftsrg.hypernate.middleware.notification;
 
 import lombok.Data;
 
-/** Base class for internal Hypernate notifications. */
+/**
+ * Base class for Hypernate notifications.
+ *
+ * <p>You should extend this class to implement custom notifications for your use case.
+ */
 @Data
 public abstract class HypernateNotification {}
