@@ -63,6 +63,7 @@ nav:
       - Submitting Pull Requests: contributing/pull-requests.md
       - Contributing with AI Agents: contributing/ai-agents.md
       - Contributing to the Docs: contributing/documentation.md
+      - Project Governance: contributing/governance.md
       - Maintainers: contributing/maintainers.md
   - References:
       - Citing: references/citing.md

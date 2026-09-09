@@ -39,7 +39,9 @@ Most of this lifecycle is enforced automatically:
 1. **An issue is opened.** It is automatically labeled `needs-triage`.
 2. **Maintainers triage and discuss the design.** While a design is being worked out, the issue carries `design/pending`.
 3. **The design is approved.** A maintainer applies `design/approved`, and work can begin.
-4. **A pull request links the approved issue** with a closing keyword (for example `Closes #123`).
+4. **A contributor claims the issue.** Comment on any unassigned `design/approved` issue to ask for it, and a maintainer assigns you, so that two people never start the same work.
+   The assignee drives the item from there – see [Project Governance](governance.md#work-tracking).
+5. **A pull request links the approved issue** with a closing keyword (for example `Closes #123`).
    An automated check confirms the link before the PR can merge – see [the design-approval check](pull-requests.md#design-approval-check).
 
 The labels used in this process:
@@ -50,7 +52,7 @@ The labels used in this process:
 | `design/pending` | The design is under active discussion – please wait before starting work. |
 | `design/approved` | The design is approved; contributions are welcome. |
 | `needs-approved-issue` | Added automatically to a pull request not linked to a `design/approved` issue. |
-| `stale` | Added automatically to a flagged pull request after a period of inactivity. |
+| `stale` | Added automatically to a pull request flagged `needs-approved-issue` after 14 days of inactivity, and closed after a further 60 – issues are never marked stale. |
 
 **Every contribution must be linked to an issue labeled `design/approved` before work begins – including trivial fixes.** There is no exception for small changes: every change still counts toward the project's health metrics (such as its error rate), so all changes go through the same design-approval step.
 This is enforced by an automated check on every pull request – a PR not linked to a `design/approved` issue is flagged and cannot merge.
