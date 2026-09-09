@@ -2,20 +2,14 @@
 package hu.bme.mit.ftsrg.hypernate.registry;
 
 import com.jcabi.aspects.Loggable;
-import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
-import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
-import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
-import hu.bme.mit.ftsrg.hypernate.util.JSON;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.function.Function;
+import hu.bme.mit.ftsrg.hypernate.metadata.EntityKeyProvider;
+import hu.bme.mit.ftsrg.hypernate.metadata.EntityMeta;
+import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
-import lombok.experimental.UtilityClass;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 import org.hyperledger.fabric.shim.ledger.KeyValue;
 import org.slf4j.Logger;
@@ -28,8 +22,11 @@ public class Registry {
 
   private final ChaincodeStub stub;
 
+  private final EntityMetadataProvider entityProvider;
+
   public Registry(final ChaincodeStub stub) {
     this.stub = stub;
+    entityProvider = new EntityMetadataProvider();
   }
 
   /**
@@ -43,7 +40,7 @@ public class Registry {
     assertNotExists(entity);
 
     final String key = getCompositeKey(entity);
-    final byte[] buffer = EntityUtil.toBuffer(entity);
+    final byte[] buffer = entityProvider.toBuffer(entity);
     stub.putState(key, buffer);
   }
 
@@ -76,7 +73,7 @@ public class Registry {
     assertExists(entity);
 
     final String key = getCompositeKey(entity);
-    final byte[] buffer = EntityUtil.toBuffer(entity);
+    final byte[] buffer = entityProvider.toBuffer(entity);
     stub.putState(key, buffer);
   }
 
@@ -140,29 +137,23 @@ public class Registry {
    * @throws EntityNotFoundException if an entity with the given primary keys was not found
    */
   public <T> T mustRead(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
-    int primaryKeyCount = EntityUtil.getPrimaryKeyCount(clazz);
-    if (primaryKeyCount == 0) {
-      throw new MissingPrimaryKeysException(
-          String.format("%s does not have a primary key annotation", clazz));
-    }
-
-    if (keyParts.length != primaryKeyCount) {
+    entityProvider.getKeyProviderForClass(clazz);
+    EntityMeta meta = entityProvider.getMetaDataInventory().getForClass(clazz);
+    int keyCount = meta.getPrimaryKeyDescriptor().getAttributeDescriptors().size();
+    if (keyParts.length != keyCount) {
       throw new IllegalArgumentException(
           "The number of key parts provided does not match number of primary keys for "
               + clazz.getName());
     }
 
-    final String key =
-        stub.createCompositeKey(
-                EntityUtil.getType(clazz), EntityUtil.mapKeyPartsToString(clazz, keyParts))
-            .toString();
+    final String key = entityProvider.createCompositeKey(clazz, keyParts);
     final byte[] data = stub.getState(key);
 
     if (data == null || data.length == 0) {
       throw new EntityNotFoundException(key);
     }
 
-    return EntityUtil.fromBuffer(data, clazz);
+    return entityProvider.fromBuffer(data, clazz);
   }
 
   /**
@@ -190,7 +181,7 @@ public class Registry {
    * @param <T> the entity type
    */
   public <T> List<T> readAll(final Class<T> clazz) {
-    final String key = stub.createCompositeKey(EntityUtil.getType(clazz)).toString();
+    final String key = entityProvider.createCompositeKey(clazz);
     Iterator<KeyValue> iterator = stub.getStateByPartialCompositeKey(key).iterator();
     Iterable<KeyValue> iterable = () -> iterator;
     return StreamSupport.stream(iterable.spliterator(), false)
@@ -202,7 +193,7 @@ public class Registry {
                   key,
                   kv.getKey(),
                   Arrays.toString(value));
-              return EntityUtil.fromBuffer(value, clazz);
+              return entityProvider.fromBuffer(value, clazz);
             })
         .collect(Collectors.toList());
   }
@@ -232,147 +223,9 @@ public class Registry {
     }
   }
 
+  @Loggable(Loggable.DEBUG)
   private <T> String getCompositeKey(final T ent) {
-    return stub.createCompositeKey(EntityUtil.getType(ent), EntityUtil.getPrimaryKeys(ent))
-        .toString();
-  }
-
-  @UtilityClass
-  private class EntityUtil {
-
-    private final Logger logger = LoggerFactory.getLogger(EntityUtil.class);
-
-    <T> String getType(final T entity) {
-      return getType(entity.getClass());
-    }
-
-    <T> String getType(final Class<T> clazz) {
-      final EntityType annot = clazz.getAnnotation(EntityType.class);
-      if (annot == null) {
-        return clazz.getName();
-      }
-
-      final String value = annot.value();
-      if (value.isBlank()) {
-        throw new IllegalArgumentException(
-            String.format(
-                "The @EntityType annotation on class %s has an empty or blank value",
-                clazz.getName()));
-      }
-      return value;
-    }
-
-    <T> int getPrimaryKeyCount(final Class<T> clazz) {
-      return clazz.getAnnotation(PrimaryKey.class) != null
-          ? clazz.getAnnotation(PrimaryKey.class).value().length
-          : 0;
-    }
-
-    <T> String[] getPrimaryKeys(final T entity) {
-      return Arrays.stream(getPrimaryKeyAnnot(entity.getClass()).value())
-          .map(
-              attrInfo -> {
-                logger.debug("Processing primary key attribute {}", attrInfo.name());
-                final Object value = getFieldValueForAttr(entity, attrInfo);
-                final String mappedKey = applyAttrMapper(attrInfo, value);
-                logger.debug(
-                    "Result of primary key mapping for attribute {} is {}",
-                    attrInfo.name(),
-                    mappedKey);
-                return mappedKey;
-              })
-          .toArray(String[]::new);
-    }
-
-    <T> String[] mapKeyPartsToString(final T entity, final Object... keyParts) {
-      return mapKeyPartsToString(entity.getClass(), keyParts);
-    }
-
-    <T> String[] mapKeyPartsToString(final Class<T> clazz, final Object... keyParts) {
-      final AttributeInfo[] attrInfos = getPrimaryKeyAnnot(clazz).value();
-      return IntStream.range(0, Math.min(attrInfos.length, keyParts.length))
-          .mapToObj(i -> applyAttrMapper(attrInfos[i], keyParts[i]))
-          .toArray(String[]::new);
-    }
-
-    <T> byte[] toBuffer(final T entity) {
-      return toJson(entity).getBytes(StandardCharsets.UTF_8);
-    }
-
-    <T> T fromBuffer(final byte[] buffer, final Class<T> clazz) {
-      final String json = new String(buffer, StandardCharsets.UTF_8);
-      logger.debug("Parsing entity from JSON: {}", json);
-      return JSON.deserialize(json, clazz);
-    }
-
-    <T> String toJson(final T entity) {
-      return JSON.serialize(entity);
-    }
-
-    private <T> PrimaryKey getPrimaryKeyAnnot(final Class<T> clazz) {
-      final PrimaryKey pk = clazz.getAnnotation(PrimaryKey.class);
-      if (pk == null) {
-        throw new MissingPrimaryKeysException(
-            String.format("%s does not have a primary key annotation", clazz));
-      }
-
-      return pk;
-    }
-
-    private String applyAttrMapper(final AttributeInfo attrInfo, final Object keyPart) {
-      Class<? extends Function<Object, String>> mapperClass = attrInfo.mapper();
-      Constructor<? extends Function<Object, String>> mapperCtor;
-      try {
-        mapperCtor = mapperClass.getDeclaredConstructor();
-      } catch (NoSuchMethodException e) {
-        logger.error("Could not find no-arg constructor for mapper {}", mapperClass.getName());
-        throw new RuntimeException(e);
-      }
-
-      Function<Object, String> mapper;
-      try {
-        mapper = mapperCtor.newInstance();
-      } catch (InstantiationException e) {
-        logger.error("Failed to instantiate mapper {}", mapperClass.getName());
-        throw new RuntimeException(e);
-      } catch (IllegalAccessException e) {
-        logger.error("Could not access constructor for mapper {}", mapperClass.getName());
-        throw new RuntimeException(e);
-      } catch (InvocationTargetException e) {
-        logger.error(
-            "An exception was thrown by the constructor of mapper {}", mapperClass.getName());
-        throw new RuntimeException(e);
-      }
-      logger.trace(
-          "Successfully instantiated mapper of type {} for primary key attribute {}",
-          mapperClass.getName(),
-          attrInfo.name());
-
-      return mapper.apply(keyPart);
-    }
-
-    private <T> Object getFieldValueForAttr(final T ent, final AttributeInfo attrInfo) {
-      final Field field;
-      try {
-        field = ent.getClass().getDeclaredField(attrInfo.name());
-      } catch (NoSuchFieldException e) {
-        logger.error(
-            "Could not find field {} in class {}", attrInfo.name(), ent.getClass().getName());
-        throw new RuntimeException(e);
-      }
-      field.setAccessible(true);
-      logger.trace("Found field for primary key attribute {}", attrInfo.name());
-
-      final Object value;
-      try {
-        value = field.get(ent);
-      } catch (IllegalAccessException e) {
-        logger.error(
-            "Could not access field {} in class {}", field.getName(), ent.getClass().getName());
-        throw new RuntimeException(e);
-      }
-
-      return value;
-    }
+    EntityKeyProvider keyProvider = entityProvider.getKeyProviderForClass(ent.getClass());
+    return keyProvider.getKey(ent);
   }
 }

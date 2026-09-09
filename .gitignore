@@ -185,6 +185,7 @@ gradle-app.setting
 
 ### Custom ###
 .idea/
+.vscode/
 lib/bin/
 site/
 .venv/

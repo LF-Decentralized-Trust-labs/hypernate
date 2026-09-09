@@ -29,6 +29,7 @@ dependencies {
   implementation("com.jcabi:jcabi-aspects:0.26.0")
   implementation("org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.5.0")
   implementation("org.hyperledger.fabric:fabric-protos:0.3.0")
+  implementation("io.github.classgraph:classgraph:4.8.165")
 
   aspect("com.jcabi:jcabi-aspects:0.26.0")
 
@@ -37,6 +38,7 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
   testImplementation("org.mockito:mockito-core:5.11.0")
   testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<JavaCompile> {
