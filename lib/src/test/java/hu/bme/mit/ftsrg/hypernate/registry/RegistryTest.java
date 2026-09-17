@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-package hu.bme.mit.ftsrg.hypernate;
+package hu.bme.mit.ftsrg.hypernate.registry;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -10,11 +10,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
-import hu.bme.mit.ftsrg.hypernate.registry.EntityExistsException;
-import hu.bme.mit.ftsrg.hypernate.registry.EntityNotFoundException;
-import hu.bme.mit.ftsrg.hypernate.registry.MissingKeysException;
-import hu.bme.mit.ftsrg.hypernate.registry.Registry;
-import hu.bme.mit.ftsrg.hypernate.registry.SerializationException;
 import hu.bme.mit.ftsrg.hypernate.util.JSON;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -111,8 +106,6 @@ class RegistryTest {
     @Test
     void given_empty_ledger_then_call_putState()
         throws SerializationException, EntityExistsException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       registry.mustCreate(entity);
@@ -123,8 +116,6 @@ class RegistryTest {
 
     @Test
     void given_existing_entity_then_throw_exists() {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
 
       assertThrows(EntityExistsException.class, () -> registry.mustCreate(entity));
@@ -137,8 +128,6 @@ class RegistryTest {
 
     @Test
     void given_empty_ledger_then_return_true_and_call_putState() throws SerializationException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       boolean result = registry.tryCreate(entity);
@@ -150,8 +139,6 @@ class RegistryTest {
 
     @Test
     void given_existing_entity_then_return_false_and_do_nothing() {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
 
       AtomicBoolean result = new AtomicBoolean(false);
@@ -166,8 +153,6 @@ class RegistryTest {
 
     @Test
     void given_empty_ledger_then_throw_not_found() {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       assertThrows(EntityNotFoundException.class, () -> registry.mustUpdate(entity));
@@ -177,8 +162,6 @@ class RegistryTest {
     @Test
     void given_existing_entity_then_call_putState()
         throws SerializationException, EntityNotFoundException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
 
       registry.mustUpdate(entity);
@@ -193,8 +176,6 @@ class RegistryTest {
 
     @Test
     void given_empty_ledger_then_return_false_and_do_nothing() {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       AtomicBoolean result = new AtomicBoolean(false);
@@ -205,8 +186,6 @@ class RegistryTest {
 
     @Test
     void given_existing_entity_then_return_true_and_call_putState() throws SerializationException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
 
       boolean result = registry.tryUpdate(entity);
@@ -222,8 +201,6 @@ class RegistryTest {
 
     @Test
     void given_empty_ledger_then_throw_not_found() {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       assertThrows(EntityNotFoundException.class, () -> registry.mustDelete(entity));
@@ -232,8 +209,6 @@ class RegistryTest {
 
     @Test
     void given_existing_entity_then_call_delState() throws EntityNotFoundException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
 
       registry.mustDelete(entity);
@@ -248,8 +223,6 @@ class RegistryTest {
 
     @Test
     void given_empty_ledger_then_return_false_and_do_nothing() {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       AtomicBoolean result = new AtomicBoolean(false);
@@ -260,8 +233,6 @@ class RegistryTest {
 
     @Test
     void given_existing_entity_then_return_true_and_call_delState() throws EntityNotFoundException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
 
       boolean result = registry.tryDelete(entity);
@@ -277,7 +248,6 @@ class RegistryTest {
 
     @Test
     void given_empty_ledger_then_return_empty_list() throws SerializationException {
-      given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getStateByPartialCompositeKey(anyString()))
           .willReturn(
               new QueryResultsIterator<>() {
@@ -309,7 +279,6 @@ class RegistryTest {
 
     @Test
     void given_existing_entity_then_return_one_long_list() throws SerializationException {
-      given(stub.createCompositeKey(anyString())).willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getStateByPartialCompositeKey(anyString()))
           .willReturn(
               new QueryResultsIterator<>() {
@@ -367,16 +336,13 @@ class RegistryTest {
   class when_must_read {
 
     @Test
-    void given_empty_ledger_with_insufficient_key_parts_then_throw_illegal_argument() {
-      assertThrows(
-          IllegalArgumentException.class, () -> registry.mustRead(TestEntity.class, entity.foo));
+    void given_empty_ledger_with_insufficient_key_parts_then_throw_key_arity() {
+      assertThrows(KeyArityException.class, () -> registry.mustRead(TestEntity.class, entity.foo));
       verifyNoMoreInteractions(stub);
     }
 
     @Test
     void given_empty_ledger_with_complete_key_then_throw_not_found() {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       assertThrows(
@@ -387,9 +353,7 @@ class RegistryTest {
 
     @Test
     void given_annotated_entity_type_then_use_annotation_value_for_composite_key() {
-      // Mock the stub to return a CompositeKey when asked, and represent an empty ledger
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(new CompositeKey("Asset", "id-1"));
+      // Start from an empty ledger
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       // This mustRead call is expected to fail with EntityNotFoundException because the ledger
@@ -400,15 +364,18 @@ class RegistryTest {
 
       // Verify that the annotated entity type ("Asset") was indeed used for creating the composite
       // key
-      then(stub).should().createCompositeKey(eq("Asset"), any(String[].class));
+      then(stub)
+          .should()
+          .getState(
+              argThat(
+                  (String key) ->
+                      CompositeKey.parseCompositeKey(key).getObjectType().equals("Asset")));
       verifyNoMoreInteractions(stub);
     }
 
     @Test
     void given_no_entity_type_annotation_then_use_fqcn_for_composite_key() {
-      // Mock the stub to return a CompositeKey when asked, and represent an empty ledger
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(new CompositeKey(TestEntity.class.getName(), "fooValue", "110"));
+      // Start from an empty ledger
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       // This mustRead call is expected to fail with EntityNotFoundException because the ledger
@@ -419,22 +386,26 @@ class RegistryTest {
           () -> registry.mustRead(TestEntity.class, entity.foo, entity.bar));
 
       // Verify that the FQCN (not uppercased) was indeed used for creating the composite key
-      then(stub).should().createCompositeKey(eq(TestEntity.class.getName()), any(String[].class));
+      then(stub)
+          .should()
+          .getState(
+              argThat(
+                  (String key) ->
+                      CompositeKey.parseCompositeKey(key)
+                          .getObjectType()
+                          .equals(TestEntity.class.getName())));
       verifyNoMoreInteractions(stub);
     }
 
     @Test
-    void given_existing_entity_with_insufficient_key_parts_then_throw_illegal_argument() {
-      assertThrows(
-          IllegalArgumentException.class, () -> registry.mustRead(TestEntity.class, entity.foo));
+    void given_existing_entity_with_insufficient_key_parts_then_throw_key_arity() {
+      assertThrows(KeyArityException.class, () -> registry.mustRead(TestEntity.class, entity.foo));
       verifyNoMoreInteractions(stub);
     }
 
     @Test
     void given_existing_entity_with_complete_key_then_call_getState_and_return_entity()
         throws SerializationException, EntityNotFoundException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
 
       TestEntity result = registry.mustRead(TestEntity.class, entity.foo, entity.bar);
@@ -449,16 +420,13 @@ class RegistryTest {
   class when_try_read {
 
     @Test
-    void given_empty_ledger_with_insufficient_key_parts_then_throw_illegal_argument() {
-      assertThrows(
-          IllegalArgumentException.class, () -> registry.tryRead(TestEntity.class, entity.foo));
+    void given_empty_ledger_with_insufficient_key_parts_then_throw_key_arity() {
+      assertThrows(KeyArityException.class, () -> registry.tryRead(TestEntity.class, entity.foo));
       verifyNoMoreInteractions(stub);
     }
 
     @Test
     void given_empty_ledger_with_complete_key_then_return_null() throws SerializationException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(new byte[] {});
 
       TestEntity readEntity = registry.tryRead(TestEntity.class, entity.foo, entity.bar);
@@ -468,17 +436,14 @@ class RegistryTest {
     }
 
     @Test
-    void given_existing_entity_with_insufficient_key_parts_then_throw_illegal_argument() {
-      assertThrows(
-          IllegalArgumentException.class, () -> registry.tryRead(TestEntity.class, entity.foo));
+    void given_existing_entity_with_insufficient_key_parts_then_throw_key_arity() {
+      assertThrows(KeyArityException.class, () -> registry.tryRead(TestEntity.class, entity.foo));
       verifyNoMoreInteractions(stub);
     }
 
     @Test
     void given_existing_entity_with_complete_key_then_call_getState_and_return_entity()
         throws SerializationException {
-      given(stub.createCompositeKey(anyString(), any(String[].class)))
-          .willReturn(ENTITY_COMPOSITE_KEY);
       given(stub.getState(anyString())).willReturn(ENTITY_BUFFER);
 
       TestEntity result = registry.tryRead(TestEntity.class, entity.foo, entity.bar);
@@ -493,18 +458,22 @@ class RegistryTest {
   class when_entity_type_is_invalid {
 
     @Test
-    void given_empty_entity_type_annotation_value_then_throw_illegal_argument() {
-      assertThrows(
-          IllegalArgumentException.class,
-          () -> registry.tryRead(EmptyEntityTypeEntity.class, "id-1"));
+    void given_empty_entity_type_annotation_value_then_throw_missing_keys() {
+      final var e =
+          assertThrows(
+              MissingKeysException.class,
+              () -> registry.tryRead(EmptyEntityTypeEntity.class, "id-1"));
+      assertInstanceOf(IllegalArgumentException.class, e.getCause());
       verifyNoMoreInteractions(stub);
     }
 
     @Test
-    void given_blank_entity_type_annotation_value_then_throw_illegal_argument() {
-      assertThrows(
-          IllegalArgumentException.class,
-          () -> registry.tryRead(BlankEntityTypeEntity.class, "id-1"));
+    void given_blank_entity_type_annotation_value_then_throw_missing_keys() {
+      final var e =
+          assertThrows(
+              MissingKeysException.class,
+              () -> registry.tryRead(BlankEntityTypeEntity.class, "id-1"));
+      assertInstanceOf(IllegalArgumentException.class, e.getCause());
       verifyNoMoreInteractions(stub);
     }
   }
