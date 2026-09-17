@@ -29,8 +29,11 @@ import java.lang.annotation.Target;
  * public record WarehouseKey(@KeyOrder(1) String locationCode, @KeyOrder(2) int localId) {}
  * }</pre>
  *
- * <p>Every field of the key class must name a field that exists on the target entity, and must
- * carry a {@link KeyOrder} whose value is distinct within the key class.
+ * <p>Every instance field of the key class must name a field that exists on the target entity, and
+ * must carry a {@link KeyOrder} whose value is distinct within the key class.
+ *
+ * <p>{@link EntityType} annotations are allowed on key classes or the pointed entity classes, but
+ * not on both.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

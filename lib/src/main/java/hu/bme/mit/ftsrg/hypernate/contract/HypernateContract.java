@@ -2,18 +2,25 @@
 package hu.bme.mit.ftsrg.hypernate.contract;
 
 import hu.bme.mit.ftsrg.hypernate.context.HypernateContext;
+import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
 import hu.bme.mit.ftsrg.hypernate.middleware.MiddlewareInfo;
 import hu.bme.mit.ftsrg.hypernate.middleware.StubMiddleware;
 import hu.bme.mit.ftsrg.hypernate.middleware.StubMiddlewareChain;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.TransactionBegin;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.TransactionEnd;
-import java.util.*;
+import java.util.Arrays;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
 /** Contract base class enriched with default before-/after-transaction notification handling. */
 public interface HypernateContract extends ContractInterface {
+
+  /**
+   * @hidden Forces the entity metadata scan at contract instantiation; do not use for anything
+   */
+  @SuppressWarnings("unused")
+  Void HYPERNATE_PRELOAD = EntityMetadataProvider.preload();
 
   @Override
   default Context createContext(ChaincodeStub fabricStub) {
