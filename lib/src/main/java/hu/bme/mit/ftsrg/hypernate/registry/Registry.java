@@ -5,11 +5,11 @@ import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
-import hu.bme.mit.ftsrg.hypernate.util.JSON;
+import hu.bme.mit.ftsrg.hypernate.serialization.EntitySerializer;
+import hu.bme.mit.ftsrg.hypernate.serialization.JsonEntitySerializer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +28,8 @@ public class Registry {
 
   private final ChaincodeStub stub;
 
+  private final EntitySerializer serializer = new JsonEntitySerializer();
+
   public Registry(final ChaincodeStub stub) {
     this.stub = stub;
   }
@@ -43,7 +45,7 @@ public class Registry {
     assertNotExists(entity);
 
     final String key = getCompositeKey(entity);
-    final byte[] buffer = EntityUtil.toBuffer(entity);
+    final byte[] buffer = serializer.toBuffer(entity);
     stub.putState(key, buffer);
   }
 
@@ -76,7 +78,7 @@ public class Registry {
     assertExists(entity);
 
     final String key = getCompositeKey(entity);
-    final byte[] buffer = EntityUtil.toBuffer(entity);
+    final byte[] buffer = serializer.toBuffer(entity);
     stub.putState(key, buffer);
   }
 
@@ -162,7 +164,7 @@ public class Registry {
       throw new EntityNotFoundException(key);
     }
 
-    return EntityUtil.fromBuffer(data, clazz);
+    return serializer.fromBuffer(data, clazz);
   }
 
   /**
@@ -202,7 +204,7 @@ public class Registry {
                   key,
                   kv.getKey(),
                   Arrays.toString(value));
-              return EntityUtil.fromBuffer(value, clazz);
+              return serializer.fromBuffer(value, clazz);
             })
         .collect(Collectors.toList());
   }
@@ -293,20 +295,6 @@ public class Registry {
       return IntStream.range(0, Math.min(attrInfos.length, keyParts.length))
           .mapToObj(i -> applyAttrMapper(attrInfos[i], keyParts[i]))
           .toArray(String[]::new);
-    }
-
-    <T> byte[] toBuffer(final T entity) {
-      return toJson(entity).getBytes(StandardCharsets.UTF_8);
-    }
-
-    <T> T fromBuffer(final byte[] buffer, final Class<T> clazz) {
-      final String json = new String(buffer, StandardCharsets.UTF_8);
-      logger.debug("Parsing entity from JSON: {}", json);
-      return JSON.deserialize(json, clazz);
-    }
-
-    <T> String toJson(final T entity) {
-      return JSON.serialize(entity);
     }
 
     private <T> PrimaryKey getPrimaryKeyAnnot(final Class<T> clazz) {
