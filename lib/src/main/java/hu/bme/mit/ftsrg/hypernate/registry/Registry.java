@@ -144,7 +144,7 @@ public class Registry {
   public <T> T mustRead(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
     int primaryKeyCount = EntityUtil.getPrimaryKeyCount(clazz);
     if (primaryKeyCount == 0) {
-      throw new MissingPrimaryKeysException(
+      throw new MissingKeysException(
           String.format("%s does not have a primary key annotation", clazz));
     }
 
@@ -300,7 +300,7 @@ public class Registry {
     private <T> PrimaryKey getPrimaryKeyAnnot(final Class<T> clazz) {
       final PrimaryKey pk = clazz.getAnnotation(PrimaryKey.class);
       if (pk == null) {
-        throw new MissingPrimaryKeysException(
+        throw new MissingKeysException(
             String.format("%s does not have a primary key annotation", clazz));
       }
 

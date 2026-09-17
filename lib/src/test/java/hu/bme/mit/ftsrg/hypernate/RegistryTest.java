@@ -12,7 +12,7 @@ import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.registry.EntityExistsException;
 import hu.bme.mit.ftsrg.hypernate.registry.EntityNotFoundException;
-import hu.bme.mit.ftsrg.hypernate.registry.MissingPrimaryKeysException;
+import hu.bme.mit.ftsrg.hypernate.registry.MissingKeysException;
 import hu.bme.mit.ftsrg.hypernate.registry.Registry;
 import hu.bme.mit.ftsrg.hypernate.registry.SerializationException;
 import hu.bme.mit.ftsrg.hypernate.util.JSON;
@@ -69,17 +69,17 @@ class RegistryTest {
     record KeylessTestEntity(String foo, Integer bar) {}
     final KeylessTestEntity keylessEntity = new KeylessTestEntity("fooValue", 110);
 
-    assertThrows(MissingPrimaryKeysException.class, () -> registry.mustCreate(keylessEntity));
-    assertThrows(MissingPrimaryKeysException.class, () -> registry.tryCreate(keylessEntity));
-    assertThrows(MissingPrimaryKeysException.class, () -> registry.mustUpdate(keylessEntity));
-    assertThrows(MissingPrimaryKeysException.class, () -> registry.tryUpdate(keylessEntity));
-    assertThrows(MissingPrimaryKeysException.class, () -> registry.mustDelete(keylessEntity));
-    assertThrows(MissingPrimaryKeysException.class, () -> registry.tryDelete(keylessEntity));
+    assertThrows(MissingKeysException.class, () -> registry.mustCreate(keylessEntity));
+    assertThrows(MissingKeysException.class, () -> registry.tryCreate(keylessEntity));
+    assertThrows(MissingKeysException.class, () -> registry.mustUpdate(keylessEntity));
+    assertThrows(MissingKeysException.class, () -> registry.tryUpdate(keylessEntity));
+    assertThrows(MissingKeysException.class, () -> registry.mustDelete(keylessEntity));
+    assertThrows(MissingKeysException.class, () -> registry.tryDelete(keylessEntity));
     assertThrows(
-        MissingPrimaryKeysException.class,
+        MissingKeysException.class,
         () -> registry.mustRead(KeylessTestEntity.class, keylessEntity.foo));
     assertThrows(
-        MissingPrimaryKeysException.class,
+        MissingKeysException.class,
         () -> registry.tryRead(KeylessTestEntity.class, keylessEntity.foo));
   }
 
