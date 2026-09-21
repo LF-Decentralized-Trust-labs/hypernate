@@ -1120,6 +1120,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project Governance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../maintainers/" class="md-nav__link">
         
   
@@ -1343,6 +1366,8 @@ Please describe:</p>
 <li><strong>An issue is opened.</strong> It is automatically labeled <code>needs-triage</code>.</li>
 <li><strong>Maintainers triage and discuss the design.</strong> While a design is being worked out, the issue carries <code>design/pending</code>.</li>
 <li><strong>The design is approved.</strong> A maintainer applies <code>design/approved</code>, and work can begin.</li>
+<li><strong>A contributor claims the issue.</strong> Comment on any unassigned <code>design/approved</code> issue to ask for it, and a maintainer assigns you, so that two people never start the same work.
+   The assignee drives the item from there – see <a href="../governance/#work-tracking">Project Governance</a>.</li>
 <li><strong>A pull request links the approved issue</strong> with a closing keyword (for example <code>Closes #123</code>).
    An automated check confirms the link before the PR can merge – see <a href="../pull-requests/#design-approval-check">the design-approval check</a>.</li>
 </ol>
@@ -1373,7 +1398,7 @@ Please describe:</p>
 </tr>
 <tr>
 <td><code>stale</code></td>
-<td>Added automatically to a flagged pull request after a period of inactivity.</td>
+<td>Added automatically to a pull request flagged <code>needs-approved-issue</code> after 14 days of inactivity, and closed after a further 60 – issues are never marked stale.</td>
 </tr>
 </tbody>
 </table>

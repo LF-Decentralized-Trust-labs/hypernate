@@ -1085,6 +1085,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#how-your-pr-is-merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      How Your PR Is Merged
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1130,6 +1139,29 @@
   
   <span class="md-ellipsis">
     Contributing to the Docs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project Governance
     
   </span>
   
@@ -1343,6 +1375,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#how-your-pr-is-merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      How Your PR Is Merged
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1444,8 +1485,15 @@ Be ready to:</p>
 <li>Respond to feedback and push follow-up commits.</li>
 <li>Keep your branch up to date with <code>main</code> if asked.</li>
 </ul>
-<p>Once it is approved and all checks are green, a maintainer will merge your contribution.
-Thank you!</p>
+<h2 id="how-your-pr-is-merged">How Your PR Is Merged</h2>
+<p>Hypernate merges by <strong>fast-forward only</strong> – your commits land on <code>main</code> exactly as you authored them, hashes and signatures intact (see <a href="../governance/#merging-pull-requests">Project Governance</a> for the rationale).
+Two practical consequences:</p>
+<ul>
+<li>Keep your branch rebased so it sits exactly on top of <code>main</code>; a branch that has drifted cannot be fast-forwarded.</li>
+<li>Because commits land verbatim, each commit in your PR should stand on its own: signed off, conventionally titled, and buildable.</li>
+</ul>
+<p>Once your PR is approved and all checks are green, a maintainer triggers the merge by commenting <code>/fast-forward</code> on it.
+Thank you for contributing!</p>
 
 
 

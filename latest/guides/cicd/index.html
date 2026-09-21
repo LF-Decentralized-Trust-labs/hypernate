@@ -835,6 +835,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#fast-forward-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fast-Forward Merge
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reading-ci-results" class="md-nav__link">
     <span class="md-ellipsis">
       Reading CI Results
@@ -1180,6 +1189,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../contributing/governance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project Governance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/maintainers/" class="md-nav__link">
         
   
@@ -1368,6 +1400,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#fast-forward-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fast-Forward Merge
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reading-ci-results" class="md-nav__link">
     <span class="md-ellipsis">
       Reading CI Results
@@ -1470,6 +1511,11 @@
 <td><code>.github/workflows/stale_not_approved.yml</code></td>
 <td>Marks and eventually closes stale, non-approved PRs</td>
 </tr>
+<tr>
+<td>Fast-Forward Merge</td>
+<td><code>.github/workflows/fast-forward.yml</code></td>
+<td>Merges approved PRs by fast-forwarding <code>main</code></td>
+</tr>
 </tbody>
 </table>
 <h2 id="build-test">Build &amp; Test</h2>
@@ -1501,6 +1547,10 @@ In these cases, either a maintainer can force rerun the check or you can make a 
 <p>A scheduled daily job marks pull requests carrying the <code>needs-approved-issue</code> label as <code>stale</code> after 14 days of inactivity and closes them after 60 days.
 PRs labeled <code>pinned</code> or <code>security</code> are exempt.
 Issues are never affected.</p>
+<h2 id="fast-forward-merge">Fast-Forward Merge</h2>
+<p>When a maintainer comments <code>/fast-forward</code> on an approved pull request, this workflow advances <code>main</code> to the PR's head commit.
+The commits land exactly as authored – hashes and GPG signatures preserved – keeping history linear and verifiable (see <a href="../../contributing/governance/#merging-pull-requests">Project Governance</a> for the policy).
+The workflow reacts only to a comment whose entire body is <code>/fast-forward</code>, written by a user with write access, on a non-draft pull request whose review decision is <code>APPROVED</code>.</p>
 <h2 id="reading-ci-results">Reading CI Results</h2>
 <ol>
 <li><strong>Status check on PRs</strong> - The workflow result appears as a check on the pull request page.</li>
