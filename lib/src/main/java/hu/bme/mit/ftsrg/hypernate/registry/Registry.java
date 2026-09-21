@@ -131,6 +131,44 @@ public class Registry {
   }
 
   /**
+   * Delete an existing entity by its class and primary keys.
+   *
+   * @param clazz the class of the entity
+   * @param keyParts the list of primary keys identifying the entity
+   * @param <T> the entity type
+   * @throws EntityNotFoundException if the entity was not found in the ledger
+   */
+  public <T> void mustDelete(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
+    final String key = resolveCompositeKey(clazz, keyParts);
+    if (!keyExists(key)) {
+      throw new EntityNotFoundException(key);
+    }
+    stub.delState(key);
+  }
+
+  /**
+   * Delete an entity by its class and primary keys if it exists.
+   *
+   * @param clazz the class of the entity
+   * @param keyParts the list of primary keys identifying the entity
+   * @return {@code true} if the entity was deleted, {@code false} otherwise
+   * @param <T> the entity type
+   */
+  public <T> boolean tryDelete(Class<T> clazz, Object... keyParts) {
+    try {
+      mustDelete(clazz, keyParts);
+    } catch (EntityNotFoundException e) {
+      logger.info(
+          "Entity of type {} with keys {} does not exist -- ignoring delete",
+          clazz.getName(),
+          keyParts);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * Read an existing entity.
    *
    * @param clazz the class of the entity
@@ -140,22 +178,7 @@ public class Registry {
    * @throws EntityNotFoundException if an entity with the given primary keys was not found
    */
   public <T> T mustRead(Class<T> clazz, Object... keyParts) throws EntityNotFoundException {
-    int primaryKeyCount = EntityUtil.getPrimaryKeyCount(clazz);
-    if (primaryKeyCount == 0) {
-      throw new MissingPrimaryKeysException(
-          String.format("%s does not have a primary key annotation", clazz));
-    }
-
-    if (keyParts.length != primaryKeyCount) {
-      throw new IllegalArgumentException(
-          "The number of key parts provided does not match number of primary keys for "
-              + clazz.getName());
-    }
-
-    final String key =
-        stub.createCompositeKey(
-                EntityUtil.getType(clazz), EntityUtil.mapKeyPartsToString(clazz, keyParts))
-            .toString();
+    final String key = resolveCompositeKey(clazz, keyParts);
     final byte[] data = stub.getState(key);
 
     if (data == null || data.length == 0) {
@@ -234,6 +257,24 @@ public class Registry {
 
   private <T> String getCompositeKey(final T ent) {
     return stub.createCompositeKey(EntityUtil.getType(ent), EntityUtil.getPrimaryKeys(ent))
+        .toString();
+  }
+
+  private String resolveCompositeKey(Class<?> clazz, Object[] keyParts) {
+    int primaryKeyCount = EntityUtil.getPrimaryKeyCount(clazz);
+    if (primaryKeyCount == 0) {
+      throw new MissingPrimaryKeysException(
+          String.format("%s does not have a primary key annotation", clazz));
+    }
+
+    if (keyParts.length != primaryKeyCount) {
+      throw new IllegalArgumentException(
+          "The number of key parts provided does not match number of primary keys for "
+              + clazz.getName());
+    }
+
+    return stub.createCompositeKey(
+            EntityUtil.getType(clazz), EntityUtil.mapKeyPartsToString(clazz, keyParts))
         .toString();
   }
 
