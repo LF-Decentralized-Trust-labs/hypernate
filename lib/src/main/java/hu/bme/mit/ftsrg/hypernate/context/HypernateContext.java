@@ -38,6 +38,17 @@ public class HypernateContext extends Context {
   }
 
   /**
+   * Start a cross-chaincode invocation builder.
+   *
+   * @param chaincodeName the target chaincode name
+   * @param functionName the target function name
+   * @return an {@link InvocationBuilder} instance
+   */
+  public InvocationBuilder<Void> invoke(String chaincodeName, String functionName) {
+    return new InvocationBuilder<>(this, chaincodeName, functionName);
+  }
+
+  /**
    * Send a {@link HypernateNotification}.
    *
    * <p>Notifies all middlewares in the chain (in the order in which they have been added).
