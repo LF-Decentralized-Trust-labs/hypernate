@@ -37,6 +37,7 @@ public final class JSON {
    *
    * @param json The JSON string to deserialize
    * @param clazz The type of the object to interpret the JSON as
+   * @param <T> The type of object to deserialize into
    * @return The resulting object
    */
   public static <T> T deserialize(final String json, final Class<T> clazz)
