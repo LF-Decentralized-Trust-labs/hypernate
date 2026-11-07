@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @UtilityClass
-class EntityMetadataInventory {
+public class EntityMetadataInventory {
 
   private final Logger logger = LoggerFactory.getLogger(EntityMetadataInventory.class);
 
@@ -102,6 +102,10 @@ class EntityMetadataInventory {
     }
 
     return data.get(clazz);
+  }
+
+  public Set<Class<?>> getEntityList(){
+    return data.keySet();
   }
 
   /**
