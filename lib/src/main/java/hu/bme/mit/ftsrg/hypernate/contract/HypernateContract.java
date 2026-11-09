@@ -8,6 +8,9 @@ import hu.bme.mit.ftsrg.hypernate.middleware.StubMiddleware;
 import hu.bme.mit.ftsrg.hypernate.middleware.StubMiddlewareChain;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.TransactionBegin;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.TransactionEnd;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.HypernateSchemaGenerator;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
+
 import java.util.Arrays;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
@@ -22,10 +25,15 @@ public interface HypernateContract extends ContractInterface {
   @SuppressWarnings("unused")
   Void HYPERNATE_PRELOAD = EntityMetadataProvider.preload();
 
+  /**
+   * @hidden Singleton schema registry initialized once after metadata preload
+   */
+  SchemaRegistry SCHEMA_REGISTRY = new SchemaRegistry(new HypernateSchemaGenerator());
+
   @Override
   default Context createContext(ChaincodeStub fabricStub) {
     StubMiddlewareChain mwChain = initMiddlewares(fabricStub);
-    HypernateContext ctx = new HypernateContext(mwChain);
+    HypernateContext ctx = new HypernateContext(mwChain, SCHEMA_REGISTRY);
     mwChain.forEach(ctx::subscribeToNotifications);
     return ctx;
   }

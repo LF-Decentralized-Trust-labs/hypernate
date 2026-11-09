@@ -4,6 +4,7 @@ package hu.bme.mit.ftsrg.hypernate.registry;
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityKeyProvider;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import hu.bme.mit.ftsrg.hypernate.serialization.EntitySerializer;
 import hu.bme.mit.ftsrg.hypernate.serialization.JsonEntitySerializer;
 import java.util.Arrays;
@@ -34,8 +35,10 @@ public class Registry {
 
   private final EntitySerializer serializer = new JsonEntitySerializer();
 
-  public Registry(final ChaincodeStub stub) {
-    this(stub, METADATA_PROVIDER);
+  private final SchemaRegistry SCHEMA_REGISTRY;
+
+  public Registry(final ChaincodeStub stub, final SchemaRegistry schemaRegistry) {
+    this(stub, schemaRegistry ,METADATA_PROVIDER);
   }
 
   /**
@@ -44,8 +47,9 @@ public class Registry {
    * @param stub the chaincode stub to read from and write to
    * @param metadataProvider the provider to resolve entity key providers with
    */
-  Registry(final ChaincodeStub stub, final EntityMetadataProvider metadataProvider) {
+  Registry(final ChaincodeStub stub, final SchemaRegistry schemaRegistry ,final EntityMetadataProvider metadataProvider) {
     this.stub = stub;
+    this.SCHEMA_REGISTRY = schemaRegistry;
     this.metadataProvider = metadataProvider;
   }
 
