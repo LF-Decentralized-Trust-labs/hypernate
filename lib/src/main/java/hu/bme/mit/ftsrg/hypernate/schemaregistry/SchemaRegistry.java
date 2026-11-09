@@ -34,6 +34,10 @@ public class SchemaRegistry {
                   + SCHEMA_NAMESPACE
                   + "' is reserved for internal Hypernate schema storage.");
         }
+        if (entityType.version() < 1) {
+          throw new IllegalArgumentException(
+              "Invalid version: " + entityType.version() + "for class: " + entityType.value());
+        }
         byte[] classSchema = generator.generateSchema(clazz);
         localCache.put(entityType.value(), new LocalSchemaEntry(entityType.version(), classSchema));
       } else {
@@ -62,7 +66,7 @@ public class SchemaRegistry {
       if (!Arrays.equals(localCache.get(entityType).schemaBytes(), schemaBytes)) {
         throw new SchemaMismatchException(entityType);
       }
-      ledgerVerifiedCache.put(compositeKey, schemaBytes);
+      ledgerVerifiedCache.put(scemaKey, schemaBytes);
       return;
     }
 

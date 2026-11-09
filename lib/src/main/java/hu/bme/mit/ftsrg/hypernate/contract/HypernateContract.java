@@ -10,7 +10,6 @@ import hu.bme.mit.ftsrg.hypernate.middleware.notification.TransactionBegin;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.TransactionEnd;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.HypernateSchemaGenerator;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
-
 import java.util.Arrays;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
