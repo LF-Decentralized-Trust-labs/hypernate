@@ -3,6 +3,7 @@ package hu.bme.mit.ftsrg.hypernate.schemaregistry;
 
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
+import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
 import hu.bme.mit.ftsrg.hypernate.mappers.IntegerZeroPadder;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataInventory;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ public class SchemaRegistry {
     Set<Class<?>> entities = EntityMetadataInventory.getEntityList();
     for (Class<?> clazz : entities) {
       EntityType entityType = clazz.getAnnotation(EntityType.class);
+      String entityTypeName;
       if (entityType != null) {
         if (SCHEMA_NAMESPACE.equals(entityType.value())) {
           throw new IllegalArgumentException(
@@ -34,14 +36,30 @@ public class SchemaRegistry {
                   + SCHEMA_NAMESPACE
                   + "' is reserved for internal Hypernate schema storage.");
         }
-        if (entityType.version() < 1) {
+        if (entityType.value().isBlank()) {
+        throw new IllegalArgumentException(
+          String.format(
+              "The @EntityType annotation on class %s has an empty or blank value",
+              clazz.getName()));
+        }
+        entityTypeName = entityType.value();
+      } else {
+        entityTypeName = clazz.getName();
+      }
+      if(localCache.containsKey(entityTypeName)){
+        throw new IllegalArgumentException(
+          "Type collision: two different classes use the same entity type name: " + entityType.value());
+      }
+      SchemaVersion schemaVersion = clazz.getAnnotation(SchemaVersion.class);
+      if (schemaVersion != null) {
+        if (schemaVersion.value() < 1) {
           throw new IllegalArgumentException(
-              "Invalid version: " + entityType.version() + "for class: " + entityType.value());
+              "Invalid version: " + schemaVersion.value() + "for class: " + entityTypeName);
         }
         byte[] classSchema = generator.generateSchema(clazz);
-        localCache.put(entityType.value(), new LocalSchemaEntry(entityType.version(), classSchema));
+        localCache.put(entityTypeName, new LocalSchemaEntry(schemaVersion.value(), classSchema));
       } else {
-        throw new EntityTypeNotFoundException(clazz.getName());
+        throw new SchemaVersionNotFoundException(entityTypeName);
       }
     }
   }
@@ -50,13 +68,13 @@ public class SchemaRegistry {
     LocalSchemaEntry localSchemaEntry = localCache.get(entityType);
     // We don't have a ledger writeable class
     if (localSchemaEntry == null) {
-      throw new EntityTypeNotFoundException(entityType);
+      throw new SchemaVersionNotFoundException(entityType);
     }
 
     String localSchemaVersion = new IntegerZeroPadder().apply(localSchemaEntry.version());
-    String scemaKey = SCHEMA_NAMESPACE + entityType + localSchemaVersion;
+    String schemaKey = SCHEMA_NAMESPACE + entityType + localSchemaVersion;
 
-    if (ledgerVerifiedCache.containsKey(scemaKey)) return;
+    if (ledgerVerifiedCache.containsKey(schemaKey)) return;
 
     String compositeKey =
         stub.createCompositeKey(SCHEMA_NAMESPACE, entityType, localSchemaVersion).toString();
@@ -66,7 +84,7 @@ public class SchemaRegistry {
       if (!Arrays.equals(localCache.get(entityType).schemaBytes(), schemaBytes)) {
         throw new SchemaMismatchException(entityType);
       }
-      ledgerVerifiedCache.put(scemaKey, schemaBytes);
+      ledgerVerifiedCache.put(schemaKey, schemaBytes);
       return;
     }
 
@@ -89,9 +107,9 @@ public class SchemaRegistry {
       return local.schemaBytes();
     }
     String schemaVersion = new IntegerZeroPadder().apply(version);
-    String scemaKey = SCHEMA_NAMESPACE + entityType + schemaVersion;
+    String schemaKey = SCHEMA_NAMESPACE + entityType + schemaVersion;
     return ledgerVerifiedCache.computeIfAbsent(
-        scemaKey,
+        schemaKey,
         k -> {
           String compositeKey =
               stub.createCompositeKey(SCHEMA_NAMESPACE, entityType, schemaVersion).toString();

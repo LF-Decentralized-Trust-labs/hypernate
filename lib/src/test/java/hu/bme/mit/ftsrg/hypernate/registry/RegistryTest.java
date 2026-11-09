@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
+import hu.bme.mit.ftsrg.hypernate.registry.*;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import hu.bme.mit.ftsrg.hypernate.util.JSON;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -52,11 +54,13 @@ class RegistryTest {
 
   @Mock private ChaincodeStub stub;
 
+  @Mock private SchemaRegistry SCHEMA_REGISTRY;
+
   private Registry registry;
 
   @BeforeEach
   void setup() {
-    registry = new Registry(stub);
+    registry = new Registry(stub, SCHEMA_REGISTRY);
   }
 
   @Test
