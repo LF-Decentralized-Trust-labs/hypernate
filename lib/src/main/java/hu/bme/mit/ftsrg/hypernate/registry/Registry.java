@@ -8,7 +8,6 @@ import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import hu.bme.mit.ftsrg.hypernate.serialization.EntitySerializer;
 import hu.bme.mit.ftsrg.hypernate.serialization.HypernateEntitySerializer;
-import hu.bme.mit.ftsrg.hypernate.serialization.JsonEntitySerializer;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;

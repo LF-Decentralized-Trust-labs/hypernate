@@ -1,12 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.hypernate.serialization;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
@@ -14,9 +11,6 @@ import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
 import hu.bme.mit.ftsrg.hypernate.registry.SerializationException;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
 public class HypernateEntitySerializer implements EntitySerializer {
@@ -28,8 +22,6 @@ public class HypernateEntitySerializer implements EntitySerializer {
   private final ObjectMapper objectMapper;
   private final SchemaRegistry schemaRegistry;
   private final ChaincodeStub stub;
-
-  private final Set<Class<?>> validatedClasses = ConcurrentHashMap.newKeySet();
 
   public HypernateEntitySerializer(final SchemaRegistry schemaRegistry, final ChaincodeStub stub) {
     this.objectMapper =
@@ -48,7 +40,6 @@ public class HypernateEntitySerializer implements EntitySerializer {
     }
 
     final Class<?> clazz = entity.getClass();
-    validateNoReservedProperty(clazz);
     schemaRegistry.registerSchema(stub, resolveEntityTypeName(clazz));
 
     try {
@@ -65,6 +56,8 @@ public class HypernateEntitySerializer implements EntitySerializer {
       meta.put(TYPE_FIELD, resolveEntityTypeName(clazz));
       meta.put(VERSION_FIELD, resolveSchemaVersion(clazz));
       return objectMapper.writeValueAsBytes(root);
+    } catch (SerializationException e) {
+      throw e;
     } catch (IOException e) {
       throw new SerializationException("Failed to serialize entity " + clazz.getName(), e);
     }
@@ -82,6 +75,7 @@ public class HypernateEntitySerializer implements EntitySerializer {
                 + "' metadata object; records without embedded Hypernate metadata are not"
                 + " supported");
       }
+
       root.remove(HYPERNATE_FIELD);
       return objectMapper.treeToValue(root, clazz);
     } catch (SerializationException e) {
@@ -90,27 +84,6 @@ public class HypernateEntitySerializer implements EntitySerializer {
       throw new SerializationException(
           "Failed to deserialize entity of type " + clazz.getName(), e);
     }
-  }
-
-  private <T> void validateNoReservedProperty(final Class<T> clazz) throws SerializationException {
-    if (validatedClasses.contains(clazz)) {
-      return;
-    }
-    final JavaType javaType = objectMapper.constructType(clazz);
-    final BeanDescription beanDesc = objectMapper.getSerializationConfig().introspect(javaType);
-
-    for (final BeanPropertyDefinition prop : beanDesc.findProperties()) {
-      if (HYPERNATE_FIELD.equals(prop.getName())) {
-        throw new SerializationException(
-            "Entity "
-                + clazz.getName()
-                + " declares a field or getter that serializes to the reserved name '"
-                + HYPERNATE_FIELD
-                + "'");
-      }
-    }
-
-    validatedClasses.add(clazz);
   }
 
   private static String resolveEntityTypeName(final Class<?> clazz) {
