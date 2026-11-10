@@ -72,10 +72,8 @@ public class HypernateEntitySerializer implements EntitySerializer {
 
   @Override
   public <T> T fromBuffer(final byte[] buffer, final Class<T> clazz) {
-    final String json = new String(buffer, StandardCharsets.UTF_8);
-
     try {
-      final ObjectNode root = (ObjectNode) objectMapper.readTree(json);
+      final ObjectNode root = (ObjectNode) objectMapper.readTree(buffer);
 
       if (!root.has(HYPERNATE_FIELD)) {
         throw new SerializationException(

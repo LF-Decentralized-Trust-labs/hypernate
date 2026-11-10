@@ -7,6 +7,7 @@ import hu.bme.mit.ftsrg.hypernate.metadata.EntityKeyProvider;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import hu.bme.mit.ftsrg.hypernate.serialization.EntitySerializer;
+import hu.bme.mit.ftsrg.hypernate.serialization.HypernateEntitySerializer;
 import hu.bme.mit.ftsrg.hypernate.serialization.JsonEntitySerializer;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,7 +37,7 @@ public class Registry {
 
   private final EntityMetadataProvider metadataProvider;
 
-  private final EntitySerializer serializer = new JsonEntitySerializer();
+  private final EntitySerializer serializer;
 
   private final SchemaRegistry schemaRegistry;
 
@@ -57,6 +58,7 @@ public class Registry {
     this.stub = stub;
     this.schemaRegistry = schemaRegistry;
     this.metadataProvider = metadataProvider;
+    this.serializer = new HypernateEntitySerializer(schemaRegistry, stub);
   }
 
   public HypernateContext getContext() {
