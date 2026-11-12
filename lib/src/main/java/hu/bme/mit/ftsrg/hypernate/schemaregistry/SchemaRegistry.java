@@ -53,7 +53,8 @@ public class SchemaRegistry {
         byte[] classSchema = generator.generateSchema(clazz);
         localCache.put(entityTypeName, new LocalSchemaEntry(schemaVersion.value(), classSchema));
       } else {
-        throw new SchemaVersionNotFoundException(entityTypeName);
+        byte[] classSchema = generator.generateSchema(clazz);
+        localCache.put(entityTypeName, new LocalSchemaEntry(1, classSchema));
       }
     }
   }
