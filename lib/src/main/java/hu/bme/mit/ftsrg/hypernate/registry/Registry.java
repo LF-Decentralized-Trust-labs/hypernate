@@ -57,7 +57,7 @@ public class Registry {
     this.stub = stub;
     this.schemaRegistry = schemaRegistry;
     this.metadataProvider = metadataProvider;
-    this.serializer = new HypernateEntitySerializer(schemaRegistry, stub);
+    this.serializer = new HypernateEntitySerializer(schemaRegistry, ctx);
   }
 
   public HypernateContext getContext() {
