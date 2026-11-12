@@ -35,7 +35,7 @@ public class Registry {
 
   private final EntitySerializer serializer = new JsonEntitySerializer();
 
-  private final SchemaRegistry SCHEMA_REGISTRY;
+  private final SchemaRegistry schemaRegistry;
 
   public Registry(final ChaincodeStub stub, final SchemaRegistry schemaRegistry) {
     this(stub, schemaRegistry, METADATA_PROVIDER);
@@ -52,7 +52,7 @@ public class Registry {
       final SchemaRegistry schemaRegistry,
       final EntityMetadataProvider metadataProvider) {
     this.stub = stub;
-    this.SCHEMA_REGISTRY = schemaRegistry;
+    this.schemaRegistry = schemaRegistry;
     this.metadataProvider = metadataProvider;
   }
 

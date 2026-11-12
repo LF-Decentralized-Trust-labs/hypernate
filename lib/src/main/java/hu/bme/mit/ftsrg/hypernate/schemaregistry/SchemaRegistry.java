@@ -6,6 +6,8 @@ import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
 import hu.bme.mit.ftsrg.hypernate.mappers.IntegerZeroPadder;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataInventory;
+import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +30,6 @@ public class SchemaRegistry {
     Set<Class<?>> entities = EntityMetadataInventory.getEntityList();
     for (Class<?> clazz : entities) {
       EntityType entityType = clazz.getAnnotation(EntityType.class);
-      String entityTypeName;
       if (entityType != null) {
         if (SCHEMA_NAMESPACE.equals(entityType.value())) {
           throw new IllegalArgumentException(
@@ -36,20 +37,12 @@ public class SchemaRegistry {
                   + SCHEMA_NAMESPACE
                   + "' is reserved for internal Hypernate schema storage.");
         }
-        if (entityType.value().isBlank()) {
-          throw new IllegalArgumentException(
-              String.format(
-                  "The @EntityType annotation on class %s has an empty or blank value",
-                  clazz.getName()));
-        }
-        entityTypeName = entityType.value();
-      } else {
-        entityTypeName = clazz.getName();
       }
+      String entityTypeName = new EntityMetadataProvider().typeStringFor(clazz);
       if (localCache.containsKey(entityTypeName)) {
         throw new IllegalArgumentException(
             "Type collision: two different classes use the same entity type name: "
-                + entityType.value());
+                + entityTypeName);
       }
       SchemaVersion schemaVersion = clazz.getAnnotation(SchemaVersion.class);
       if (schemaVersion != null) {
