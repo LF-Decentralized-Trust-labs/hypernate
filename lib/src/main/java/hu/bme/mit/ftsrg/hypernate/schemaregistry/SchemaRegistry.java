@@ -4,15 +4,14 @@ package hu.bme.mit.ftsrg.hypernate.schemaregistry;
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
+import hu.bme.mit.ftsrg.hypernate.context.HypernateContext;
 import hu.bme.mit.ftsrg.hypernate.mappers.IntegerZeroPadder;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataInventory;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.hyperledger.fabric.shim.ChaincodeStub;
 
 @Loggable(Loggable.DEBUG)
@@ -23,8 +22,6 @@ public class SchemaRegistry {
   private record LocalSchemaEntry(int version, byte[] schemaBytes) {}
 
   private final Map<String, LocalSchemaEntry> localCache = new HashMap<>();
-
-  private final Map<String, byte[]> ledgerVerifiedCache = new ConcurrentHashMap<>();
 
   public SchemaRegistry(HypernateSchemaGenerator generator) {
     Set<Class<?>> entities = EntityMetadataInventory.getEntityList();
@@ -59,9 +56,8 @@ public class SchemaRegistry {
     }
   }
 
-  public void registerSchema(ChaincodeStub stub, String entityType) {
+  public void registerSchema(HypernateContext ctx, String entityType) {
     LocalSchemaEntry localSchemaEntry = localCache.get(entityType);
-    // We don't have a ledger writeable class
     if (localSchemaEntry == null) {
       throw new SchemaVersionNotFoundException(entityType);
     }
@@ -69,8 +65,9 @@ public class SchemaRegistry {
     String localSchemaVersion = new IntegerZeroPadder().apply(localSchemaEntry.version());
     String schemaKey = SCHEMA_NAMESPACE + entityType + localSchemaVersion;
 
-    if (ledgerVerifiedCache.containsKey(schemaKey)) return;
+    if (ctx.getLedgerVerifiedCache().containsKey(schemaKey)) return;
 
+    ChaincodeStub stub = ctx.getStub();
     String compositeKey =
         stub.createCompositeKey(SCHEMA_NAMESPACE, entityType, localSchemaVersion).toString();
     byte[] schemaBytes = stub.getState(compositeKey);
@@ -79,7 +76,7 @@ public class SchemaRegistry {
       if (!Arrays.equals(localCache.get(entityType).schemaBytes(), schemaBytes)) {
         throw new SchemaMismatchException(entityType);
       }
-      ledgerVerifiedCache.put(schemaKey, schemaBytes);
+      ctx.getLedgerVerifiedCache().put(schemaKey, schemaBytes);
       return;
     }
 
@@ -94,25 +91,25 @@ public class SchemaRegistry {
     }
 
     stub.putState(compositeKey, localSchemaEntry.schemaBytes());
+    ctx.getLedgerVerifiedCache().put(schemaKey, localSchemaEntry.schemaBytes());
   }
 
-  public byte[] getSchema(ChaincodeStub stub, String entityType, int version) {
-    LocalSchemaEntry local = localCache.get(entityType);
-    if (local != null && local.version() == version) {
-      return local.schemaBytes();
-    }
+  public byte[] getSchema(HypernateContext ctx, String entityType, int version) {
     String schemaVersion = new IntegerZeroPadder().apply(version);
     String schemaKey = SCHEMA_NAMESPACE + entityType + schemaVersion;
-    return ledgerVerifiedCache.computeIfAbsent(
-        schemaKey,
-        k -> {
-          String compositeKey =
-              stub.createCompositeKey(SCHEMA_NAMESPACE, entityType, schemaVersion).toString();
-          byte[] schemaBytes = stub.getState(compositeKey);
-          if (schemaBytes == null || schemaBytes.length == 0) {
-            throw new SchemaNotFoundException(entityType);
-          }
-          return schemaBytes;
-        });
+
+    if (ctx.getLedgerVerifiedCache().containsKey(schemaKey)) {
+      return ctx.getLedgerVerifiedCache().get(schemaKey);
+    }
+
+    ChaincodeStub stub = ctx.getStub();
+    String compositeKey =
+        stub.createCompositeKey(SCHEMA_NAMESPACE, entityType, schemaVersion).toString();
+    byte[] schemaBytes = stub.getState(compositeKey);
+    if (schemaBytes == null || schemaBytes.length == 0) {
+      throw new SchemaNotFoundException(entityType);
+    }
+    ctx.getLedgerVerifiedCache().put(schemaKey, schemaBytes);
+    return schemaBytes;
   }
 }

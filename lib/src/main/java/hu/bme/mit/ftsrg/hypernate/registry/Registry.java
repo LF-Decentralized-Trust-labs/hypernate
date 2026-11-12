@@ -2,6 +2,7 @@
 package hu.bme.mit.ftsrg.hypernate.registry;
 
 import com.jcabi.aspects.Loggable;
+import hu.bme.mit.ftsrg.hypernate.context.HypernateContext;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityKeyProvider;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
@@ -29,6 +30,8 @@ public class Registry {
    */
   private static final EntityMetadataProvider METADATA_PROVIDER = new EntityMetadataProvider();
 
+  private final HypernateContext ctx;
+
   private final ChaincodeStub stub;
 
   private final EntityMetadataProvider metadataProvider;
@@ -37,23 +40,31 @@ public class Registry {
 
   private final SchemaRegistry schemaRegistry;
 
-  public Registry(final ChaincodeStub stub, final SchemaRegistry schemaRegistry) {
-    this(stub, schemaRegistry, METADATA_PROVIDER);
+  public Registry(final HypernateContext ctx, final SchemaRegistry schemaRegistry) {
+    this(ctx, ctx.getStub(), schemaRegistry, METADATA_PROVIDER);
   }
 
-  /**
-   * Create a registry backed by a specific metadata provider.
-   *
-   * @param stub the chaincode stub to read from and write to
-   * @param metadataProvider the provider to resolve entity key providers with
-   */
+  public Registry(final ChaincodeStub stub, final SchemaRegistry schemaRegistry) {
+    this(null, stub, schemaRegistry, METADATA_PROVIDER);
+  }
+
   Registry(
+      final HypernateContext ctx,
       final ChaincodeStub stub,
       final SchemaRegistry schemaRegistry,
       final EntityMetadataProvider metadataProvider) {
+    this.ctx = ctx;
     this.stub = stub;
     this.schemaRegistry = schemaRegistry;
     this.metadataProvider = metadataProvider;
+  }
+
+  public HypernateContext getContext() {
+    return ctx;
+  }
+
+  public SchemaRegistry getSchemaRegistry() {
+    return schemaRegistry;
   }
 
   /**
