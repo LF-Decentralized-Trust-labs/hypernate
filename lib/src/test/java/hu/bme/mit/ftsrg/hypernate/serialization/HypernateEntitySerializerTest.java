@@ -133,9 +133,9 @@ class HypernateEntitySerializerTest {
   class RecordWithoutMetadata {
 
     @Test
-    void given_json_without_hypernate_metadata_when_deserialized_then_throws_serialization_exception() {
-      final byte[] buffer =
-          "{\"foo\":\"fooValue\",\"bar\":110}".getBytes(StandardCharsets.UTF_8);
+    void
+        given_json_without_hypernate_metadata_when_deserialized_then_throws_serialization_exception() {
+      final byte[] buffer = "{\"foo\":\"fooValue\",\"bar\":110}".getBytes(StandardCharsets.UTF_8);
 
       final SerializationException exception =
           assertThrows(
