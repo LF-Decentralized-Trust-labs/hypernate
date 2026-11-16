@@ -189,3 +189,8 @@ lib/bin/
 site/
 .venv/
 node_modules/
+
+# Secrets and Environment
+.env
+.env.*
+*.local
