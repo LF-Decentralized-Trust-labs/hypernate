@@ -11,8 +11,11 @@ import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
 import hu.bme.mit.ftsrg.hypernate.context.HypernateContext;
 import hu.bme.mit.ftsrg.hypernate.registry.SerializationException;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.HypernateSchemaDiffer.FieldChange;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class HypernateEntitySerializer implements EntitySerializer {
 
@@ -83,11 +86,20 @@ public class HypernateEntitySerializer implements EntitySerializer {
       }
       int entityVersion = root.get(HYPERNATE_FIELD).get(VERSION_FIELD).asInt();
       String entityType = root.get(HYPERNATE_FIELD).get(TYPE_FIELD).asText();
-      if (entityVersion != resolveSchemaVersion(clazz)
-          || !entityType.equals(resolveEntityTypeName(clazz))) {
+      if (!entityType.equals(resolveEntityTypeName(clazz))) {
+        throw new SerializationException("Mismatch in the data version or in the entityType");
+      }
+      int resolvedVersion = resolveSchemaVersion(clazz);
+      if (entityVersion > resolvedVersion || entityVersion < 1) {
         throw new SerializationException("Mismatch in the data version or in the entityType");
       }
       root.remove(HYPERNATE_FIELD);
+      if (entityVersion < resolvedVersion) {
+        List<Map<FieldChange, JsonNode>> upcastMethods =
+            schemaRegistry.upcastMethods(ctx, entityType, entityVersion, resolvedVersion);
+        applyUpcasterMethods(root, upcastMethods);
+      }
+
       return objectMapper.treeToValue(root, clazz);
     } catch (SerializationException e) {
       throw e;
@@ -108,5 +120,24 @@ public class HypernateEntitySerializer implements EntitySerializer {
       return 1;
     }
     return annotation.value();
+  }
+
+  private ObjectNode applyUpcasterMethods(
+      ObjectNode root, List<Map<FieldChange, JsonNode>> upcastMethods) {
+    for (Map<FieldChange, JsonNode> methods : upcastMethods) {
+      for (Map.Entry<FieldChange, JsonNode> entry : methods.entrySet()) {
+        switch (entry.getKey().type()) {
+          case ADD:
+            break;
+          case DELETE:
+            break;
+          case TYPE_CHANGE:
+            break;
+          case RENAME:
+            break;
+        }
+      }
+    }
+    return root;
   }
 }

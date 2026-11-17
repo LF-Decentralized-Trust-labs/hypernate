@@ -159,7 +159,7 @@ class HypernateEntitySerializerTest {
     @Test
     void given_mismatched_version_when_deserialized_then_throws_serialization_exception() {
       final byte[] buffer =
-          "{\"foo\":\"fooValue\",\"bar\":110,\"hypernate\":{\"type\":\"Person\",\"version\":1}}"
+          "{\"foo\":\"fooValue\",\"bar\":110,\"hypernate\":{\"type\":\"Person\",\"version\":3}}"
               .getBytes(StandardCharsets.UTF_8);
 
       final SerializationException exception =

@@ -1,14 +1,20 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 package hu.bme.mit.ftsrg.hypernate.schemaregistry;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jcabi.aspects.Loggable;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
 import hu.bme.mit.ftsrg.hypernate.context.HypernateContext;
 import hu.bme.mit.ftsrg.hypernate.mappers.IntegerZeroPadder;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataInventory;
+import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.HypernateSchemaDiffer.FieldChange;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.hyperledger.fabric.shim.ChaincodeStub;
@@ -110,5 +116,21 @@ public class SchemaRegistry {
     }
     ctx.getLedgerVerifiedCache().put(schemaKey, schemaBytes);
     return schemaBytes;
+  }
+
+  public List<Map<FieldChange, JsonNode>> upcastMethods(
+      HypernateContext ctx, String entityType, int fromVersion, int toVersion) {
+    List<Map<FieldChange, JsonNode>> changes = new ArrayList<>();
+    for (int i = fromVersion; i < toVersion; i++) {
+      byte[] oldSchema = getSchema(ctx, entityType, i);
+      byte[] newSchema = getSchema(ctx, entityType, i + 1);
+      try {
+        HypernateSchemaDiffer schemaDiffer = new HypernateSchemaDiffer(oldSchema, newSchema);
+        changes.add(schemaDiffer.getCahnges());
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to generate upcaster for: " + entityType);
+      }
+    }
+    return changes;
   }
 }
