@@ -19,21 +19,15 @@ public class HypernateSchemaDiffer {
 
   ObjectMapper mapper;
 
-  private record FieldChange(String fieldName, HypernateShemaChangeType type) {}
+  public record FieldChange(String fieldName, HypernateShemaChangeType type) {}
 
   @Getter private final Map<FieldChange, JsonNode> cahnges = new ConcurrentHashMap<>();
   private final Map<String, Set<String>> allowedTypeChanges =
       Map.of(
-          "byte",
-          Set.of("short", "int", "long", "float", "double"),
-          "short",
-          Set.of("int", "long", "float", "double"),
-          "char",
-          Set.of("int", "long", "float", "double"),
-          "int",
-          Set.of("long", "double"),
-          "float",
-          Set.of("double"));
+          "integer|int32", Set.of("integer|int64", "number|float", "number|double", "number"),
+          "integer|int64", Set.of("number|double", "number"),
+          "number|float", Set.of("number|double", "number"),
+          "integer", Set.of("number"));
 
   public HypernateSchemaDiffer(byte[] oldSchema, byte[] newSchema) throws IOException {
     this.mapper =
@@ -63,7 +57,9 @@ public class HypernateSchemaDiffer {
       } else {
         JsonNode newField = newProperties.get(oldFieldEntry.getKey());
         if (!oldField.equals(newField)) {
-          checkTypeConversion(oldField.get("type").asText(), newField.get("type").asText());
+          String oldType = extractKey(oldField);
+          String newType = extractKey(newField);
+          checkTypeConversion(oldType, newType);
           cahnges.put(
               new FieldChange(oldFieldEntry.getKey(), HypernateShemaChangeType.TYPE_CHANGE),
               newField);
@@ -91,5 +87,17 @@ public class HypernateSchemaDiffer {
     if (allowedTargets == null || !allowedTargets.contains(toType)) {
       throw new InvalidTypeChangeException(fromType, toType);
     }
+  }
+
+  private String extractKey(JsonNode fieldNode) {
+    if (fieldNode == null || !fieldNode.has("type")) {
+      return "unknown";
+    }
+
+    String type = fieldNode.get("type").asText();
+    if (fieldNode.has("format")) {
+      return type + "|" + fieldNode.get("format").asText();
+    }
+    return type;
   }
 }
