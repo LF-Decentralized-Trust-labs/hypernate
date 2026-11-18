@@ -101,8 +101,7 @@ class HypernateSchemaDifferTest {
     @Test
     void given_field_removed_in_new_schema_then_detected_as_delete() throws IOException {
       byte[] oldSchema =
-          createSchema(
-              "\"name\":{\"type\":\"string\"},\"deprecated\":{\"type\":\"string\"}");
+          createSchema("\"name\":{\"type\":\"string\"},\"deprecated\":{\"type\":\"string\"}");
       byte[] newSchema = createSchema("\"name\":{\"type\":\"string\"}");
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
@@ -131,10 +130,8 @@ class HypernateSchemaDifferTest {
 
       Map<FieldChange, JsonNode> changes = differ.getCahnges();
       assertEquals(2, changes.size());
-      assertTrue(
-          changes.containsKey(new FieldChange("remove1", HypernateShemaChangeType.DELETE)));
-      assertTrue(
-          changes.containsKey(new FieldChange("remove2", HypernateShemaChangeType.DELETE)));
+      assertTrue(changes.containsKey(new FieldChange("remove1", HypernateShemaChangeType.DELETE)));
+      assertTrue(changes.containsKey(new FieldChange("remove2", HypernateShemaChangeType.DELETE)));
     }
   }
 
@@ -325,8 +322,7 @@ class HypernateSchemaDifferTest {
       byte[] newSchema = createSchema("\"val\":{\"type\":\"number\",\"format\":\"float\"}");
 
       assertThrows(
-          InvalidTypeChangeException.class,
-          () -> new HypernateSchemaDiffer(oldSchema, newSchema));
+          InvalidTypeChangeException.class, () -> new HypernateSchemaDiffer(oldSchema, newSchema));
     }
 
     @Test
@@ -335,8 +331,7 @@ class HypernateSchemaDifferTest {
       byte[] newSchema = createSchema("\"flag\":{\"type\":\"integer\"}");
 
       assertThrows(
-          InvalidTypeChangeException.class,
-          () -> new HypernateSchemaDiffer(oldSchema, newSchema));
+          InvalidTypeChangeException.class, () -> new HypernateSchemaDiffer(oldSchema, newSchema));
     }
   }
 
@@ -388,10 +383,8 @@ class HypernateSchemaDifferTest {
       Map<FieldChange, JsonNode> changes = differ.getCahnges();
       assertEquals(3, changes.size());
 
-      assertTrue(
-          changes.containsKey(new FieldChange("obsolete", HypernateShemaChangeType.DELETE)));
-      assertTrue(
-          changes.containsKey(new FieldChange("replacement", HypernateShemaChangeType.ADD)));
+      assertTrue(changes.containsKey(new FieldChange("obsolete", HypernateShemaChangeType.DELETE)));
+      assertTrue(changes.containsKey(new FieldChange("replacement", HypernateShemaChangeType.ADD)));
       assertTrue(
           changes.containsKey(new FieldChange("count", HypernateShemaChangeType.TYPE_CHANGE)));
     }
