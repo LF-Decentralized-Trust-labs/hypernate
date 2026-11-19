@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,7 +54,7 @@ public class HypernateSchemaDiffer {
     JsonNode renameNode = newNode.at("/upcastMethods/renames");
     Set<String> renamedOldFields = new HashSet<>();
     Set<String> renamedNewFields = new HashSet<>();
-    if(renameNode.isObject()){
+    if (renameNode.isObject()) {
       Iterator<Entry<String, JsonNode>> renameFields = renameNode.fields();
       while (renameFields.hasNext()) {
         Entry<String, JsonNode> renameFieldEntry = renameFields.next();
@@ -64,7 +63,8 @@ public class HypernateSchemaDiffer {
         if (oldProperties.has(oldName) && newProperties.has(newName)) {
           renamedNewFields.add(newName);
           renamedOldFields.add(oldName);
-          changes.put(new FieldChange(newName, HypernateShemaChangeType.RENAME), new TextNode(oldName));
+          changes.put(
+              new FieldChange(newName, HypernateShemaChangeType.RENAME), new TextNode(oldName));
         }
       }
     }
@@ -73,7 +73,7 @@ public class HypernateSchemaDiffer {
       Entry<String, JsonNode> oldFieldEntry = oldFields.next();
       JsonNode oldField = oldFieldEntry.getValue();
 
-      if(renamedOldFields.contains(oldFieldEntry.getKey())){
+      if (renamedOldFields.contains(oldFieldEntry.getKey())) {
         continue;
       }
 
@@ -98,7 +98,7 @@ public class HypernateSchemaDiffer {
       Entry<String, JsonNode> newFieldEntry = newFields.next();
       JsonNode newField = newFieldEntry.getValue();
 
-      if(renamedNewFields.contains(newFieldEntry.getKey())){
+      if (renamedNewFields.contains(newFieldEntry.getKey())) {
         continue;
       }
       if (!oldProperties.has(newFieldEntry.getKey())) {

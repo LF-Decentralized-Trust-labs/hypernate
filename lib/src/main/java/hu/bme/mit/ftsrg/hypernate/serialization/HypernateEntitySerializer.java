@@ -132,8 +132,7 @@ public class HypernateEntitySerializer implements EntitySerializer {
             JsonNode field = entry.getValue();
             String fieldName = entry.getKey().fieldName();
             String schemaType = field.has("type") ? field.get("type").asText() : null;
-            String schemaFormat =
-                field.has("format") ? field.get("format").asText() : null;
+            String schemaFormat = field.has("format") ? field.get("format").asText() : null;
             addDefaultValue(root, fieldName, schemaType, schemaFormat);
             break;
           case DELETE:
@@ -153,7 +152,7 @@ public class HypernateEntitySerializer implements EntitySerializer {
           case RENAME:
             String oldFieldName = entry.getValue().asText();
             String newFiealdName = entry.getKey().fieldName();
-            if(root.has(oldFieldName)){
+            if (root.has(oldFieldName)) {
               JsonNode value = root.remove(oldFieldName);
               root.set(newFiealdName, value);
             }
