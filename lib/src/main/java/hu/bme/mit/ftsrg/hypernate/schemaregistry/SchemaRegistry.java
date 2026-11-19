@@ -126,7 +126,7 @@ public class SchemaRegistry {
       byte[] newSchema = getSchema(ctx, entityType, i + 1);
       try {
         HypernateSchemaDiffer schemaDiffer = new HypernateSchemaDiffer(oldSchema, newSchema);
-        changes.add(schemaDiffer.getCahnges());
+        changes.add(schemaDiffer.getChanges());
       } catch (IOException e) {
         throw new RuntimeException("Failed to generate upcaster for: " + entityType);
       }

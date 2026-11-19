@@ -7,7 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,7 +24,7 @@ public class HypernateSchemaDiffer {
 
   public record FieldChange(String fieldName, HypernateShemaChangeType type) {}
 
-  @Getter private final Map<FieldChange, JsonNode> cahnges = new ConcurrentHashMap<>();
+  @Getter private final Map<FieldChange, JsonNode> changes = new ConcurrentHashMap<>();
   private final Map<String, Set<String>> allowedTypeChanges =
       Map.of(
           "integer|int32",
@@ -49,13 +52,33 @@ public class HypernateSchemaDiffer {
   private void calculateDifference(ObjectNode oldNode, ObjectNode newNode) {
     ObjectNode oldProperties = (ObjectNode) oldNode.get("properties");
     ObjectNode newProperties = (ObjectNode) newNode.get("properties");
-
+    JsonNode renameNode = newNode.at("/upcastMethods/renames");
+    Set<String> renamedOldFields = new HashSet<>();
+    Set<String> renamedNewFields = new HashSet<>();
+    if(renameNode.isObject()){
+      Iterator<Entry<String, JsonNode>> renameFields = renameNode.fields();
+      while (renameFields.hasNext()) {
+        Entry<String, JsonNode> renameFieldEntry = renameFields.next();
+        String newName = renameFieldEntry.getKey();
+        String oldName = renameFieldEntry.getValue().asText();
+        if (oldProperties.has(oldName) && newProperties.has(newName)) {
+          renamedNewFields.add(newName);
+          renamedOldFields.add(oldName);
+          changes.put(new FieldChange(newName, HypernateShemaChangeType.RENAME), new TextNode(oldName));
+        }
+      }
+    }
     Iterator<Entry<String, JsonNode>> oldFields = oldProperties.fields();
     while (oldFields.hasNext()) {
       Entry<String, JsonNode> oldFieldEntry = oldFields.next();
       JsonNode oldField = oldFieldEntry.getValue();
+
+      if(renamedOldFields.contains(oldFieldEntry.getKey())){
+        continue;
+      }
+
       if (!newProperties.has(oldFieldEntry.getKey())) {
-        cahnges.put(
+        changes.put(
             new FieldChange(oldFieldEntry.getKey(), HypernateShemaChangeType.DELETE), oldField);
       } else {
         JsonNode newField = newProperties.get(oldFieldEntry.getKey());
@@ -63,7 +86,7 @@ public class HypernateSchemaDiffer {
           String oldType = extractKey(oldField);
           String newType = extractKey(newField);
           checkTypeConversion(oldType, newType);
-          cahnges.put(
+          changes.put(
               new FieldChange(oldFieldEntry.getKey(), HypernateShemaChangeType.TYPE_CHANGE),
               newField);
         }
@@ -74,8 +97,12 @@ public class HypernateSchemaDiffer {
     while (newFields.hasNext()) {
       Entry<String, JsonNode> newFieldEntry = newFields.next();
       JsonNode newField = newFieldEntry.getValue();
+
+      if(renamedNewFields.contains(newFieldEntry.getKey())){
+        continue;
+      }
       if (!oldProperties.has(newFieldEntry.getKey())) {
-        cahnges.put(
+        changes.put(
             new FieldChange(newFieldEntry.getKey(), HypernateShemaChangeType.ADD), newField);
       }
     }

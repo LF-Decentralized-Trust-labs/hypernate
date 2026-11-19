@@ -130,11 +130,10 @@ public class HypernateEntitySerializer implements EntitySerializer {
         switch (entry.getKey().type()) {
           case ADD:
             JsonNode field = entry.getValue();
-            String fieldName = field.fieldNames().next();
-            JsonNode fieldSchema = field.get(fieldName);
-            String schemaType = fieldSchema.has("type") ? fieldSchema.get("type").asText() : null;
+            String fieldName = entry.getKey().fieldName();
+            String schemaType = field.has("type") ? field.get("type").asText() : null;
             String schemaFormat =
-                fieldSchema.has("format") ? fieldSchema.get("format").asText() : null;
+                field.has("format") ? field.get("format").asText() : null;
             addDefaultValue(root, fieldName, schemaType, schemaFormat);
             break;
           case DELETE:
@@ -142,8 +141,8 @@ public class HypernateEntitySerializer implements EntitySerializer {
             break;
           case TYPE_CHANGE:
             JsonNode changedField = entry.getValue();
-            String changedFieldName = changedField.fieldNames().next();
-            String newType = changedField.get(changedFieldName).get("type").asText();
+            String changedFieldName = entry.getKey().fieldName();
+            String newType = changedField.get("type").asText();
             if (newType.equalsIgnoreCase("string")) {
               JsonNode oldValue = root.get(changedFieldName);
               if (oldValue != null && !oldValue.isNull()) {
@@ -152,6 +151,12 @@ public class HypernateEntitySerializer implements EntitySerializer {
             }
             break;
           case RENAME:
+            String oldFieldName = entry.getValue().asText();
+            String newFiealdName = entry.getKey().fieldName();
+            if(root.has(oldFieldName)){
+              JsonNode value = root.remove(oldFieldName);
+              root.set(newFiealdName, value);
+            }
             break;
         }
       }
@@ -166,7 +171,7 @@ public class HypernateEntitySerializer implements EntitySerializer {
     }
     switch (type) {
       case "integer":
-        if (format.equals("int64")) {
+        if ("int64".equals(format)) {
           root.put(fieldName, HypernateDefaultValues.DEFAULT_LONG);
         } else {
           root.put(fieldName, HypernateDefaultValues.DEFAULT_INT);

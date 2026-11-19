@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.Option;
 import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -14,6 +15,8 @@ import com.github.victools.jsonschema.generator.SchemaGeneratorConfig;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
+import hu.bme.mit.ftsrg.hypernate.annotations.RenamedFrom;
+import java.lang.reflect.Field;
 
 public class HypernateSchemaGenerator {
   private final ObjectMapper deterministicMapper;
@@ -38,7 +41,20 @@ public class HypernateSchemaGenerator {
 
   public byte[] generateSchema(Class<?> entityClass) {
     try {
-      JsonNode schemaNode = generator.generateSchema(entityClass);
+      ObjectNode schemaNode = generator.generateSchema(entityClass);
+      ObjectNode ruleNode = schemaNode.putObject("upcastMethods");
+      ObjectNode renamesNode = ruleNode.putObject("renames");
+      hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion schemaVersion =
+          entityClass.getAnnotation(hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion.class);
+      int version = schemaVersion != null ? schemaVersion.value() : 1;
+      for (Field field : entityClass.getDeclaredFields()) {
+        RenamedFrom renamedFrom = field.getAnnotation(RenamedFrom.class);
+        if (renamedFrom != null) {
+          if (version == renamedFrom.since()) {
+            renamesNode.put(field.getName(), renamedFrom.value());
+          }
+        }
+      }
       Object mapRepresentation = deterministicMapper.treeToValue(schemaNode, Object.class);
       return deterministicMapper.writeValueAsBytes(mapRepresentation);
     } catch (JsonProcessingException e) {

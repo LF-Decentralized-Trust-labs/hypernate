@@ -35,7 +35,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(schema, schema);
 
-      assertTrue(differ.getCahnges().isEmpty());
+      assertTrue(differ.getChanges().isEmpty());
     }
 
     @Test
@@ -49,7 +49,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      assertTrue(differ.getCahnges().isEmpty());
+      assertTrue(differ.getChanges().isEmpty());
     }
   }
 
@@ -65,7 +65,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       assertEquals(1, changes.size());
 
       FieldChange expectedChange = new FieldChange("email", HypernateShemaChangeType.ADD);
@@ -88,7 +88,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       assertEquals(2, changes.size());
       assertTrue(changes.containsKey(new FieldChange("firstName", HypernateShemaChangeType.ADD)));
       assertTrue(changes.containsKey(new FieldChange("lastName", HypernateShemaChangeType.ADD)));
@@ -106,7 +106,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       assertEquals(1, changes.size());
 
       FieldChange expectedChange = new FieldChange("deprecated", HypernateShemaChangeType.DELETE);
@@ -128,7 +128,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       assertEquals(2, changes.size());
       assertTrue(changes.containsKey(new FieldChange("remove1", HypernateShemaChangeType.DELETE)));
       assertTrue(changes.containsKey(new FieldChange("remove2", HypernateShemaChangeType.DELETE)));
@@ -145,7 +145,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       assertEquals(1, changes.size());
 
       FieldChange expected = new FieldChange("score", HypernateShemaChangeType.TYPE_CHANGE);
@@ -160,7 +160,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("score", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
       assertEquals("number", changes.get(expected).get("type").asText());
@@ -174,7 +174,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("score", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
       assertEquals("number", changes.get(expected).get("type").asText());
@@ -188,7 +188,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("score", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
       assertEquals("number", changes.get(expected).get("type").asText());
@@ -201,7 +201,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("score", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
     }
@@ -213,7 +213,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("score", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
     }
@@ -225,7 +225,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("ratio", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
     }
@@ -237,7 +237,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("ratio", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
     }
@@ -250,7 +250,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("count", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
     }
@@ -265,7 +265,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       FieldChange expected = new FieldChange("name", HypernateShemaChangeType.TYPE_CHANGE);
       assertTrue(changes.containsKey(expected));
     }
@@ -354,7 +354,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(oldSchema, newSchema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       assertEquals(3, changes.size());
 
       assertTrue(changes.containsKey(new FieldChange("added", HypernateShemaChangeType.ADD)));
@@ -380,7 +380,7 @@ class HypernateSchemaDifferTest {
 
       HypernateSchemaDiffer differ = new HypernateSchemaDiffer(v1Schema, v2Schema);
 
-      Map<FieldChange, JsonNode> changes = differ.getCahnges();
+      Map<FieldChange, JsonNode> changes = differ.getChanges();
       assertEquals(3, changes.size());
 
       assertTrue(changes.containsKey(new FieldChange("obsolete", HypernateShemaChangeType.DELETE)));
