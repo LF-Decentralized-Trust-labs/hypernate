@@ -11,6 +11,7 @@ import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
 import hu.bme.mit.ftsrg.hypernate.context.HypernateContext;
 import hu.bme.mit.ftsrg.hypernate.registry.SerializationException;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.HypernateDefaultValues;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.HypernateSchemaDiffer.FieldChange;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import java.io.IOException;
@@ -87,11 +88,11 @@ public class HypernateEntitySerializer implements EntitySerializer {
       int entityVersion = root.get(HYPERNATE_FIELD).get(VERSION_FIELD).asInt();
       String entityType = root.get(HYPERNATE_FIELD).get(TYPE_FIELD).asText();
       if (!entityType.equals(resolveEntityTypeName(clazz))) {
-        throw new SerializationException("Mismatch in the data version or in the entityType");
+        throw new SerializationException("Mismatch in the entityType");
       }
       int resolvedVersion = resolveSchemaVersion(clazz);
       if (entityVersion > resolvedVersion || entityVersion < 1) {
-        throw new SerializationException("Mismatch in the data version or in the entityType");
+        throw new SerializationException("Mismatch in the data version");
       }
       root.remove(HYPERNATE_FIELD);
       if (entityVersion < resolvedVersion) {
@@ -128,10 +129,27 @@ public class HypernateEntitySerializer implements EntitySerializer {
       for (Map.Entry<FieldChange, JsonNode> entry : methods.entrySet()) {
         switch (entry.getKey().type()) {
           case ADD:
+            JsonNode field = entry.getValue();
+            String fieldName = field.fieldNames().next();
+            JsonNode fieldSchema = field.get(fieldName);
+            String schemaType = fieldSchema.has("type") ? fieldSchema.get("type").asText() : null;
+            String schemaFormat =
+                fieldSchema.has("format") ? fieldSchema.get("format").asText() : null;
+            addDefaultValue(root, fieldName, schemaType, schemaFormat);
             break;
           case DELETE:
+            root.remove(entry.getKey().fieldName());
             break;
           case TYPE_CHANGE:
+            JsonNode changedField = entry.getValue();
+            String changedFieldName = changedField.fieldNames().next();
+            String newType = changedField.get(changedFieldName).get("type").asText();
+            if (newType.equalsIgnoreCase("string")) {
+              JsonNode oldValue = root.get(changedFieldName);
+              if (oldValue != null && !oldValue.isNull()) {
+                root.put(changedFieldName, oldValue.asText());
+              }
+            }
             break;
           case RENAME:
             break;
@@ -139,5 +157,33 @@ public class HypernateEntitySerializer implements EntitySerializer {
       }
     }
     return root;
+  }
+
+  private void addDefaultValue(ObjectNode root, String fieldName, String type, String format) {
+    if (type == null) {
+      root.putNull(fieldName);
+      return;
+    }
+    switch (type) {
+      case "integer":
+        if (format.equals("int64")) {
+          root.put(fieldName, HypernateDefaultValues.DEFAULT_LONG);
+        } else {
+          root.put(fieldName, HypernateDefaultValues.DEFAULT_INT);
+        }
+        break;
+      case "number":
+        root.put(fieldName, HypernateDefaultValues.DEFAULT_DOUBLE);
+        break;
+      case "string":
+        root.put(fieldName, HypernateDefaultValues.DEFAULT_STRING);
+        break;
+      case "boolean":
+        root.put(fieldName, HypernateDefaultValues.DEFAULT_BOOLEAN);
+        break;
+      default:
+        root.putNull(fieldName);
+        break;
+    }
   }
 }
