@@ -24,10 +24,13 @@ public class HypernateSchemaDiffer {
   @Getter private final Map<FieldChange, JsonNode> cahnges = new ConcurrentHashMap<>();
   private final Map<String, Set<String>> allowedTypeChanges =
       Map.of(
-          "integer|int32", Set.of("integer|int64", "number|float", "number|double", "number"),
-          "integer|int64", Set.of("number|double", "number"),
-          "number|float", Set.of("number|double", "number"),
-          "integer", Set.of("number"));
+          "integer|int32",
+              Set.of("integer|int64", "number|float", "number|double", "number", "string"),
+          "integer|int64", Set.of("number|double", "number", "string"),
+          "number|float", Set.of("number|double", "number", "string"),
+          "integer", Set.of("number", "string"),
+          "number", Set.of("string"),
+          "boolean", Set.of("string"));
 
   public HypernateSchemaDiffer(byte[] oldSchema, byte[] newSchema) throws IOException {
     this.mapper =
