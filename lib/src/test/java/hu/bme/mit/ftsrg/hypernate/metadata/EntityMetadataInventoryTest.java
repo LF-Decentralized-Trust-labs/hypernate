@@ -4,8 +4,10 @@ package hu.bme.mit.ftsrg.hypernate.metadata;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.KeyClass;
 import hu.bme.mit.ftsrg.hypernate.annotations.KeyOrder;
+import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.mappers.ObjectToString;
 import hu.bme.mit.ftsrg.hypernate.registry.ConflictingMetadataException;
 import hu.bme.mit.ftsrg.hypernate.registry.ConflictingOrderException;
@@ -15,6 +17,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import lombok.experimental.FieldNameConstants;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Nested;
@@ -154,6 +157,16 @@ class EntityMetadataInventoryTest {
       assertInstanceOf(MissingOrderException.class, e.getCause());
     }
 
+    @Test
+    void given_duplicate_key_sources_then_lookup_throws_conflict() {
+      final var e =
+          assertThrows(
+              ConflictingMetadataException.class,
+              () -> EntityMetadataInventory.getForClass(Crate.class));
+
+      assertTrue(e.getMessage().contains(Crate.class.getName()), e.getMessage());
+    }
+
     private static class Warehouse {
 
       String locationCode;
@@ -175,6 +188,17 @@ class EntityMetadataInventoryTest {
     // Malformed because KeyOrder is missing
     @KeyClass(Shelf.class)
     private record ShelfKey(String aisle) {}
+
+    // Crate deliberately gets its primary key info from two sources
+    @PrimaryKey(@AttributeInfo(name = Crate.Fields.serial))
+    @FieldNameConstants
+    private static class Crate {
+
+      String serial;
+    }
+
+    @KeyClass(Crate.class)
+    private record CrateKey(@KeyOrder(1) String serial) {}
   }
 
   /*
