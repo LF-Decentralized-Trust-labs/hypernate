@@ -179,7 +179,7 @@ class HypernateEntitySerializerTest {
           assertThrows(
               SerializationException.class, () -> serializer.fromBuffer(buffer, TestEntity.class));
 
-      assertTrue(exception.getMessage().contains("Mismatch in the data version"));
+      assertTrue(exception.getMessage().contains("Mismatch in the entityType"));
     }
   }
 

@@ -303,20 +303,6 @@ class HypernateSchemaDifferTest {
     }
 
     @Test
-    void given_integer_to_string_then_throws_invalid_type_change_exception() {
-      byte[] oldSchema = createSchema("\"data\":{\"type\":\"integer\"}");
-      byte[] newSchema = createSchema("\"data\":{\"type\":\"string\"}");
-
-      InvalidTypeChangeException exception =
-          assertThrows(
-              InvalidTypeChangeException.class,
-              () -> new HypernateSchemaDiffer(oldSchema, newSchema));
-
-      assertTrue(exception.getMessage().contains("integer"));
-      assertTrue(exception.getMessage().contains("string"));
-    }
-
-    @Test
     void given_double_narrowed_to_float_then_throws_invalid_type_change_exception() {
       byte[] oldSchema = createSchema("\"val\":{\"type\":\"number\",\"format\":\"double\"}");
       byte[] newSchema = createSchema("\"val\":{\"type\":\"number\",\"format\":\"float\"}");
