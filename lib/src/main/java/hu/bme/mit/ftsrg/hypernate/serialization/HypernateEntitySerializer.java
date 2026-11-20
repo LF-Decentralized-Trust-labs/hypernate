@@ -133,7 +133,12 @@ public class HypernateEntitySerializer implements EntitySerializer {
             String fieldName = entry.getKey().fieldName();
             String schemaType = field.has("type") ? field.get("type").asText() : null;
             String schemaFormat = field.has("format") ? field.get("format").asText() : null;
-            addDefaultValue(root, fieldName, schemaType, schemaFormat);
+            JsonNode schemaDefault = field.has("default") ? field.get("default") : null;
+            if (schemaDefault != null) {
+              root.set(fieldName, schemaDefault);
+            } else {
+              addDefaultValue(root, fieldName, schemaType, schemaFormat);
+            }
             break;
           case DELETE:
             root.remove(entry.getKey().fieldName());

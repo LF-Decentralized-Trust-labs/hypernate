@@ -15,6 +15,7 @@ import com.github.victools.jsonschema.generator.SchemaGeneratorConfig;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
+import hu.bme.mit.ftsrg.hypernate.annotations.DefaultValue;
 import hu.bme.mit.ftsrg.hypernate.annotations.RenamedFrom;
 import java.lang.reflect.Field;
 
@@ -44,15 +45,19 @@ public class HypernateSchemaGenerator {
       ObjectNode schemaNode = generator.generateSchema(entityClass);
       ObjectNode ruleNode = schemaNode.putObject("upcastMethods");
       ObjectNode renamesNode = ruleNode.putObject("renames");
+      ObjectNode defaultNode = ruleNode.putObject("defaults");
       hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion schemaVersion =
           entityClass.getAnnotation(hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion.class);
       int version = schemaVersion != null ? schemaVersion.value() : 1;
       for (Field field : entityClass.getDeclaredFields()) {
         RenamedFrom renamedFrom = field.getAnnotation(RenamedFrom.class);
-        if (renamedFrom != null) {
-          if (version == renamedFrom.since()) {
-            renamesNode.put(field.getName(), renamedFrom.value());
-          }
+        if (renamedFrom != null && version == renamedFrom.since()) {
+          renamesNode.put(field.getName(), renamedFrom.value());
+        }
+        DefaultValue defaultValue = field.getAnnotation(DefaultValue.class);
+        if (defaultValue != null && version == defaultValue.since()) {
+          JsonNode defaultJson = deterministicMapper.readTree(defaultValue.value());
+          defaultNode.set(field.getName(), defaultJson);
         }
       }
       Object mapRepresentation = deterministicMapper.treeToValue(schemaNode, Object.class);

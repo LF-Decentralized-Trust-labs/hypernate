@@ -52,6 +52,7 @@ public class HypernateSchemaDiffer {
     ObjectNode oldProperties = (ObjectNode) oldNode.get("properties");
     ObjectNode newProperties = (ObjectNode) newNode.get("properties");
     JsonNode renameNode = newNode.at("/upcastMethods/renames");
+    JsonNode defaultNode = newNode.at("/upcastMethods/defaults");
     Set<String> renamedOldFields = new HashSet<>();
     Set<String> renamedNewFields = new HashSet<>();
     if (renameNode.isObject()) {
@@ -102,6 +103,9 @@ public class HypernateSchemaDiffer {
         continue;
       }
       if (!oldProperties.has(newFieldEntry.getKey())) {
+        if (defaultNode.isObject() && defaultNode.has(newFieldEntry.getKey())) {
+          ((ObjectNode) newField).set("default", defaultNode.get(newFieldEntry.getKey()));
+        }
         changes.put(
             new FieldChange(newFieldEntry.getKey(), HypernateShemaChangeType.ADD), newField);
       }
