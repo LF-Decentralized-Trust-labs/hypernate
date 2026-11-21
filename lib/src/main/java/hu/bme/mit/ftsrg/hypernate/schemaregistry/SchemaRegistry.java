@@ -7,7 +7,6 @@ import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
 import hu.bme.mit.ftsrg.hypernate.context.HypernateContext;
 import hu.bme.mit.ftsrg.hypernate.mappers.IntegerZeroPadder;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataInventory;
-import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class SchemaRegistry {
                   + "' is reserved for internal Hypernate schema storage.");
         }
       }
-      String entityTypeName = new EntityMetadataProvider().typeStringFor(clazz);
+      String entityTypeName = entityType != null ? entityType.value() : clazz.getName();
       if (localCache.containsKey(entityTypeName)) {
         throw new IllegalArgumentException(
             "Type collision: two different classes use the same entity type name: "

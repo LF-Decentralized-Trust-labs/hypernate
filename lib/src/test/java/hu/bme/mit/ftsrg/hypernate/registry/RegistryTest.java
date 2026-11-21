@@ -11,7 +11,6 @@ import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
 import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
-import hu.bme.mit.ftsrg.hypernate.registry.*;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
