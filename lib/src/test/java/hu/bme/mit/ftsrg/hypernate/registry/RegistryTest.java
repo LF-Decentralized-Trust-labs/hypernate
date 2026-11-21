@@ -10,7 +10,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import hu.bme.mit.ftsrg.hypernate.annotations.AttributeInfo;
 import hu.bme.mit.ftsrg.hypernate.annotations.EntityType;
 import hu.bme.mit.ftsrg.hypernate.annotations.PrimaryKey;
-import hu.bme.mit.ftsrg.hypernate.util.JSON;
+import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -43,20 +44,23 @@ class RegistryTest {
   private static final byte[] ENTITY_BUFFER;
 
   static {
-    try {
-      ENTITY_BUFFER = JSON.serialize(entity).getBytes(StandardCharsets.UTF_8);
-    } catch (SerializationException e) {
-      throw new RuntimeException(e);
-    }
+    ENTITY_BUFFER =
+        ("{\"bar\":110,\"foo\":\"fooValue\","
+                + "\"hypernate\":{\"type\":\""
+                + TestEntity.class.getName()
+                + "\",\"version\":1}}")
+            .getBytes(StandardCharsets.UTF_8);
   }
 
   @Mock private ChaincodeStub stub;
+
+  @Mock private SchemaRegistry SCHEMA_REGISTRY;
 
   private Registry registry;
 
   @BeforeEach
   void setup() {
-    registry = new Registry(stub);
+    registry = new Registry(stub, SCHEMA_REGISTRY);
   }
 
   @Test
@@ -79,6 +83,7 @@ class RegistryTest {
   }
 
   @FieldNameConstants
+  @SchemaVersion(1)
   @PrimaryKey({
     @AttributeInfo(name = TestEntity.Fields.foo),
     @AttributeInfo(name = TestEntity.Fields.bar)

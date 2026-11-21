@@ -5,8 +5,11 @@ import hu.bme.mit.ftsrg.hypernate.middleware.StubMiddleware;
 import hu.bme.mit.ftsrg.hypernate.middleware.StubMiddlewareChain;
 import hu.bme.mit.ftsrg.hypernate.middleware.notification.HypernateNotification;
 import hu.bme.mit.ftsrg.hypernate.registry.Registry;
+import hu.bme.mit.ftsrg.hypernate.schemaregistry.SchemaRegistry;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Flow;
 import java.util.concurrent.Flow.Subscriber;
 import lombok.Getter;
@@ -30,11 +33,14 @@ public class HypernateContext extends Context {
 
   @Getter private final Registry registry;
 
-  public HypernateContext(final StubMiddlewareChain middlewareChain) {
+  @Getter private final Map<String, byte[]> ledgerVerifiedCache = new ConcurrentHashMap<>();
+
+  public HypernateContext(
+      final StubMiddlewareChain middlewareChain, SchemaRegistry schemaRegistry) {
     super(middlewareChain.getFirst());
     this.middlewareChain = middlewareChain;
     this.fabricStub = middlewareChain.fabricStub();
-    this.registry = new Registry(middlewareChain.getFirst());
+    this.registry = new Registry(this, schemaRegistry);
   }
 
   /**
