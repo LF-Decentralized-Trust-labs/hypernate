@@ -8,7 +8,6 @@ import hu.bme.mit.ftsrg.hypernate.annotations.SchemaVersion;
 import hu.bme.mit.ftsrg.hypernate.context.HypernateContext;
 import hu.bme.mit.ftsrg.hypernate.mappers.IntegerZeroPadder;
 import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataInventory;
-import hu.bme.mit.ftsrg.hypernate.metadata.EntityMetadataProvider;
 import hu.bme.mit.ftsrg.hypernate.schemaregistry.HypernateSchemaDiffer.FieldChange;
 import java.io.IOException;
 import java.util.ArrayList;
